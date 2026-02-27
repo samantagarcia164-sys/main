@@ -2,81 +2,137 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vôlei Pro - iOS 26</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Vôlei Pro - Liquid Glass iOS 26</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
-        .active-tab { border-bottom: 3px solid #007aff; font-weight: 700; color: #007aff; }
+        :root { --ios-blue: #007aff; --ios-green: #34c759; --ios-red: #ff3b30; --ios-orange: #ff9500; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background-color: #000; color: #fff; overflow-x: hidden; }
+        
+        /* Fundo Líquido Animado */
+        .liquid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: linear-gradient(135deg, #1d1d1f 0%, #000000 100%); overflow: hidden; }
+        .metaball { position: absolute; border-radius: 50%; background: rgba(0, 122, 255, 0.15); filter: blur(50px); animation: liquid-float 20s infinite ease-in-out; opacity: 0.6; }
+        .metaball:nth-child(1) { width: 300px; height: 300px; top: -100px; left: -100px; background: rgba(52, 199, 89, 0.15); animation-delay: -5s; }
+        .metaball:nth-child(2) { width: 400px; height: 400px; bottom: -150px; right: -150px; background: rgba(255, 149, 0, 0.15); animation-delay: -10s; }
+        .metaball:nth-child(3) { width: 250px; height: 250px; top: 40%; left: 30%; background: rgba(255, 59, 48, 0.1); animation-delay: -15s; }
+        @keyframes liquid-float { 0%, 100% { transform: translate(0, 0) scale(1); } 25% { transform: translate(50px, -50px) scale(1.1); } 50% { transform: translate(-30px, 60px) scale(0.9); } 75% { transform: translate(-60px, -30px) scale(1.05); } }
+
+        /* Estilo Vidro Líquido (Glassmorphism) */
+        .glass-card { background: rgba(255, 255, 255, 0.05); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .glass-header { background: rgba(0, 0, 0, 0.5); -webkit-backdrop-filter: blur(25px); backdrop-filter: blur(25px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-menu { background: rgba(25, 25, 27, 0.6); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .glass-input { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); color: #fff; transition: background 0.2s; }
+        .glass-input:focus { background: rgba(255, 255, 255, 0.1); outline: none; border-color: rgba(0, 122, 255, 0.5); }
+        
+        /* Botões Líquidos */
+        .ios-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        .ios-btn:active { transform: scale(0.96); opacity: 0.8; }
+        .ios-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; transform: translate(-50%, -50%) scale(0); opacity: 0; transition: transform 0.3s, opacity 0.3s; }
+        .ios-btn:active::after { transform: translate(-50%, -50%) scale(2); opacity: 1; transition: 0s; }
+
+        /* Tabs de Navegação */
+        .active-tab { color: #fff; font-weight: 600; position: relative; }
+        .active-tab::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 20px; height: 3px; background: #fff; border-radius: 2px; animation: tab-slide 0.3s ease-out; }
+        @keyframes tab-slide { from { width: 0; opacity: 0; } to { width: 20px; opacity: 1; } }
+        .tab-btn { transition: color 0.2s; }
+        
         .hidden { display: none; }
-        .ios-card { background: #ffffff; border: 1px solid #e5e5ea; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .ios-btn:active { transform: scale(0.97); opacity: 0.8; }
-        @keyframes shuffle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
-        .shuffling { animation: shuffle 0.2s infinite; }
+        .status-badge { text-transform: uppercase; letter-spacing: 0.08em; font-size: 9px; font-weight: 800; }
+        .animate-in { animation: fade-in-up 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Animação Bolhas de Sorteio */
+        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; overflow: hidden; display: none; }
+        .bubble { position: absolute; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); color: rgba(255, 255, 255, 0.9); font-size: 11px; font-weight: 600; padding: 10px 18px; border-radius: 30px; white-space: nowrap; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); animation: bubble-float linear infinite; opacity: 0; }
+        @keyframes bubble-float { 
+            0% { transform: translateY(110vh) translateX(0px) scale(0.8); opacity: 0; }
+            10% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-20vh) translateX(0px) scale(1.1); opacity: 0; }
+        }
     </style>
 </head>
-<body class="bg-[#f2f2f7] min-h-screen text-[#1c1c1e] pb-10">
+<body class="pb-24">
 
-    <div class="max-w-md mx-auto p-4 space-y-4">
+    <div class="liquid-bg">
+        <div class="metaball"></div>
+        <div class="metaball"></div>
+        <div class="metaball"></div>
+    </div>
+
+    <div class="max-w-md mx-auto min-h-screen flex flex-col">
         
-        <div class="flex justify-between items-end pb-2">
-            <h1 class="text-3xl font-black tracking-tighter text-slate-900 text-shadow-sm">Vôlei App</h1>
-            <div class="bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3">
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-gray-400 uppercase leading-none">Copia e Cola</span>
-                    <span class="text-xs font-bold text-slate-700">11959154029</span>
-                </div>
-                <button onclick="copiarPix()" class="bg-blue-50 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-all">
-                    <i class="far fa-copy"></i>
-                </button>
+        <header class="glass-header sticky top-0 z-50 p-4 pt-10 pb-4 flex items-center justify-between">
+            <h1 class="text-3xl font-extrabold tracking-tighter text-white">Vôlei <span class="text-gray-500">Grupo</span></h1>
+            <div onclick="copiarPix()" class="flex items-center space-x-2 text-xs font-semibold text-gray-400 p-2 rounded-xl bg-gray-900 border border-gray-800 cursor-pointer active:scale-95 transition-all">
+                <span>PIX: 11959154029</span>
+                <i class="far fa-copy text-gray-500"></i>
             </div>
+        </header>
+
+        <div id="pixNotificacao" class="fixed top-24 right-4 glass-card px-4 py-2 rounded-full text-xs font-medium text-white opacity-0 pointer-events-none transition-opacity duration-300 z-50 shadow-lg">
+            Pix copiado!
         </div>
 
-        <div class="flex border-b border-gray-200 mb-4 sticky top-0 bg-[#f2f2f7]/80 backdrop-blur-md z-10">
-            <button onclick="mudarAba('lista')" id="btn-lista" class="flex-1 py-4 active-tab text-[11px] font-black uppercase tracking-widest transition-all">Lista</button>
-            <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="flex-1 py-4 text-[11px] font-black uppercase tracking-widest text-gray-400 transition-all">Sortear</button>
-            <button onclick="mudarAba('historico')" id="btn-historico" class="flex-1 py-4 text-[11px] font-black uppercase tracking-widest text-gray-400 transition-all">Histórico</button>
-        </div>
+        <main class="flex-1 p-4 pt-6 space-y-6">
+            
+            <div id="aba-lista" class="space-y-6">
+                <div class="glass-card rounded-3xl p-5 border border-gray-800/50 space-y-3 shadow-inner">
+                    <div class="flex justify-between items-center text-xs font-semibold text-gray-300">
+                        <span class="tracking-tight">Progresso da Quadra (R$ 350,00)</span>
+                        <span id="valorPorPessoa" class="text-white font-bold">R$ 0,00/pessoa</span>
+                    </div>
+                    <div class="w-full bg-gray-800/50 rounded-full h-3 overflow-hidden border border-gray-700/50">
+                        <div id="barraProgresso" class="bg-white h-full rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(255,255,255,0.2)]" style="width: 0%"></div>
+                    </div>
+                    <p id="statusFinanceiro" class="text-[11px] font-medium text-gray-400 text-center italic">Calculando...</p>
+                </div>
 
-        <div id="aba-lista" class="space-y-4">
-            <div class="ios-card rounded-3xl p-5 space-y-3">
-                <div class="flex justify-between text-[11px] font-black uppercase text-gray-400 tracking-tighter">
-                    <span>Meta da Quadra</span>
-                    <span id="valorPorPessoa" class="text-blue-600">R$ 0,00/p</span>
+                <div class="flex gap-2.5 items-center">
+                    <input type="text" id="nomeJogador" placeholder="Nome do atleta..." class="glass-input flex-1 p-4 rounded-2xl text-sm w-full">
+                    <button onclick="window.adicionarJogador()" class="ios-btn bg-white text-black px-6 py-4 rounded-2xl font-bold shadow-lg text-sm flex items-center justify-center">
+                        <i class="fas fa-plus mr-2 text-xs"></i>Add
+                    </button>
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-50">
-                    <div id="barraProgresso" class="bg-green-500 h-full transition-all duration-1000 shadow-[0_0_10px_rgba(34,197,94,0.3)]" style="width: 0%"></div>
-                </div>
-                <div class="flex justify-center">
-                    <p id="statusFinanceiro" class="text-[11px] font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic">Calculando...</p>
-                </div>
+
+                <ul id="listaJogadores" class="space-y-3"></ul>
             </div>
 
-            <div class="flex gap-2">
-                <input type="text" id="nomeJogador" placeholder="Nome do atleta..." class="flex-1 p-4 rounded-2xl border-none shadow-inner outline-none text-sm bg-white focus:ring-2 focus:ring-blue-100">
-                <button onclick="window.adicionarJogador()" class="ios-btn bg-blue-600 text-white px-7 rounded-2xl font-black shadow-lg shadow-blue-100">+</button>
-            </div>
-            <ul id="listaJogadores" class="space-y-2.5"></ul>
-        </div>
-
-        <div id="aba-sorteio" class="hidden space-y-4">
-            <div class="ios-card rounded-3xl p-6 text-center space-y-5">
-                <div class="flex justify-center items-center gap-5">
-                    <span class="text-sm font-black text-slate-600 uppercase tracking-tight">Jogadores por Time</span>
-                    <input type="number" id="qtdPorTime" value="6" class="w-14 p-3 rounded-2xl bg-gray-50 text-center font-black text-blue-600 border border-gray-100">
+            <div id="aba-sorteio" class="hidden space-y-6">
+                <div class="glass-card rounded-3xl p-6 border border-gray-800/50 space-y-4">
+                    <h2 class="font-bold text-white flex items-center text-sm"><i class="fas fa-info-circle text-gray-500 mr-2"></i>Apenas jogadores com PIX OK serão sorteados.</h2>
+                    <div class="flex items-center gap-4 bg-gray-900 p-3 rounded-2xl border border-gray-800">
+                        <label class="text-sm font-medium text-gray-300 flex-1">Jogadores por time:</label>
+                        <input type="number" id="qtdPorTime" value="6" class="glass-input w-20 p-2.5 rounded-xl text-center font-semibold text-sm">
+                    </div>
+                    <button onclick="animarESortearBolhas()" class="ios-btn w-full mt-4 bg-white text-black py-4 rounded-2xl font-bold shadow-md hover:opacity-90 text-sm uppercase tracking-widest flex items-center justify-center space-x-2">
+                        <i class="fas fa-dice text-xs"></i>
+                        <span>Sortear Times</span>
+                    </button>
                 </div>
-                <button onclick="animarESortear()" class="ios-btn w-full bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-orange-100">Sortear Times 🎲</button>
-            </div>
-            <div id="shuffling" class="hidden text-center font-black text-orange-500 shuffling text-xs tracking-widest">MISTURANDO JOGADORES...</div>
-            <div id="resultadoSorteio" class="space-y-3"></div>
-            <button id="btnSalvarJogo" onclick="salvarJogoNoBanco()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-100">Confirmar e Salvar no Histórico</button>
-        </div>
 
-        <div id="aba-historico" class="hidden space-y-4">
-            <h2 class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-2 text-center">Registros de Partidas</h2>
-            <div id="listaHistorico" class="space-y-4"></div>
-        </div>
+                <div id="shufflingContainer">
+                    </div>
+                
+                <div id="resultadoSorteio" class="space-y-4">
+                    </div>
+            </div>
+
+            <div id="aba-historico" class="hidden space-y-6">
+                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 text-center">Registros de Partidas</h2>
+                <div id="listaHistorico" class="space-y-5 pb-6"></div>
+            </div>
+
+        </main>
+
+        <footer class="fixed bottom-0 left-0 width-100% z-50 p-3 pb-8 max-w-md left-1/2 -translate-x-1/2 w-full">
+            <nav class="glass-menu rounded-full p-2 flex border border-gray-800/50 shadow-2xl">
+                <button onclick="mudarAba('lista')" id="btn-lista" class="tab-btn active-tab flex-1 py-3 text-center text-sm font-medium text-gray-400">Lista</button>
+                <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-3 text-center text-sm font-medium text-gray-400">Sortear</button>
+                <button onclick="mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-3 text-center text-sm font-medium text-gray-400">Histórico</button>
+            </nav>
+        </footer>
     </div>
 
     <script type="module">
@@ -101,146 +157,135 @@
         let jogadoresAtuais = [];
         let timesSorteadosNoMomento = [];
 
+        // Controle de Abas iOS
         window.mudarAba = (aba) => {
-            document.querySelectorAll('[id^="aba-"]').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('[id^="btn-"]').forEach(el => el.classList.remove('active-tab', 'text-gray-400'));
-            document.getElementById(`aba-${aba}`).classList.remove('hidden');
+            document.getElementById('aba-lista').classList.toggle('hidden', aba !== 'lista');
+            document.getElementById('aba-sorteio').classList.toggle('hidden', aba !== 'sorteio');
+            document.getElementById('aba-historico').classList.toggle('hidden', aba !== 'historico');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active-tab'));
             document.getElementById(`btn-${aba}`).classList.add('active-tab');
         };
 
-        onSnapshot(query(jogadoresCol, orderBy("nome", "asc")), (snap) => {
+        // Copiar Pix
+        window.copiarPix = () => {
+            navigator.clipboard.writeText("11959154029").then(() => {
+                const notificacao = document.getElementById('pixNotificacao');
+                notificacao.style.opacity = '1';
+                setTimeout(() => notificacao.style.opacity = '0', 2000);
+            });
+        }
+
+        // Escuta Banco de Dados - Lista de Jogadores
+        const q = query(jogadoresCol, orderBy("nome", "asc"));
+        onSnapshot(q, (snapshot) => {
             const lista = document.getElementById('listaJogadores');
             lista.innerHTML = '';
             jogadoresAtuais = [];
+            
             let pagos = 0;
-            snap.forEach(d => {
-                const j = {id: d.id, ...d.data()};
+            snapshot.forEach((docSnap) => {
+                const j = { id: docSnap.id, ...docSnap.data() };
                 jogadoresAtuais.push(j);
                 if(j.pago) pagos++;
-                lista.innerHTML += `
-                    <li class="ios-card rounded-2xl p-4 flex justify-between items-center border-l-[6px] transition-all ${j.pago ? 'border-green-500' : 'border-red-400'}">
-                        <span class="font-bold text-sm text-slate-700">${j.nome}</span>
-                        <div class="flex items-center gap-3">
-                            <button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white shadow-sm transition-all ${j.pago ? 'bg-green-500' : 'bg-red-400'}">${j.pago ? 'PIX OK' : 'PENDENTE'}</button>
-                            <button onclick="window.remover('${j.id}')" class="text-gray-300 hover:text-red-500 px-2 transition-colors italic font-bold">✕</button>
-                        </div>
-                    </li>`;
+                
+                const item = document.createElement('li');
+                item.className = `glass-card rounded-2xl p-4 flex justify-between items-center animate-in ${j.pago ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'}`;
+                item.innerHTML = `
+                    <span class="font-semibold text-white text-sm">${j.nome}</span>
+                    <div class="flex items-center space-x-2.5">
+                        <button onclick="window.togglePix('${j.id}', ${j.pago})" class="ios-btn status-badge text-white px-3.5 py-1.5 rounded-lg shadow-inner transition-colors ${j.pago ? 'bg-green-600' : 'bg-red-600'}">
+                            ${j.pago ? 'PIX OK' : 'PENDENTE'}
+                        </button>
+                        <button onclick="window.remover('${j.id}')" class="text-gray-600 hover:text-red-500 p-1.5 rounded-lg text-sm transition-colors"><i class="fas fa-trash-alt"></i></button>
+                    </div>`;
+                lista.appendChild(item);
             });
+
             atualizarFinanceiro(jogadoresAtuais.length, pagos);
         });
 
-        function atualizarFinanceiro(total, pagos) {
-            const custoQuadra = 350;
-            const vpp = total > 0 ? (custoQuadra / total) : 0;
-            const arrecadado = pagos * vpp;
-            const falta = custoQuadra - arrecadado;
+        function atualizarFinanceiro(totalPessoas, totalPagos) {
+            const custoTotal = 350;
+            const vpp = totalPessoas > 0 ? (custoTotal / totalPessoas).toFixed(2) : "0.00";
+            const falta = totalPessoas > 0 ? (custoTotal - (totalPagos * (custoTotal/totalPessoas))).toFixed(2) : "350.00";
+            const porcentagem = (totalPagos / totalPessoas * 100) || 0;
 
-            document.getElementById('valorPorPessoa').innerText = `R$ ${vpp.toFixed(2)}/pessoa`;
-            document.getElementById('barraProgresso').style.width = `${((pagos / total) * 100) || 0}%`;
-            
-            // Exibição formatada para evitar dízimas
-            document.getElementById('statusFinanceiro').innerText = `${pagos} de ${total} pagos | Faltam R$ ${falta.toFixed(2)}`;
+            document.getElementById('valorPorPessoa').innerText = `R$ ${vpp}/pessoa`;
+            document.getElementById('barraProgresso').style.width = `${porcentagem}%`;
+            document.getElementById('statusFinanceiro').innerText = `${totalPagos} de ${totalPessoas} pessoas pagaram | Faltam R$ ${falta}`;
         }
 
         window.adicionarJogador = async () => {
-            const i = document.getElementById('nomeJogador');
-            if(i.value.trim()) { await addDoc(jogadoresCol, {nome: i.value.trim(), pago: false}); i.value=''; }
-        };
-
-        window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.remover = async (id) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
-
-        window.animarESortear = () => {
-            const pagos = jogadoresAtuais.filter(j => j.pago);
-            if(pagos.length < 2) return alert("Mínimo 2 pessoas com PIX OK!");
-            document.getElementById('shuffling').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('shuffling').classList.add('hidden');
-                realizarSorteio(pagos);
-            }, 1200);
-        };
-
-        function realizarSorteio(pagos) {
-            const qtd = parseInt(document.getElementById('qtdPorTime').value);
-            const sorteados = pagos.sort(() => Math.random() - 0.5);
-            const res = document.getElementById('resultadoSorteio');
-            res.innerHTML = '';
-            timesSorteadosNoMomento = [];
-
-            let tempTime = [];
-            sorteados.forEach((j, i) => {
-                tempTime.push(j.nome);
-                if(tempTime.length === qtd || i === sorteados.length - 1) {
-                    timesSorteadosNoMomento.push({nome: `Time ${timesSorteadosNoMomento.length + 1}`, membros: [...tempTime], vitorias: 0});
-                    tempTime = [];
-                }
-            });
-
-            timesSorteadosNoMomento.forEach(t => {
-                res.innerHTML += `
-                    <div class="ios-card rounded-2xl p-5 border-t-4 border-orange-400 animate-in fade-in duration-500">
-                        <div class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">${t.nome}</div>
-                        <div class="text-[15px] font-bold text-slate-800 tracking-tight leading-tight">${t.membros.join(', ')}</div>
-                    </div>`;
-            });
-            document.getElementById('btnSalvarJogo').classList.remove('hidden');
-        }
-
-        window.salvarJogoNoBanco = async () => {
-            const data = new Date().toLocaleDateString('pt-BR');
-            await addDoc(historicoCol, { data, times: timesSorteadosNoMomento, criadoEm: Date.now() });
-            alert("Jogo salvo no histórico!");
-            mudarAba('historico');
-        };
-
-        onSnapshot(query(historicoCol, orderBy("criadoEm", "desc")), (snap) => {
-            const hist = document.getElementById('listaHistorico');
-            hist.innerHTML = '';
-            snap.forEach(d => {
-                const jogo = {id: d.id, ...d.data()};
-                let timesHtml = '';
-                jogo.times.forEach((t, idx) => {
-                    timesHtml += `
-                        <div class="flex justify-between items-center py-3 border-b border-gray-50 last:border-0">
-                            <div class="flex flex-col pr-4">
-                                <span class="text-[10px] font-black text-gray-300 uppercase tracking-tighter">${t.nome}</span>
-                                <span class="text-xs font-bold text-slate-700 leading-none">${t.membros.join(', ')}</span>
-                            </div>
-                            <div class="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
-                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, -1)" class="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 font-black active:bg-gray-100 transition-all">-</button>
-                                <span class="font-black text-blue-600 w-5 text-center text-lg">${t.vitorias || 0}</span>
-                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, 1)" class="w-8 h-8 rounded-xl bg-blue-600 shadow-md flex items-center justify-center text-white font-black active:scale-90 transition-all">+</button>
-                            </div>
-                        </div>`;
-                });
-
-                hist.innerHTML += `
-                    <div class="ios-card rounded-[2.5rem] p-6 mb-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">${jogo.data}</span>
-                            <button onclick="window.removerJogo('${jogo.id}')" class="text-gray-300 text-[10px] font-black uppercase hover:text-red-400 transition-colors">Apagar</button>
-                        </div>
-                        <div class="space-y-1">${timesHtml}</div>
-                    </div>`;
-            });
-        });
-
-        window.updVitoria = async (jogoId, timeIdx, mudanca) => {
-            const docRef = doc(db, "historico", jogoId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                let times = docSnap.data().times;
-                let novaVit = (times[timeIdx].vitorias || 0) + mudanca;
-                times[timeIdx].vitorias = novaVit < 0 ? 0 : novaVit;
-                await updateDoc(docRef, { times: times });
+            const input = document.getElementById('nomeJogador');
+            if (input.value.trim()) {
+                await addDoc(jogadoresCol, { nome: input.value.trim(), pago: false, criadoEm: Date.now() });
+                input.value = '';
+                input.focus();
             }
         };
 
-        window.removerJogo = async (id) => { if(confirm("Apagar este registro permanentemente?")) await deleteDoc(doc(db, "historico", id)); };
+        window.togglePix = async (id, status) => { await updateDoc(doc(db, "jogadores", id), { pago: !status }); };
 
-        window.copiarPix = () => {
-            navigator.clipboard.writeText("11959154029");
-            alert("Pix copiado!");
+        window.remover = async (id) => { if(confirm("Remover atleta da lista?")) await deleteDoc(doc(db, "jogadores", id)); };
+
+        // Lógica de Animação com Bolhas de Sorteio
+        window.animarESortearBolhas = () => {
+            const pagos = jogadoresAtuais.filter(j => j.pago);
+            if (pagos.length < 2) return alert("Precisa de pelo menos 2 pessoas com PIX OK!");
+
+            const shufflingContainer = document.getElementById('shufflingContainer');
+            const resultadoDiv = document.getElementById('resultadoSorteio');
+            const qtdPorTime = parseInt(document.getElementById('qtdPorTime').value);
+
+            // Iniciar Animação
+            shufflingContainer.style.display = 'block';
+            shufflingContainer.innerHTML = ''; // Limpar bolhas anteriores
+            resultadoDiv.innerHTML = '';
+            
+            // Gerar Bolhas
+            for (let i = 0; i < pagos.length * 2; i++) { // Mais bolhas para volume
+                const jogadorValido = pagos[i % pagos.length];
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerText = jogadorValido.nome;
+                
+                // Posições e durações aleatórias
+                bubble.style.left = `${Math.random() * 80 + 10}%`; 
+                bubble.style.animationDuration = `${Math.random() * 1.5 + 1.5}s`; // 1.5 a 3 segundos
+                bubble.style.animationDelay = `${Math.random() * 0.5}s`;
+                bubble.style.transform = `translateX(${(Math.random() - 0.5) * 50}px)`; // Balanço horizontal
+
+                shufflingContainer.appendChild(bubble);
+            }
+
+            // Executar Sorteio após animação (2 segundos)
+            setTimeout(() => {
+                shufflingContainer.style.display = 'none';
+                realizarSorteio(pagos, qtdPorTime);
+            }, 2200);
+        };
+
+        function realizarSorteio(pagos, qtdPorTime) {
+            const resultadoDiv = document.getElementById('resultadoSorteio');
+            const sorteados = pagos.sort(() => Math.random() - 0.5);
+            resultadoDiv.innerHTML = '';
+
+            let timeAtual = [];
+            let contadorTime = 1;
+
+            for (let i = 0; i < sorteados.length; i++) {
+                timeAtual.push(sorteados[i].nome);
+                
+                if (timeAtual.length == qtdPorTime || i == sorteados.length - 1) {
+                    const card = document.createElement('div');
+                    card.className = "glass-card rounded-2xl p-5 border border-gray-800 animate-in";
+                    card.innerHTML = `<h3 class="font-extrabold text-white mb-2.5 text-sm uppercase tracking-widest flex items-center"><i class="fas fa-volleyball-ball text-gray-500 mr-2"></i>Time ${contadorTime}</h3>
+                                      <p class="text-gray-200 text-sm font-semibold">${timeAtual.join(', ')}</p>`;
+                    resultadoDiv.appendChild(card);
+                    timeAtual = [];
+                    contadorTime++;
+                }
+            }
         };
     </script>
 </body>
