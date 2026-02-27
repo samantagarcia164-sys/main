@@ -3,29 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vôlei Grupo - Controle Pix</title>
+    <title>Vôlei Pro - Gestão e Sorteio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .active-tab { border-bottom: 4px solid #ffffff; font-weight: bold; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="bg-slate-100 min-h-screen p-4 font-sans">
+<body class="bg-slate-900 min-h-screen font-sans text-slate-800">
 
-    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div class="bg-blue-600 p-6 text-center">
-            <h1 class="text-2xl font-bold text-white uppercase tracking-wider text-shadow">🏐 Lista do Vôlei</h1>
-            <p id="contador" class="text-blue-100 text-sm mt-2 font-medium">Carregando dados...</p>
+    <div class="max-w-md mx-auto bg-slate-100 min-h-screen shadow-2xl flex flex-col">
+        
+        <div class="bg-blue-600 flex text-white pt-2">
+            <button onclick="mudarAba('lista')" id="btn-lista" class="flex-1 py-3 active-tab">Lista e Pagamento</button>
+            <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="flex-1 py-3">Sorteio de Times</button>
         </div>
 
-        <div class="p-6">
-            <div class="flex gap-2 mb-6">
-                <input type="text" id="nomeJogador" placeholder="Nome do jogador..." 
-                    class="flex-1 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                <button onclick="window.adicionarJogador()" 
-                    class="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all">
-                    +
-                </button>
+        <div id="aba-lista" class="p-4 space-y-4">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-2">
+                    <input type="text" id="chavePix" value="Chave PIX: (Clique para editar)" class="text-xs font-bold text-blue-600 bg-transparent border-none focus:ring-0 w-full">
+                </div>
+                <div class="flex justify-between text-sm mb-1 font-bold">
+                    <span>Progresso da Quadra</span>
+                    <span id="valorPorPessoa">R$ 0,00 / pessoa</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-4 mb-2">
+                    <div id="barraProgresso" class="bg-green-500 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="statusFinanceiro" class="text-[10px] text-slate-500 text-center uppercase tracking-wider font-bold">R$ 0 de R$ 350 arrecadados</p>
             </div>
 
-            <ul id="listaJogadores" class="space-y-3">
-                </ul>
+            <div class="flex gap-2">
+                <input type="text" id="nomeJogador" placeholder="Nome do jogador..." class="flex-1 p-3 rounded-xl border-none shadow-inner focus:ring-2 focus:ring-blue-500 outline-none">
+                <button onclick="window.adicionarJogador()" class="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all">+</button>
+            </div>
+
+            <ul id="listaJogadores" class="space-y-2"></ul>
+        </div>
+
+        <div id="aba-sorteio" class="p-4 space-y-4 hidden">
+            <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                <h2 class="font-bold text-blue-800 mb-2 italic">Apenas jogadores com "PIX OK" serão sorteados.</h2>
+                <div class="flex items-center gap-3">
+                    <label class="text-sm font-medium">Jogadores por time:</label>
+                    <input type="number" id="qtdPorTime" value="6" class="w-16 p-2 rounded-lg border-none shadow-sm text-center font-bold">
+                </div>
+                <button onclick="sortearTimes()" class="w-full mt-4 bg-orange-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-orange-600 active:scale-95 transition-all uppercase tracking-widest">Sortear Times 🎲</button>
+            </div>
+            
+            <div id="resultadoSorteio" class="space-y-4">
+                </div>
         </div>
     </div>
 
@@ -33,7 +61,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Suas configurações do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
             authDomain: "voleigrupo-b8a5a.firebaseapp.com",
@@ -47,64 +74,99 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const jogadoresCol = collection(db, "jogadores");
+        let jogadoresAtuais = [];
 
-        // Escuta mudanças e atualiza a lista automaticamente
+        // Controle de Abas
+        window.mudarAba = (aba) => {
+            document.getElementById('aba-lista').classList.toggle('hidden', aba !== 'lista');
+            document.getElementById('aba-sorteio').classList.toggle('hidden', aba !== 'sorteio');
+            document.getElementById('btn-lista').classList.toggle('active-tab', aba === 'lista');
+            document.getElementById('btn-sorteio').classList.toggle('active-tab', aba === 'sorteio');
+        };
+
+        // Escuta Banco de Dados
         const q = query(jogadoresCol, orderBy("nome", "asc"));
         onSnapshot(q, (snapshot) => {
             const lista = document.getElementById('listaJogadores');
-            const contador = document.getElementById('contador');
             lista.innerHTML = '';
+            jogadoresAtuais = [];
             
-            let total = 0;
             let pagos = 0;
-
             snapshot.forEach((docSnap) => {
-                const j = docSnap.data();
-                const id = docSnap.id;
-                total++;
+                const j = { id: docSnap.id, ...docSnap.data() };
+                jogadoresAtuais.push(j);
                 if(j.pago) pagos++;
                 
                 const item = document.createElement('li');
-                item.className = `flex justify-between items-center p-4 rounded-xl border-2 transition-all ${j.pago ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100'}`;
-                
+                item.className = `flex justify-between items-center p-4 rounded-xl border-l-4 shadow-sm ${j.pago ? 'bg-white border-green-500' : 'bg-white border-red-400'}`;
                 item.innerHTML = `
-                    <span class="font-semibold ${j.pago ? 'text-green-700' : 'text-gray-700'}">${j.nome}</span>
+                    <span class="font-bold text-slate-700">${j.nome}</span>
                     <div class="flex items-center gap-3">
-                        <button onclick="window.togglePix('${id}', ${j.pago})" 
-                            class="text-[10px] px-3 py-1.5 rounded-lg font-black uppercase tracking-tighter shadow-sm transition-all ${j.pago ? 'bg-green-500 text-white' : 'bg-amber-400 text-white'}">
+                        <button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[10px] px-3 py-1.5 rounded-lg font-black text-white ${j.pago ? 'bg-green-500' : 'bg-red-400'}">
                             ${j.pago ? 'PIX OK' : 'PENDENTE'}
                         </button>
-                        <button onclick="window.remover('${id}')" class="text-gray-300 hover:text-red-500 transition-colors text-xl">×</button>
-                    </div>
-                `;
+                        <button onclick="window.remover('${j.id}')" class="text-slate-300 text-xl">×</button>
+                    </div>`;
                 lista.appendChild(item);
             });
 
-            contador.innerText = `${total} Jogadores | ${pagos} Pagos | Falta: ${total - pagos}`;
+            atualizarFinanceiro(jogadoresAtuais.length, pagos);
         });
 
-        // Funções Globais
+        function atualizarFinanceiro(totalPessoas, totalPagos) {
+            const custoTotal = 350;
+            const valorPorPessoa = totalPessoas > 0 ? (custoTotal / totalPessoas).toFixed(2) : "0.00";
+            const arrecadado = (totalPagos * (custoTotal / totalPessoas || 0)).toFixed(0);
+            const porcentagem = (totalPagos / totalPessoas * 100) || 0;
+
+            document.getElementById('valorPorPessoa').innerText = `R$ ${valorPorPessoa} / pessoa`;
+            document.getElementById('barraProgresso').style.width = `${porcentagem}%`;
+            document.getElementById('statusFinanceiro').innerText = `${totalPagos} de ${totalPessoas} pessoas pagaram`;
+        }
+
         window.adicionarJogador = async () => {
             const input = document.getElementById('nomeJogador');
             if (input.value.trim()) {
-                await addDoc(jogadoresCol, { 
-                    nome: input.value.trim(), 
-                    pago: false, 
-                    criadoEm: Date.now() 
-                });
+                await addDoc(jogadoresCol, { nome: input.value.trim(), pago: false });
                 input.value = '';
-                input.focus();
             }
         };
 
-        window.togglePix = async (id, statusAtual) => {
-            const docRef = doc(db, "jogadores", id);
-            await updateDoc(docRef, { pago: !statusAtual });
+        window.togglePix = async (id, status) => {
+            await updateDoc(doc(db, "jogadores", id), { pago: !status });
         };
 
         window.remover = async (id) => {
-            if(confirm("Remover jogador da lista?")) {
-                await deleteDoc(doc(db, "jogadores", id));
+            if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id));
+        };
+
+        // Lógica de Sorteio
+        window.sortearTimes = () => {
+            const pagos = jogadoresAtuais.filter(j => j.pago);
+            const qtdPorTime = parseInt(document.getElementById('qtdPorTime').value);
+            const resultadoDiv = document.getElementById('resultadoSorteio');
+            
+            if (pagos.length < 2) return alert("Precisa de pelo menos 2 pessoas com PIX OK!");
+
+            // Shuffle (Embaralhar)
+            const sorteados = pagos.sort(() => Math.random() - 0.5);
+            resultadoDiv.innerHTML = '';
+
+            let timeAtual = [];
+            let contadorTime = 1;
+
+            for (let i = 0; i < sorteados.length; i++) {
+                timeAtual.push(sorteados[i].nome);
+                
+                if (timeAtual.length == qtdPorTime || i == sorteados.length - 1) {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-2xl shadow-md border-t-4 border-orange-500";
+                    card.innerHTML = `<h3 class="font-black text-orange-600 mb-2">TIME ${contadorTime}</h3>
+                                      <p class="text-slate-600 font-medium">${timeAtual.join(', ')}</p>`;
+                    resultadoDiv.appendChild(card);
+                    timeAtual = [];
+                    contadorTime++;
+                }
             }
         };
     </script>
