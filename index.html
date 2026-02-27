@@ -21,60 +21,67 @@
     <div class="max-w-md mx-auto p-4 space-y-4">
         
         <div class="flex justify-between items-end pb-2">
-            <h1 class="text-3xl font-black tracking-tighter text-slate-900">Vôlei App</h1>
-            <div class="bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
-                <span class="text-[10px] font-bold text-gray-400 uppercase">Pix: 11959154029</span>
-                <button onclick="copiarPix()" class="ml-2 text-blue-500 text-xs"><i class="far fa-copy"></i></button>
+            <h1 class="text-3xl font-black tracking-tighter text-slate-900 text-shadow-sm">Vôlei App</h1>
+            <div class="bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3">
+                <div class="flex flex-col">
+                    <span class="text-[9px] font-black text-gray-400 uppercase leading-none">Copia e Cola</span>
+                    <span class="text-xs font-bold text-slate-700">11959154029</span>
+                </div>
+                <button onclick="copiarPix()" class="bg-blue-50 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-all">
+                    <i class="far fa-copy"></i>
+                </button>
             </div>
         </div>
 
-        <div class="flex border-b border-gray-200 mb-4 sticky top-0 bg-[#f2f2f7] z-10">
-            <button onclick="mudarAba('lista')" id="btn-lista" class="flex-1 py-3 active-tab text-xs uppercase tracking-widest">Lista</button>
-            <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="flex-1 py-3 text-xs uppercase tracking-widest text-gray-400">Sortear</button>
-            <button onclick="mudarAba('historico')" id="btn-historico" class="flex-1 py-3 text-xs uppercase tracking-widest text-gray-400">Histórico</button>
+        <div class="flex border-b border-gray-200 mb-4 sticky top-0 bg-[#f2f2f7]/80 backdrop-blur-md z-10">
+            <button onclick="mudarAba('lista')" id="btn-lista" class="flex-1 py-4 active-tab text-[11px] font-black uppercase tracking-widest transition-all">Lista</button>
+            <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="flex-1 py-4 text-[11px] font-black uppercase tracking-widest text-gray-400 transition-all">Sortear</button>
+            <button onclick="mudarAba('historico')" id="btn-historico" class="flex-1 py-4 text-[11px] font-black uppercase tracking-widest text-gray-400 transition-all">Histórico</button>
         </div>
 
         <div id="aba-lista" class="space-y-4">
-            <div class="ios-card rounded-2xl p-4 space-y-2">
-                <div class="flex justify-between text-xs font-bold uppercase text-gray-400">
-                    <span>Progresso da Quadra</span>
-                    <span id="valorPorPessoa">R$ 0,00/pessoa</span>
+            <div class="ios-card rounded-3xl p-5 space-y-3">
+                <div class="flex justify-between text-[11px] font-black uppercase text-gray-400 tracking-tighter">
+                    <span>Meta da Quadra</span>
+                    <span id="valorPorPessoa" class="text-blue-600">R$ 0,00/p</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                    <div id="barraProgresso" class="bg-green-500 h-full transition-all duration-700" style="width: 0%"></div>
+                <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-50">
+                    <div id="barraProgresso" class="bg-green-500 h-full transition-all duration-1000 shadow-[0_0_10px_rgba(34,197,94,0.3)]" style="width: 0%"></div>
                 </div>
-                <p id="statusFinanceiro" class="text-center text-[10px] font-bold text-gray-500 italic">Carregando...</p>
+                <div class="flex justify-center">
+                    <p id="statusFinanceiro" class="text-[11px] font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic">Calculando...</p>
+                </div>
             </div>
 
             <div class="flex gap-2">
-                <input type="text" id="nomeJogador" placeholder="Nome do jogador" class="flex-1 p-3 rounded-xl border-none shadow-inner outline-none text-sm">
-                <button onclick="window.adicionarJogador()" class="ios-btn bg-blue-600 text-white px-6 rounded-xl font-bold">+</button>
+                <input type="text" id="nomeJogador" placeholder="Nome do atleta..." class="flex-1 p-4 rounded-2xl border-none shadow-inner outline-none text-sm bg-white focus:ring-2 focus:ring-blue-100">
+                <button onclick="window.adicionarJogador()" class="ios-btn bg-blue-600 text-white px-7 rounded-2xl font-black shadow-lg shadow-blue-100">+</button>
             </div>
-            <ul id="listaJogadores" class="space-y-2"></ul>
+            <ul id="listaJogadores" class="space-y-2.5"></ul>
         </div>
 
         <div id="aba-sorteio" class="hidden space-y-4">
-            <div class="ios-card rounded-2xl p-5 text-center space-y-4">
-                <div class="flex justify-center items-center gap-4">
-                    <span class="text-sm font-bold">Jogadores/Time:</span>
-                    <input type="number" id="qtdPorTime" value="6" class="w-16 p-2 rounded-lg bg-gray-100 text-center font-bold">
+            <div class="ios-card rounded-3xl p-6 text-center space-y-5">
+                <div class="flex justify-center items-center gap-5">
+                    <span class="text-sm font-black text-slate-600 uppercase tracking-tight">Jogadores por Time</span>
+                    <input type="number" id="qtdPorTime" value="6" class="w-14 p-3 rounded-2xl bg-gray-50 text-center font-black text-blue-600 border border-gray-100">
                 </div>
-                <button onclick="animarESortear()" class="ios-btn w-full bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-orange-200">Sortear Times 🎲</button>
+                <button onclick="animarESortear()" class="ios-btn w-full bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-orange-100">Sortear Times 🎲</button>
             </div>
-            <div id="shuffling" class="hidden text-center font-bold text-orange-500 shuffling">EMBARALHANDO...</div>
+            <div id="shuffling" class="hidden text-center font-black text-orange-500 shuffling text-xs tracking-widest">MISTURANDO JOGADORES...</div>
             <div id="resultadoSorteio" class="space-y-3"></div>
-            <button id="btnSalvarJogo" onclick="salvarJogoNoBanco()" class="hidden ios-btn w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase text-xs">Salvar este jogo no Histórico</button>
+            <button id="btnSalvarJogo" onclick="salvarJogoNoBanco()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-100">Confirmar e Salvar no Histórico</button>
         </div>
 
         <div id="aba-historico" class="hidden space-y-4">
-            <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Jogos e Vitórias</h2>
+            <h2 class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-2 text-center">Registros de Partidas</h2>
             <div id="listaHistorico" class="space-y-4"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
@@ -101,7 +108,6 @@
             document.getElementById(`btn-${aba}`).classList.add('active-tab');
         };
 
-        // --- GESTÃO DE JOGADORES ---
         onSnapshot(query(jogadoresCol, orderBy("nome", "asc")), (snap) => {
             const lista = document.getElementById('listaJogadores');
             lista.innerHTML = '';
@@ -112,11 +118,11 @@
                 jogadoresAtuais.push(j);
                 if(j.pago) pagos++;
                 lista.innerHTML += `
-                    <li class="ios-card rounded-xl p-3 flex justify-between items-center border-l-4 ${j.pago ? 'border-green-500' : 'border-red-400'}">
-                        <span class="font-bold text-sm">${j.nome}</span>
+                    <li class="ios-card rounded-2xl p-4 flex justify-between items-center border-l-[6px] transition-all ${j.pago ? 'border-green-500' : 'border-red-400'}">
+                        <span class="font-bold text-sm text-slate-700">${j.nome}</span>
                         <div class="flex items-center gap-3">
-                            <button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-3 py-1.5 rounded-lg text-white ${j.pago ? 'bg-green-500' : 'bg-red-400'}">${j.pago ? 'PIX OK' : 'PENDENTE'}</button>
-                            <button onclick="window.remover('${j.id}')" class="text-gray-300">✕</button>
+                            <button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white shadow-sm transition-all ${j.pago ? 'bg-green-500' : 'bg-red-400'}">${j.pago ? 'PIX OK' : 'PENDENTE'}</button>
+                            <button onclick="window.remover('${j.id}')" class="text-gray-300 hover:text-red-500 px-2 transition-colors italic font-bold">✕</button>
                         </div>
                     </li>`;
             });
@@ -124,10 +130,16 @@
         });
 
         function atualizarFinanceiro(total, pagos) {
-            const vpp = total > 0 ? (350/total).toFixed(2) : "0.00";
-            document.getElementById('valorPorPessoa').innerText = `R$ ${vpp}/pessoa`;
-            document.getElementById('barraProgresso').style.width = `${(pagos/total*100)||0}%`;
-            document.getElementById('statusFinanceiro').innerText = `${pagos} de ${total} pagos | Faltam R$ ${350 - (pagos*(350/total||0))}`;
+            const custoQuadra = 350;
+            const vpp = total > 0 ? (custoQuadra / total) : 0;
+            const arrecadado = pagos * vpp;
+            const falta = custoQuadra - arrecadado;
+
+            document.getElementById('valorPorPessoa').innerText = `R$ ${vpp.toFixed(2)}/pessoa`;
+            document.getElementById('barraProgresso').style.width = `${((pagos / total) * 100) || 0}%`;
+            
+            // Exibição formatada para evitar dízimas
+            document.getElementById('statusFinanceiro').innerText = `${pagos} de ${total} pagos | Faltam R$ ${falta.toFixed(2)}`;
         }
 
         window.adicionarJogador = async () => {
@@ -136,9 +148,8 @@
         };
 
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.remover = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.remover = async (id) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
 
-        // --- SORTEIO ---
         window.animarESortear = () => {
             const pagos = jogadoresAtuais.filter(j => j.pago);
             if(pagos.length < 2) return alert("Mínimo 2 pessoas com PIX OK!");
@@ -167,9 +178,9 @@
 
             timesSorteadosNoMomento.forEach(t => {
                 res.innerHTML += `
-                    <div class="ios-card rounded-xl p-4 border-t-2 border-orange-400">
-                        <div class="text-[10px] font-black text-orange-500 uppercase">${t.nome}</div>
-                        <div class="text-sm font-bold text-gray-700">${t.membros.join(', ')}</div>
+                    <div class="ios-card rounded-2xl p-5 border-t-4 border-orange-400 animate-in fade-in duration-500">
+                        <div class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">${t.nome}</div>
+                        <div class="text-[15px] font-bold text-slate-800 tracking-tight leading-tight">${t.membros.join(', ')}</div>
                     </div>`;
             });
             document.getElementById('btnSalvarJogo').classList.remove('hidden');
@@ -182,7 +193,6 @@
             mudarAba('historico');
         };
 
-        // --- HISTÓRICO ---
         onSnapshot(query(historicoCol, orderBy("criadoEm", "desc")), (snap) => {
             const hist = document.getElementById('listaHistorico');
             hist.innerHTML = '';
@@ -191,60 +201,42 @@
                 let timesHtml = '';
                 jogo.times.forEach((t, idx) => {
                     timesHtml += `
-                        <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
-                            <div class="flex flex-col">
-                                <span class="text-[10px] font-bold text-gray-400 uppercase">${t.nome}</span>
-                                <span class="text-xs font-medium text-gray-600">${t.membros.join(', ')}</span>
+                        <div class="flex justify-between items-center py-3 border-b border-gray-50 last:border-0">
+                            <div class="flex flex-col pr-4">
+                                <span class="text-[10px] font-black text-gray-300 uppercase tracking-tighter">${t.nome}</span>
+                                <span class="text-xs font-bold text-slate-700 leading-none">${t.membros.join(', ')}</span>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, -1)" class="w-6 h-6 rounded bg-gray-100 text-gray-400">-</button>
-                                <span class="font-black text-blue-600 w-4 text-center">${t.vitorias || 0}</span>
-                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, 1)" class="w-6 h-6 rounded bg-blue-100 text-blue-600 font-bold">+</button>
+                            <div class="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, -1)" class="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 font-black active:bg-gray-100 transition-all">-</button>
+                                <span class="font-black text-blue-600 w-5 text-center text-lg">${t.vitorias || 0}</span>
+                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, 1)" class="w-8 h-8 rounded-xl bg-blue-600 shadow-md flex items-center justify-center text-white font-black active:scale-90 transition-all">+</button>
                             </div>
                         </div>`;
                 });
 
                 hist.innerHTML += `
-                    <div class="ios-card rounded-2xl p-4">
-                        <div class="flex justify-between mb-3">
-                            <span class="bg-blue-600 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase">${jogo.data}</span>
-                            <button onclick="window.removerJogo('${jogo.id}')" class="text-gray-300 text-xs">Apagar</button>
+                    <div class="ios-card rounded-[2.5rem] p-6 mb-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">${jogo.data}</span>
+                            <button onclick="window.removerJogo('${jogo.id}')" class="text-gray-300 text-[10px] font-black uppercase hover:text-red-400 transition-colors">Apagar</button>
                         </div>
-                        ${timesHtml}
+                        <div class="space-y-1">${timesHtml}</div>
                     </div>`;
             });
         });
 
-        window.updVitoria = async (jogoId, timeIdx, acao) => {
-            const jogo = snapToObj(jogoId); // Função auxiliar não necessária em onSnapshot direto, mas vamos buscar os dados atuais:
-            const docRef = doc(db, "historico", jogoId);
-            // Para atualizar um item dentro de um array no Firebase, precisamos do array todo
-            const snap = await (await fetch).getDoc(); // Simplificado para o fluxo:
-        };
-
-        // Correção para atualizar vitórias dentro do array do Firebase
-        window.updVitoria = async (id, idx, valor) => {
-            const docRef = doc(db, "historico", id);
-            // Pegamos o estado atual do jogo no histórico local para manipular
-            const snapshot = await onSnapshot(docRef, (d) => {}); // isso é assíncrono.
-            // Forma simplificada para o usuário:
-            let jogoAtual;
-            snap.forEach(d => { if(d.id === id) jogoAtual = d.data(); }); // Usando o cache do onSnapshot
-        };
-
-        // Redefinindo a função de update para ser precisa
         window.updVitoria = async (jogoId, timeIdx, mudanca) => {
             const docRef = doc(db, "historico", jogoId);
-            // Buscamos o dado atual no Firebase para garantir
-            onSnapshot(docRef, async (d) => {
-                let times = d.data().times;
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                let times = docSnap.data().times;
                 let novaVit = (times[timeIdx].vitorias || 0) + mudanca;
                 times[timeIdx].vitorias = novaVit < 0 ? 0 : novaVit;
                 await updateDoc(docRef, { times: times });
-            }, { once: true });
+            }
         };
 
-        window.removerJogo = async (id) => { if(confirm("Apagar registro de jogo?")) await deleteDoc(doc(db, "historico", id)); };
+        window.removerJogo = async (id) => { if(confirm("Apagar este registro permanentemente?")) await deleteDoc(doc(db, "historico", id)); };
 
         window.copiarPix = () => {
             navigator.clipboard.writeText("11959154029");
