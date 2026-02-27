@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vôlei Grupo - Controle Pix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 font-sans">
+
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-blue-600 p-6 text-center">
+            <h1 class="text-2xl font-bold text-white uppercase tracking-wider text-shadow">🏐 Lista do Vôlei</h1>
+            <p id="contador" class="text-blue-100 text-sm mt-2 font-medium">Carregando dados...</p>
+        </div>
+
+        <div class="p-6">
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="nomeJogador" placeholder="Nome do jogador..." 
+                    class="flex-1 border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                <button onclick="window.adicionarJogador()" 
+                    class="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all">
+                    +
+                </button>
+            </div>
+
+            <ul id="listaJogadores" class="space-y-3">
+                </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Suas configurações do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
+            authDomain: "voleigrupo-b8a5a.firebaseapp.com",
+            projectId: "voleigrupo-b8a5a",
+            storageBucket: "voleigrupo-b8a5a.firebasestorage.app",
+            messagingSenderId: "619450859287",
+            appId: "1:619450859287:web:bf9138713eb65b3c514152",
+            measurementId: "G-7G4HZDHHYV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const jogadoresCol = collection(db, "jogadores");
+
+        // Escuta mudanças e atualiza a lista automaticamente
+        const q = query(jogadoresCol, orderBy("nome", "asc"));
+        onSnapshot(q, (snapshot) => {
+            const lista = document.getElementById('listaJogadores');
+            const contador = document.getElementById('contador');
+            lista.innerHTML = '';
+            
+            let total = 0;
+            let pagos = 0;
+
+            snapshot.forEach((docSnap) => {
+                const j = docSnap.data();
+                const id = docSnap.id;
+                total++;
+                if(j.pago) pagos++;
+                
+                const item = document.createElement('li');
+                item.className = `flex justify-between items-center p-4 rounded-xl border-2 transition-all ${j.pago ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100'}`;
+                
+                item.innerHTML = `
+                    <span class="font-semibold ${j.pago ? 'text-green-700' : 'text-gray-700'}">${j.nome}</span>
+                    <div class="flex items-center gap-3">
+                        <button onclick="window.togglePix('${id}', ${j.pago})" 
+                            class="text-[10px] px-3 py-1.5 rounded-lg font-black uppercase tracking-tighter shadow-sm transition-all ${j.pago ? 'bg-green-500 text-white' : 'bg-amber-400 text-white'}">
+                            ${j.pago ? 'PIX OK' : 'PENDENTE'}
+                        </button>
+                        <button onclick="window.remover('${id}')" class="text-gray-300 hover:text-red-500 transition-colors text-xl">×</button>
+                    </div>
+                `;
+                lista.appendChild(item);
+            });
+
+            contador.innerText = `${total} Jogadores | ${pagos} Pagos | Falta: ${total - pagos}`;
+        });
+
+        // Funções Globais
+        window.adicionarJogador = async () => {
+            const input = document.getElementById('nomeJogador');
+            if (input.value.trim()) {
+                await addDoc(jogadoresCol, { 
+                    nome: input.value.trim(), 
+                    pago: false, 
+                    criadoEm: Date.now() 
+                });
+                input.value = '';
+                input.focus();
+            }
+        };
+
+        window.togglePix = async (id, statusAtual) => {
+            const docRef = doc(db, "jogadores", id);
+            await updateDoc(docRef, { pago: !statusAtual });
+        };
+
+        window.remover = async (id) => {
+            if(confirm("Remover jogador da lista?")) {
+                await deleteDoc(doc(db, "jogadores", id));
+            }
+        };
+    </script>
+</body>
+</html>
