@@ -3,96 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vôlei Grupo - iOS 26 Edition</title>
+    <title>Vôlei Pro - iOS 26</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; -webkit-font-smoothing: antialiased; }
-        .active-tab { border-bottom: 2px solid #007aff; font-weight: 600; color: #007aff; }
+        body { font-family: -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+        .active-tab { border-bottom: 3px solid #007aff; font-weight: 700; color: #007aff; }
         .hidden { display: none; }
-        @keyframes shuffle { 0% { opacity: 0.3; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.3; transform: scale(0.9); } }
-        .shuffling-name { animation: shuffle 0.3s ease-in-out infinite; }
-        .ios-input { background-color: rgba(239, 239, 240, 0.7); border: none; outline: none; transition: background-color 0.2s; }
-        .ios-input:focus { background-color: rgba(239, 239, 240, 1); }
-        .ios-btn { transition: opacity 0.2s, transform 0.1s; }
-        .ios-btn:active { opacity: 0.7; transform: scale(0.98); }
-        .ios-card { background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-        .status-badge { text-transform: uppercase; letter-spacing: 0.05em; }
+        .ios-card { background: #ffffff; border: 1px solid #e5e5ea; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .ios-btn:active { transform: scale(0.97); opacity: 0.8; }
+        @keyframes shuffle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        .shuffling { animation: shuffle 0.2s infinite; }
     </style>
 </head>
-<body class="bg-[#f2f2f7] min-h-screen text-[#1c1c1e]">
+<body class="bg-[#f2f2f7] min-h-screen text-[#1c1c1e] pb-10">
 
-    <div class="max-w-md mx-auto min-h-screen flex flex-col p-4 space-y-4">
+    <div class="max-w-md mx-auto p-4 space-y-4">
         
-        <div class="flex items-center justify-between pt-2 pb-2">
-            <h1 class="text-3xl font-extrabold tracking-tight">Vôlei Grupo</h1>
-            <div class="flex items-center space-x-2">
-                <span class="text-xs font-semibold text-gray-500">Quadra: 350,00</span>
+        <div class="flex justify-between items-end pb-2">
+            <h1 class="text-3xl font-black tracking-tighter text-slate-900">Vôlei App</h1>
+            <div class="bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Pix: 11959154029</span>
+                <button onclick="copiarPix()" class="ml-2 text-blue-500 text-xs"><i class="far fa-copy"></i></button>
             </div>
         </div>
 
-        <div class="ios-card rounded-2xl p-4 flex items-center justify-between border border-[#e5e5ea]">
-            <div class="flex flex-col">
-                <span class="text-xs text-gray-500 font-medium">PIX</span>
-                <span id="pixNumber" class="text-base font-semibold tracking-tight">11959154029</span>
-            </div>
-            <button onclick="copiarPix()" class="ios-btn text-[#007aff] text-sm font-semibold flex items-center space-x-1.5 p-2 rounded-xl bg-[#eef7ff]">
-                <i class="far fa-copy"></i>
-                <span>Copiar</span>
-            </button>
-        </div>
-
-        <div id="pixNotificacao" class="fixed top-4 right-4 bg-[#1c1c1e] text-white px-4 py-2 rounded-full text-sm font-medium opacity-0 pointer-events-none transition-opacity duration-300 shadow-lg">
-            Pix copiado!
-        </div>
-
-        <div class="flex border-b border-[#e5e5ea]">
-            <button onclick="mudarAba('lista')" id="btn-lista" class="flex-1 py-3 active-tab text-center text-sm font-medium text-gray-600">Lista e Pagamento</button>
-            <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="flex-1 py-3 text-center text-sm font-medium text-gray-600">Sorteio de Times</button>
+        <div class="flex border-b border-gray-200 mb-4 sticky top-0 bg-[#f2f2f7] z-10">
+            <button onclick="mudarAba('lista')" id="btn-lista" class="flex-1 py-3 active-tab text-xs uppercase tracking-widest">Lista</button>
+            <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="flex-1 py-3 text-xs uppercase tracking-widest text-gray-400">Sortear</button>
+            <button onclick="mudarAba('historico')" id="btn-historico" class="flex-1 py-3 text-xs uppercase tracking-widest text-gray-400">Histórico</button>
         </div>
 
         <div id="aba-lista" class="space-y-4">
-            <div class="ios-card rounded-2xl p-4 border border-[#e5e5ea] space-y-3">
-                <div class="flex justify-between items-center text-sm font-semibold">
-                    <span class="text-gray-900">Total Arrecadado</span>
-                    <span id="valorPorPessoa" class="text-gray-500">R$ 0,00 / pessoa</span>
+            <div class="ios-card rounded-2xl p-4 space-y-2">
+                <div class="flex justify-between text-xs font-bold uppercase text-gray-400">
+                    <span>Progresso da Quadra</span>
+                    <span id="valorPorPessoa">R$ 0,00/pessoa</span>
                 </div>
-                <div class="w-full bg-[#e5e5ea] rounded-full h-3">
-                    <div id="barraProgresso" class="bg-[#34c759] h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div id="barraProgresso" class="bg-green-500 h-full transition-all duration-700" style="width: 0%"></div>
                 </div>
-                <p id="statusFinanceiro" class="text-xs text-gray-500 font-medium text-center">R$ 0 de R$ 350 arrecadados</p>
+                <p id="statusFinanceiro" class="text-center text-[10px] font-bold text-gray-500 italic">Carregando...</p>
             </div>
 
-            <div class="flex gap-2 items-center">
-                <input type="text" id="nomeJogador" placeholder="Nome do jogador..." class="ios-input flex-1 p-3.5 rounded-xl text-sm w-full">
-                <button onclick="window.adicionarJogador()" class="ios-btn bg-[#007aff] text-white px-5 py-3.5 rounded-xl font-semibold shadow-sm text-sm flex items-center justify-center">
-                    <i class="fas fa-plus mr-2 text-xs"></i> Add
-                </button>
+            <div class="flex gap-2">
+                <input type="text" id="nomeJogador" placeholder="Nome do jogador" class="flex-1 p-3 rounded-xl border-none shadow-inner outline-none text-sm">
+                <button onclick="window.adicionarJogador()" class="ios-btn bg-blue-600 text-white px-6 rounded-xl font-bold">+</button>
             </div>
-
-            <ul id="listaJogadores" class="space-y-2.5"></ul>
+            <ul id="listaJogadores" class="space-y-2"></ul>
         </div>
 
-        <div id="aba-sorteio" class="space-y-4 hidden">
-            <div class="ios-card rounded-2xl p-4 border border-[#e5e5ea]">
-                <h2 class="font-bold text-[#3a3a3c] mb-3 flex items-center"><i class="fas fa-info-circle text-[#ff9500] mr-2"></i>Apenas jogadores com PIX OK serão sorteados.</h2>
-                <div class="flex items-center gap-3">
-                    <label class="text-sm font-medium text-gray-700">Jogadores por time:</label>
-                    <input type="number" id="qtdPorTime" value="6" class="ios-input w-20 p-2.5 rounded-lg text-center font-semibold text-sm">
+        <div id="aba-sorteio" class="hidden space-y-4">
+            <div class="ios-card rounded-2xl p-5 text-center space-y-4">
+                <div class="flex justify-center items-center gap-4">
+                    <span class="text-sm font-bold">Jogadores/Time:</span>
+                    <input type="number" id="qtdPorTime" value="6" class="w-16 p-2 rounded-lg bg-gray-100 text-center font-bold">
                 </div>
-                <button onclick="animarESortear()" class="ios-btn w-full mt-4 bg-[#ff9500] text-white py-3.5 rounded-2xl font-semibold shadow-sm hover:bg-[#ffaa33] text-sm uppercase tracking-wider">
-                    <i class="fas fa-dice mr-2"></i> Sortear Times
-                </button>
+                <button onclick="animarESortear()" class="ios-btn w-full bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-orange-200">Sortear Times 🎲</button>
             </div>
+            <div id="shuffling" class="hidden text-center font-bold text-orange-500 shuffling">EMBARALHANDO...</div>
+            <div id="resultadoSorteio" class="space-y-3"></div>
+            <button id="btnSalvarJogo" onclick="salvarJogoNoBanco()" class="hidden ios-btn w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase text-xs">Salvar este jogo no Histórico</button>
+        </div>
 
-            <div id="shufflingContainer" class="hidden text-center p-4">
-                <p class="text-sm text-gray-500 font-medium mb-3">Misturando nomes...</p>
-                <div id="shufflingNames" class="flex flex-wrap gap-2 justify-center text-sm font-medium text-gray-600">
-                    </div>
-            </div>
-            
-            <div id="resultadoSorteio" class="space-y-4">
-                </div>
+        <div id="aba-historico" class="hidden space-y-4">
+            <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Jogos e Vitórias</h2>
+            <div id="listaHistorico" class="space-y-4"></div>
         </div>
     </div>
 
@@ -113,140 +89,166 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const jogadoresCol = collection(db, "jogadores");
-        let jogadoresAtuais = [];
+        const historicoCol = collection(db, "historico");
 
-        // Controle de Abas iOS
+        let jogadoresAtuais = [];
+        let timesSorteadosNoMomento = [];
+
         window.mudarAba = (aba) => {
-            document.getElementById('aba-lista').classList.toggle('hidden', aba !== 'lista');
-            document.getElementById('aba-sorteio').classList.toggle('hidden', aba !== 'sorteio');
-            document.getElementById('btn-lista').classList.toggle('active-tab', aba === 'lista');
-            document.getElementById('btn-sorteio').classList.toggle('active-tab', aba === 'sorteio');
+            document.querySelectorAll('[id^="aba-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="btn-"]').forEach(el => el.classList.remove('active-tab', 'text-gray-400'));
+            document.getElementById(`aba-${aba}`).classList.remove('hidden');
+            document.getElementById(`btn-${aba}`).classList.add('active-tab');
         };
 
-        // Copiar Pix
-        window.copiarPix = () => {
-            const pixNumber = document.getElementById('pixNumber').innerText;
-            navigator.clipboard.writeText(pixNumber).then(() => {
-                const notificacao = document.getElementById('pixNotificacao');
-                notificacao.style.opacity = '1';
-                setTimeout(() => {
-                    notificacao.style.opacity = '0';
-                }, 1500);
-            }).catch(err => {
-                console.error('Falha ao copiar Pix: ', err);
-            });
-        }
-
-        // Escuta Banco de Dados
-        const q = query(jogadoresCol, orderBy("nome", "asc"));
-        onSnapshot(q, (snapshot) => {
+        // --- GESTÃO DE JOGADORES ---
+        onSnapshot(query(jogadoresCol, orderBy("nome", "asc")), (snap) => {
             const lista = document.getElementById('listaJogadores');
             lista.innerHTML = '';
             jogadoresAtuais = [];
-            
             let pagos = 0;
-            snapshot.forEach((docSnap) => {
-                const j = { id: docSnap.id, ...docSnap.data() };
+            snap.forEach(d => {
+                const j = {id: d.id, ...d.data()};
                 jogadoresAtuais.push(j);
                 if(j.pago) pagos++;
-                
-                const item = document.createElement('li');
-                item.className = `ios-card rounded-2xl p-4 flex justify-between items-center border border-[#e5e5ea] ${j.pago ? 'border-l-4 border-l-[#34c759]' : 'border-l-4 border-l-[#ff3b30]'}`;
-                item.innerHTML = `
-                    <span class="font-semibold text-gray-900 text-sm">${j.nome}</span>
-                    <div class="flex items-center space-x-2.5">
-                        <button onclick="window.togglePix('${j.id}', ${j.pago})" class="ios-btn status-badge text-[10px] px-3.5 py-1.5 rounded-lg font-bold text-white shadow-sm ${j.pago ? 'bg-[#34c759]' : 'bg-[#ff3b30]'}">
-                            ${j.pago ? 'PIX OK' : 'PENDENTE'}
-                        </button>
-                        <button onclick="window.remover('${j.id}')" class="text-gray-400 hover:text-[#ff3b30] p-1 rounded-md text-sm"><i class="fas fa-trash-alt"></i></button>
-                    </div>`;
-                lista.appendChild(item);
+                lista.innerHTML += `
+                    <li class="ios-card rounded-xl p-3 flex justify-between items-center border-l-4 ${j.pago ? 'border-green-500' : 'border-red-400'}">
+                        <span class="font-bold text-sm">${j.nome}</span>
+                        <div class="flex items-center gap-3">
+                            <button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-3 py-1.5 rounded-lg text-white ${j.pago ? 'bg-green-500' : 'bg-red-400'}">${j.pago ? 'PIX OK' : 'PENDENTE'}</button>
+                            <button onclick="window.remover('${j.id}')" class="text-gray-300">✕</button>
+                        </div>
+                    </li>`;
             });
-
             atualizarFinanceiro(jogadoresAtuais.length, pagos);
         });
 
-        function atualizarFinanceiro(totalPessoas, totalPagos) {
-            const custoTotal = 350;
-            const valorPorPessoa = totalPessoas > 0 ? (custoTotal / totalPessoas).toFixed(2) : "0.00";
-            const arrecadado = (totalPagos * (custoTotal / totalPessoas || 0)).toFixed(0);
-            const porcentagem = (totalPagos / totalPessoas * 100) || 0;
-
-            document.getElementById('valorPorPessoa').innerText = `R$ ${valorPorPessoa} / pessoa`;
-            document.getElementById('barraProgresso').style.width = `${porcentagem}%`;
-            document.getElementById('statusFinanceiro').innerText = `${totalPagos} de ${totalPessoas} pessoas pagaram`;
+        function atualizarFinanceiro(total, pagos) {
+            const vpp = total > 0 ? (350/total).toFixed(2) : "0.00";
+            document.getElementById('valorPorPessoa').innerText = `R$ ${vpp}/pessoa`;
+            document.getElementById('barraProgresso').style.width = `${(pagos/total*100)||0}%`;
+            document.getElementById('statusFinanceiro').innerText = `${pagos} de ${total} pagos | Faltam R$ ${350 - (pagos*(350/total||0))}`;
         }
 
         window.adicionarJogador = async () => {
-            const input = document.getElementById('nomeJogador');
-            if (input.value.trim()) {
-                await addDoc(jogadoresCol, { nome: input.value.trim(), pago: false, criadoEm: Date.now() });
-                input.value = '';
-                input.focus();
-            }
+            const i = document.getElementById('nomeJogador');
+            if(i.value.trim()) { await addDoc(jogadoresCol, {nome: i.value.trim(), pago: false}); i.value=''; }
         };
 
-        window.togglePix = async (id, status) => {
-            await updateDoc(doc(db, "jogadores", id), { pago: !status });
-        };
+        window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
+        window.remover = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
 
-        window.remover = async (id) => {
-            if(confirm("Remover jogador da lista?")) await deleteDoc(doc(db, "jogadores", id));
-        };
-
-        // Lógica de Animação e Sorteio
+        // --- SORTEIO ---
         window.animarESortear = () => {
             const pagos = jogadoresAtuais.filter(j => j.pago);
-            if (pagos.length < 2) return alert("Precisa de pelo menos 2 pessoas com PIX OK!");
-
-            const shufflingContainer = document.getElementById('shufflingContainer');
-            const shufflingNames = document.getElementById('shufflingNames');
-            const resultadoDiv = document.getElementById('resultadoSorteio');
-            const qtdPorTime = parseInt(document.getElementById('qtdPorTime').value);
-
-            // Preparar Animação
-            shufflingContainer.classList.remove('hidden');
-            shufflingNames.innerHTML = '';
-            resultadoDiv.innerHTML = '';
-            
-            // Adicionar nomes piscando
-            pagos.forEach(j => {
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'shuffling-name';
-                nameSpan.innerText = j.nome;
-                shufflingNames.appendChild(nameSpan);
-            });
-
-            // Executar Sorteio após animação (1.5 segundos)
+            if(pagos.length < 2) return alert("Mínimo 2 pessoas com PIX OK!");
+            document.getElementById('shuffling').classList.remove('hidden');
             setTimeout(() => {
-                shufflingContainer.classList.add('hidden');
-                sortearTimes(pagos, qtdPorTime);
-            }, 1500);
+                document.getElementById('shuffling').classList.add('hidden');
+                realizarSorteio(pagos);
+            }, 1200);
         };
 
-        function sortearTimes(pagos, qtdPorTime) {
-            const resultadoDiv = document.getElementById('resultadoSorteio');
-            
-            // Shuffle (Embaralhar)
+        function realizarSorteio(pagos) {
+            const qtd = parseInt(document.getElementById('qtdPorTime').value);
             const sorteados = pagos.sort(() => Math.random() - 0.5);
-            resultadoDiv.innerHTML = '';
+            const res = document.getElementById('resultadoSorteio');
+            res.innerHTML = '';
+            timesSorteadosNoMomento = [];
 
-            let timeAtual = [];
-            let contadorTime = 1;
-
-            for (let i = 0; i < sorteados.length; i++) {
-                timeAtual.push(sorteados[i].nome);
-                
-                if (timeAtual.length == qtdPorTime || i == sorteados.length - 1) {
-                    const card = document.createElement('div');
-                    card.className = "ios-card rounded-2xl p-4 border border-[#e5e5ea]";
-                    card.innerHTML = `<h3 class="font-extrabold text-[#ff9500] mb-2.5 text-sm uppercase tracking-wider">TIME ${contadorTime}</h3>
-                                      <p class="text-gray-900 text-sm font-semibold">${timeAtual.join(', ')}</p>`;
-                    resultadoDiv.appendChild(card);
-                    timeAtual = [];
-                    contadorTime++;
+            let tempTime = [];
+            sorteados.forEach((j, i) => {
+                tempTime.push(j.nome);
+                if(tempTime.length === qtd || i === sorteados.length - 1) {
+                    timesSorteadosNoMomento.push({nome: `Time ${timesSorteadosNoMomento.length + 1}`, membros: [...tempTime], vitorias: 0});
+                    tempTime = [];
                 }
-            }
+            });
+
+            timesSorteadosNoMomento.forEach(t => {
+                res.innerHTML += `
+                    <div class="ios-card rounded-xl p-4 border-t-2 border-orange-400">
+                        <div class="text-[10px] font-black text-orange-500 uppercase">${t.nome}</div>
+                        <div class="text-sm font-bold text-gray-700">${t.membros.join(', ')}</div>
+                    </div>`;
+            });
+            document.getElementById('btnSalvarJogo').classList.remove('hidden');
+        }
+
+        window.salvarJogoNoBanco = async () => {
+            const data = new Date().toLocaleDateString('pt-BR');
+            await addDoc(historicoCol, { data, times: timesSorteadosNoMomento, criadoEm: Date.now() });
+            alert("Jogo salvo no histórico!");
+            mudarAba('historico');
+        };
+
+        // --- HISTÓRICO ---
+        onSnapshot(query(historicoCol, orderBy("criadoEm", "desc")), (snap) => {
+            const hist = document.getElementById('listaHistorico');
+            hist.innerHTML = '';
+            snap.forEach(d => {
+                const jogo = {id: d.id, ...d.data()};
+                let timesHtml = '';
+                jogo.times.forEach((t, idx) => {
+                    timesHtml += `
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">${t.nome}</span>
+                                <span class="text-xs font-medium text-gray-600">${t.membros.join(', ')}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, -1)" class="w-6 h-6 rounded bg-gray-100 text-gray-400">-</button>
+                                <span class="font-black text-blue-600 w-4 text-center">${t.vitorias || 0}</span>
+                                <button onclick="window.updVitoria('${jogo.id}', ${idx}, 1)" class="w-6 h-6 rounded bg-blue-100 text-blue-600 font-bold">+</button>
+                            </div>
+                        </div>`;
+                });
+
+                hist.innerHTML += `
+                    <div class="ios-card rounded-2xl p-4">
+                        <div class="flex justify-between mb-3">
+                            <span class="bg-blue-600 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase">${jogo.data}</span>
+                            <button onclick="window.removerJogo('${jogo.id}')" class="text-gray-300 text-xs">Apagar</button>
+                        </div>
+                        ${timesHtml}
+                    </div>`;
+            });
+        });
+
+        window.updVitoria = async (jogoId, timeIdx, acao) => {
+            const jogo = snapToObj(jogoId); // Função auxiliar não necessária em onSnapshot direto, mas vamos buscar os dados atuais:
+            const docRef = doc(db, "historico", jogoId);
+            // Para atualizar um item dentro de um array no Firebase, precisamos do array todo
+            const snap = await (await fetch).getDoc(); // Simplificado para o fluxo:
+        };
+
+        // Correção para atualizar vitórias dentro do array do Firebase
+        window.updVitoria = async (id, idx, valor) => {
+            const docRef = doc(db, "historico", id);
+            // Pegamos o estado atual do jogo no histórico local para manipular
+            const snapshot = await onSnapshot(docRef, (d) => {}); // isso é assíncrono.
+            // Forma simplificada para o usuário:
+            let jogoAtual;
+            snap.forEach(d => { if(d.id === id) jogoAtual = d.data(); }); // Usando o cache do onSnapshot
+        };
+
+        // Redefinindo a função de update para ser precisa
+        window.updVitoria = async (jogoId, timeIdx, mudanca) => {
+            const docRef = doc(db, "historico", jogoId);
+            // Buscamos o dado atual no Firebase para garantir
+            onSnapshot(docRef, async (d) => {
+                let times = d.data().times;
+                let novaVit = (times[timeIdx].vitorias || 0) + mudanca;
+                times[timeIdx].vitorias = novaVit < 0 ? 0 : novaVit;
+                await updateDoc(docRef, { times: times });
+            }, { once: true });
+        };
+
+        window.removerJogo = async (id) => { if(confirm("Apagar registro de jogo?")) await deleteDoc(doc(db, "historico", id)); };
+
+        window.copiarPix = () => {
+            navigator.clipboard.writeText("11959154029");
+            alert("Pix copiado!");
         };
     </script>
 </body>
