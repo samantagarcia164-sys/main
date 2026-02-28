@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vôlei Pro - iOS 26 Liquid Dice</title>
+    <title>Vôlei Pro - Sistema de Fila</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --ios-blue: #007aff; --ios-orange: #ff9500; }
         body { font-family: -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background-color: #000; color: #fff; overflow-x: hidden; }
         
-        /* Background Líquido */
         .liquid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: linear-gradient(135deg, #1d1d1f 0%, #000 100%); }
         .metaball { position: absolute; border-radius: 50%; filter: blur(60px); animation: liquid-float 20s infinite ease-in-out; opacity: 0.4; }
         .metaball:nth-child(1) { width: 300px; height: 300px; top: -5%; left: -10%; background: var(--ios-blue); }
         .metaball:nth-child(2) { width: 400px; height: 400px; bottom: -10%; right: -10%; background: var(--ios-orange); animation-delay: -5s; }
         @keyframes liquid-float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, -40px) scale(1.2); } }
 
-        /* Glassmorphism */
         .glass-card { background: rgba(255, 255, 255, 0.05); -webkit-backdrop-filter: blur(25px); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .glass-menu { background: rgba(20, 20, 20, 0.8); -webkit-backdrop-filter: blur(25px); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .glass-input { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none; }
@@ -30,15 +28,10 @@
         .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Animação dos Dados */
-        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); }
+        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); }
         .dice-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 20px; }
-        .die { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: 0 0 20px rgba(255,255,255,0.1); animation: roll-dice 0.6s infinite ease-in-out; }
-        @keyframes roll-dice {
-            0% { transform: translateY(0) rotate(0deg) scale(1); }
-            50% { transform: translateY(-40px) rotate(180deg) scale(1.1); }
-            100% { transform: translateY(0) rotate(360deg) scale(1); }
-        }
+        .die { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 40px; animation: roll-dice 0.6s infinite ease-in-out; }
+        @keyframes roll-dice { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
     </style>
 </head>
 <body class="pb-32">
@@ -48,9 +41,9 @@
     <div class="max-w-md mx-auto flex flex-col min-h-screen">
         
         <header class="p-6 pt-12 flex justify-between items-center">
-            <h1 class="text-3xl font-black tracking-tighter italic">VÔLEI <span class="text-blue-500">PRO</span></h1>
-            <button onclick="copiarPix()" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95">
-                Pix: 11959154029 <i class="far fa-copy opacity-50"></i>
+            <h1 class="text-3xl font-black tracking-tighter italic uppercase">Vôlei <span class="text-blue-500 underline decoration-blue-500/30">Pro</span></h1>
+            <button onclick="copiarPix()" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all">
+                Pix: 11959154029 <i class="far fa-copy opacity-40"></i>
             </button>
         </header>
 
@@ -60,49 +53,49 @@
                 <div class="glass-card rounded-[2.5rem] p-6 space-y-4">
                     <div class="flex justify-between items-center">
                         <div class="flex flex-col">
-                            <span class="text-[10px] font-black uppercase opacity-40 tracking-widest">Valor Individual</span>
-                            <span id="vpp" class="text-xl font-black">R$ 0,00</span>
+                            <span class="text-[10px] font-black uppercase opacity-30 tracking-widest">Meta por Atleta</span>
+                            <span id="vpp" class="text-2xl font-black text-white">R$ 0,00</span>
                         </div>
-                        <button onclick="window.compartilharWhatsApp()" class="ios-btn bg-green-500/20 text-green-400 p-3 rounded-2xl border border-green-500/30">
+                        <button onclick="window.compartilharWhatsApp()" class="ios-btn bg-green-500/20 text-green-400 w-12 h-12 rounded-2xl border border-green-500/30 flex items-center justify-center">
                             <i class="fab fa-whatsapp text-xl"></i>
                         </button>
                     </div>
-                    <div class="h-2 bg-white/5 rounded-full overflow-hidden">
-                        <div id="barra" class="h-full bg-white rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,255,255,0.4)]" style="width: 0%"></div>
+                    <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div id="barra" class="h-full bg-white rounded-full transition-all duration-1000" style="width: 0%"></div>
                     </div>
-                    <p id="infoFin" class="text-center text-[10px] font-bold opacity-60 uppercase tracking-tighter italic">Calculando...</p>
+                    <p id="infoFin" class="text-center text-[10px] font-black opacity-40 uppercase tracking-tighter italic">Carregando...</p>
                 </div>
 
                 <div class="flex gap-2">
-                    <input type="text" id="nomeJogador" placeholder="Nome do atleta..." class="glass-input flex-1 p-4 rounded-2xl text-sm">
-                    <button onclick="window.adicionarJogador()" class="ios-btn bg-white text-black px-6 rounded-2xl font-black shadow-lg">+</button>
+                    <input type="text" id="nomeJogador" placeholder="Nome do jogador..." class="glass-input flex-1 p-4 rounded-2xl text-sm font-medium">
+                    <button onclick="window.adicionarJogador()" class="ios-btn bg-white text-black px-7 rounded-2xl font-black shadow-lg shadow-white/5">+</button>
                 </div>
 
                 <ul id="listaJogadores" class="space-y-3"></ul>
 
-                <button onclick="window.limparListaSemana()" class="w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-20 hover:opacity-100 transition-all pt-6">
-                    <i class="fas fa-undo mr-2"></i> Zerar Semana
+                <button onclick="window.limparListaSemana()" class="w-full py-4 text-[9px] font-black uppercase tracking-[0.4em] opacity-20 hover:opacity-100 transition-all border-t border-white/5 mt-4">
+                    <i class="fas fa-history mr-2"></i> Reiniciar Semana
                 </button>
             </div>
 
             <div id="aba-sorteio" class="hidden space-y-6">
-                <div class="glass-card rounded-[2.5rem] p-6 space-y-4 text-center">
+                <div class="glass-card rounded-[2.5rem] p-6 space-y-5 text-center">
                     <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
-                        <span class="text-xs font-black uppercase opacity-60 tracking-widest">Jogadores / Time</span>
-                        <input type="number" id="qtdPorTime" value="6" class="bg-transparent text-right font-black text-xl w-12 outline-none text-blue-500">
+                        <span class="text-xs font-black uppercase opacity-40 tracking-widest">Jogadores / Time</span>
+                        <input type="number" id="qtdPorTime" value="6" class="bg-transparent text-right font-black text-2xl w-14 outline-none text-blue-500">
                     </div>
-                    <button onclick="animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-3xl font-black uppercase tracking-[0.2em] shadow-2xl">Lançar Dados 🎲</button>
+                    <button onclick="animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-[1.5rem] font-black uppercase tracking-[0.2em] shadow-2xl">Lançar Dados 🎲</button>
                 </div>
                 
                 <div id="shufflingContainer"></div>
                 <div id="resultadoSorteio" class="space-y-3"></div>
                 
-                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Jogo ✅</button>
+                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Escalação ✅</button>
             </div>
 
-            <div id="aba-historico" class="hidden space-y-5">
-                <h2 class="text-center text-[10px] font-black opacity-30 uppercase tracking-[0.3em]">Histórico de Partidas</h2>
-                <div id="listaHistorico" class="space-y-4 pb-10"></div>
+            <div id="aba-historico" class="hidden space-y-5 pb-10">
+                <h2 class="text-center text-[10px] font-black opacity-20 uppercase tracking-[0.4em]">Partidas Anteriores</h2>
+                <div id="listaHistorico" class="space-y-4"></div>
             </div>
 
         </main>
@@ -110,7 +103,7 @@
         <footer class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
             <nav class="glass-menu rounded-[2.5rem] p-2 flex justify-around items-center shadow-2xl border border-white/5">
                 <button onclick="mudarAba('lista')" id="btn-lista" class="tab-btn active-tab flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Lista</button>
-                <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Sortear</button>
+                <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all text-center">Sortear</button>
                 <button onclick="mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Histórico</button>
             </nav>
         </footer>
@@ -136,6 +129,7 @@
 
         let jogadores = [];
         let timesParaSalvar = [];
+        let proximosAtuais = [];
 
         window.mudarAba = (aba) => {
             document.querySelectorAll('[id^="aba-"]').forEach(el => el.classList.add('hidden'));
@@ -156,7 +150,7 @@
                         <span class="font-bold text-sm tracking-tight">${j.nome}</span>
                         <div class="flex items-center gap-3">
                             <button onclick="togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'}">${j.pago ? 'OK' : 'PIX'}</button>
-                            <button onclick="removerJogador('${j.id}')" class="opacity-20 hover:opacity-100 transition-opacity">✕</button>
+                            <button onclick="removerJogador('${j.id}')" class="opacity-10 hover:opacity-100 transition-opacity px-2">✕</button>
                         </div>
                     </li>`;
             });
@@ -171,10 +165,9 @@
             if(i.value.trim()){ await addDoc(colJogadores, {nome: i.value.trim(), pago: false}); i.value=''; }
         };
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.removerJogador = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
-
+        window.removerJogador = async (id) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => {
-            if(confirm("Zerar lista de jogadores?")) {
+            if(confirm("Zerar todos os jogadores desta semana?")) {
                 const promises = jogadores.map(j => deleteDoc(doc(db, "jogadores", j.id)));
                 await Promise.all(promises);
             }
@@ -188,10 +181,9 @@
             window.open(`https://wa.me/?text=${texto}`, '_blank');
         };
 
-        // SORTEIO COM DADOS
         window.animarESortear = () => {
             const pagos = jogadores.filter(j => j.pago);
-            if(pagos.length < 2) return alert("Mínimo 2 com PIX OK!");
+            if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK!");
             
             const container = document.getElementById('shufflingContainer');
             container.style.display = 'block';
@@ -199,9 +191,8 @@
                 <div class="dice-wrap">
                     <div class="die">🎲</div>
                     <div class="die" style="animation-delay: 0.1s">🎲</div>
-                    <div class="die" style="animation-delay: 0.2s">🎲</div>
                 </div>
-                <div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-40">Sorteando times...</div>
+                <div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-40">Misturando atletas...</div>
             `;
 
             setTimeout(() => {
@@ -212,33 +203,47 @@
 
         function executarSorteio(pagos) {
             const qtd = parseInt(document.getElementById('qtdPorTime').value);
-            const sorteados = pagos.sort(() => Math.random() - 0.5);
+            const sorteados = [...pagos].sort(() => Math.random() - 0.5);
             const res = document.getElementById('resultadoSorteio');
-            res.innerHTML = ''; timesParaSalvar = [];
+            res.innerHTML = ''; timesParaSalvar = []; proximosAtuais = [];
 
-            let temp = [];
-            sorteados.forEach((j, i) => {
-                temp.push(j.nome);
-                if(temp.length === qtd || i === sorteados.length - 1) {
-                    timesParaSalvar.push({nome: `Time ${timesParaSalvar.length+1}`, membros: [...temp], vitorias: 0});
-                    temp = [];
-                }
-            });
+            const numTimes = Math.floor(sorteados.length / qtd);
+            const totalJogadoresEmTimes = numTimes * qtd;
+
+            const jogadoresParaTimes = sorteados.slice(0, totalJogadoresEmTimes);
+            const jogadoresSobra = sorteados.slice(totalJogadoresEmTimes);
+
+            for (let i = 0; i < numTimes; i++) {
+                const membros = jogadoresParaTimes.slice(i * qtd, (i + 1) * qtd).map(j => j.nome);
+                timesParaSalvar.push({nome: `Time ${i + 1}`, membros: membros, vitorias: 0});
+            }
 
             timesParaSalvar.forEach(t => {
                 res.innerHTML += `
-                    <div class="glass-card rounded-3xl p-5 animate-in">
-                        <div class="text-[9px] font-black opacity-30 uppercase mb-2 tracking-widest">${t.nome}</div>
+                    <div class="glass-card rounded-3xl p-5 animate-in border-t border-white/5">
+                        <div class="text-[9px] font-black opacity-20 uppercase mb-2 tracking-widest">${t.nome}</div>
                         <div class="font-bold text-sm text-gray-100">${t.membros.join(', ')}</div>
                     </div>`;
             });
+
+            if (jogadoresSobra.length > 0) {
+                proximosAtuais = jogadoresSobra.map(j => j.nome);
+                res.innerHTML += `
+                    <div class="glass-card rounded-3xl p-5 animate-in border-dashed border-2 border-white/10 bg-white/5">
+                        <div class="text-[9px] font-black text-blue-500 uppercase mb-2 tracking-widest">
+                            <i class="fas fa-clock mr-1"></i> Próximos da Fila
+                        </div>
+                        <div class="font-bold text-xs text-gray-500 italic">${proximosAtuais.join(', ')}</div>
+                    </div>`;
+            }
+
             document.getElementById('btnSalvar').classList.remove('hidden');
         }
 
         window.salvarPartida = async () => {
             const data = new Date().toLocaleDateString('pt-BR');
-            await addDoc(colHistorico, { data, times: timesParaSalvar, criadoEm: Date.now() });
-            alert("Salvo!");
+            await addDoc(colHistorico, { data, times: timesParaSalvar, proximos: proximosAtuais, criadoEm: Date.now() });
+            alert("Sorteio salvo no histórico!");
             mudarAba('historico');
         };
 
@@ -258,13 +263,20 @@
                             </div>
                         </div>`;
                 });
+
+                let proximosHtml = '';
+                if(p.proximos && p.proximos.length > 0) {
+                    proximosHtml = `<div class="mt-3 pt-3 border-t border-white/5 text-[10px] text-gray-500 font-medium italic">Próximos: ${p.proximos.join(', ')}</div>`;
+                }
+
                 hist.innerHTML += `
                     <div class="glass-card rounded-[2.5rem] p-6 animate-in">
                         <div class="flex justify-between items-center mb-4">
-                            <span class="text-[10px] font-black bg-white/10 px-3 py-1 rounded-full uppercase">${p.data}</span>
-                            <button onclick="window.removerPartida('${p.id}')" class="text-[9px] font-black opacity-20 uppercase">Apagar</button>
+                            <span class="text-[9px] font-black bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-tighter">${p.data}</span>
+                            <button onclick="window.removerPartida('${p.id}')" class="text-[9px] font-black opacity-20 hover:opacity-100 uppercase tracking-widest">Excluir</button>
                         </div>
-                        ${tHtml}
+                        <div class="space-y-1">${tHtml}</div>
+                        ${proximosHtml}
                     </div>`;
             });
         });
@@ -279,7 +291,7 @@
             }
         };
 
-        window.removerPartida = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "historico", id)); };
+        window.removerPartida = async (id) => { if(confirm("Apagar histórico de jogo?")) await deleteDoc(doc(db, "historico", id)); };
         window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("Pix copiado!"); };
     </script>
 </body>
