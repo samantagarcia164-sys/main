@@ -1,324 +1,263 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sorteio de Times</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Vôlei Pro - Liquid Glass iOS 26</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --ios-blue: #007aff; --ios-green: #34c759; --ios-red: #ff3b30; --ios-orange: #ff9500; }
+        body { font-family: -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background-color: #000; color: #fff; overflow-x: hidden; }
+        
+        /* Fundo Líquido */
+        .liquid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: linear-gradient(135deg, #1d1d1f 0%, #000 100%); }
+        .metaball { position: absolute; border-radius: 50%; filter: blur(60px); animation: liquid-float 20s infinite ease-in-out; opacity: 0.4; }
+        .metaball:nth-child(1) { width: 300px; height: 300px; top: -5%; left: -10%; background: var(--ios-blue); }
+        .metaball:nth-child(2) { width: 400px; height: 400px; bottom: -10%; right: -10%; background: var(--ios-orange); animation-delay: -5s; }
+        @keyframes liquid-float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, -40px) scale(1.2); } }
 
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+        /* Estilo Vidro */
+        .glass-card { background: rgba(255, 255, 255, 0.05); -webkit-backdrop-filter: blur(25px); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-menu { background: rgba(20, 20, 20, 0.7); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-input { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none; }
+        
+        .ios-btn:active { transform: scale(0.96); opacity: 0.8; }
+        .active-tab { color: #fff; font-weight: 800; position: relative; }
+        .active-tab::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #fff; border-radius: 50%; }
+        
+        .hidden { display: none; }
+        .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-  background: radial-gradient(circle at top, #1b1b1f, #000);
-  color: white;
-  padding: 24px;
-}
-
-.app {
-  max-width: 420px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-/* GLASS */
-.glass {
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.18),
-    rgba(255,255,255,0.06)
-  );
-  backdrop-filter: blur(36px) saturate(200%);
-  -webkit-backdrop-filter: blur(36px) saturate(200%);
-  border-radius: 28px;
-  border: 0.5px solid rgba(255,255,255,0.2);
-  padding: 22px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.2),
-    0 30px 60px rgba(0,0,0,0.6);
-}
-
-/* TEXTOS */
-h1 {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  text-align: center;
-}
-
-.subtitle {
-  font-size: 14px;
-  opacity: 0.6;
-  text-align: center;
-  margin-top: 6px;
-}
-
-.section-title {
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 14px;
-  opacity: 0.85;
-}
-
-/* INPUTS */
-input {
-  width: 100%;
-  padding: 16px;
-  border-radius: 18px;
-  border: none;
-  background: rgba(255,255,255,0.12);
-  color: white;
-  font-size: 16px;
-  outline: none;
-}
-
-/* ADD BUTTON */
-.add-btn {
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: white;
-  font-weight: 700;
-}
-
-.add-btn:active {
-  transform: scale(0.95);
-}
-
-/* LISTA DE NOMES */
-.lista {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.nome-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.08);
-  font-size: 15px;
-}
-
-.remove {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.6);
-  font-size: 18px;
-}
-
-/* BOTÃO SORTEAR */
-.sortear-btn {
-  padding: 18px;
-  border-radius: 22px;
-  border: none;
-  font-size: 17px;
-  font-weight: 800;
-  color: black;
-  background: linear-gradient(180deg, #fff, #dcdcdc);
-}
-
-.sortear-btn:active {
-  transform: scale(0.93);
-}
-
-/* RESULTADO */
-#resultado {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.time-title {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 6px;
-}
-
-.time-nomes {
-  font-size: 14px;
-  opacity: 0.75;
-  line-height: 1.5;
-}
-
-/* SHUFFLE */
-.shuffle-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(22px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.hidden { display: none; }
-
-.shuffle-box {
-  width: 280px;
-  height: 150px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-size: 22px;
-  font-weight: 800;
-
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.3),
-    rgba(255,255,255,0.1)
-  );
-  backdrop-filter: blur(40px);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.25),
-    0 40px 80px rgba(0,0,0,0.7);
-
-  animation: float 1.2s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%,100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-10px) scale(1.05); }
-}
-
-@keyframes reveal {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.reveal { animation: reveal .45s cubic-bezier(.23,1,.32,1); }
-</style>
+        /* Bolhas */
+        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none; }
+        .bubble { position: absolute; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); padding: 12px 20px; border-radius: 50px; font-size: 12px; font-weight: bold; animation: bubble-up 2s forwards; }
+        @keyframes bubble-up { 
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+        }
+    </style>
 </head>
+<body class="pb-28">
 
-<body>
+    <div class="liquid-bg"><div class="metaball"></div><div class="metaball"></div></div>
 
-<div class="app">
+    <div class="max-w-md mx-auto flex flex-col min-h-screen">
+        
+        <header class="p-6 pt-12 flex justify-between items-center">
+            <h1 class="text-3xl font-black tracking-tighter italic">VÔLEI <span class="text-blue-500">PRO</span></h1>
+            <button onclick="copiarPix()" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border-white/20">
+                Pix: 11959154029 <i class="far fa-copy opacity-50"></i>
+            </button>
+        </header>
 
-  <div class="glass">
-    <h1>Sorteio de Times</h1>
-    <div class="subtitle">Adicionar participantes individualmente</div>
-  </div>
+        <main class="px-5 space-y-6">
+            
+            <div id="aba-lista" class="space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-6 space-y-4">
+                    <div class="flex justify-between text-[10px] font-black uppercase opacity-40 tracking-widest">
+                        <span>Status Financeiro</span>
+                        <span id="vpp">R$ 0,00 / pessoa</span>
+                    </div>
+                    <div class="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                        <div id="barra" class="h-full bg-white rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,255,255,0.4)]" style="width: 0%"></div>
+                    </div>
+                    <p id="infoFin" class="text-center text-[10px] font-bold opacity-60 italic uppercase tracking-tighter">Calculando...</p>
+                </div>
 
-  <div class="glass">
-    <div class="section-title">Adicionar participante</div>
-    <input id="nomeInput" placeholder="Nome do participante" />
-    <button class="add-btn" onclick="addNome()">＋ Adicionar</button>
+                <div class="flex gap-2">
+                    <input type="text" id="nomeJogador" placeholder="Nome do atleta..." class="glass-input flex-1 p-4 rounded-2xl text-sm">
+                    <button onclick="window.adicionarJogador()" class="ios-btn bg-white text-black px-6 rounded-2xl font-black">+</button>
+                </div>
+                <ul id="listaJogadores" class="space-y-3"></ul>
+            </div>
 
-    <div class="lista" id="listaNomes"></div>
-  </div>
+            <div id="aba-sorteio" class="hidden space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-6 space-y-4 text-center">
+                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <span class="text-xs font-black uppercase opacity-60">Jogadores / Time</span>
+                        <input type="number" id="qtdPorTime" value="6" class="bg-transparent text-right font-black text-xl w-12 outline-none">
+                    </div>
+                    <button onclick="animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-3xl font-black uppercase tracking-[0.2em] shadow-2xl">Sortear Times 🎲</button>
+                </div>
+                
+                <div id="shufflingContainer"></div>
+                <div id="resultadoSorteio" class="space-y-3"></div>
+                
+                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40">Salvar no Histórico ✅</button>
+            </div>
 
-  <div class="glass">
-    <div class="section-title">Jogadores por time</div>
-    <input id="qtd" type="number" placeholder="Ex: 4" />
-    <button class="sortear-btn" onclick="sortear()">🎲 Sortear Times</button>
-  </div>
+            <div id="aba-historico" class="hidden space-y-5">
+                <h2 class="text-center text-[10px] font-black opacity-30 uppercase tracking-[0.3em]">Partidas Salvas</h2>
+                <div id="listaHistorico" class="space-y-4 pb-10"></div>
+            </div>
 
-  <div id="resultado"></div>
+        </main>
 
-</div>
+        <footer class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
+            <nav class="glass-menu rounded-[2rem] p-2 flex justify-around items-center shadow-2xl">
+                <button onclick="mudarAba('lista')" id="btn-lista" class="tab-btn active-tab flex-1 py-3 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Lista</button>
+                <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Sortear</button>
+                <button onclick="mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Histórico</button>
+            </nav>
+        </footer>
+    </div>
 
-<div id="shuffleOverlay" class="shuffle-overlay hidden">
-  <div id="shuffleBox" class="shuffle-box"></div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script>
-let nomes = [];
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
+            authDomain: "voleigrupo-b8a5a.firebaseapp.com",
+            projectId: "voleigrupo-b8a5a",
+            storageBucket: "voleigrupo-b8a5a.firebasestorage.app",
+            messagingSenderId: "619450859287",
+            appId: "1:619450859287:web:bf9138713eb65b3c514152"
+        };
 
-function addNome() {
-  const input = document.getElementById("nomeInput");
-  const nome = input.value.trim();
-  if (!nome) return;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const colJogadores = collection(db, "jogadores");
+        const colHistorico = collection(db, "historico");
 
-  nomes.push(nome);
-  input.value = "";
-  renderLista();
-}
+        let jogadores = [];
+        let timesParaSalvar = [];
 
-function remover(index) {
-  nomes.splice(index, 1);
-  renderLista();
-}
+        window.mudarAba = (aba) => {
+            document.getElementById('aba-lista').classList.toggle('hidden', aba !== 'lista');
+            document.getElementById('aba-sorteio').classList.toggle('hidden', aba !== 'sorteio');
+            document.getElementById('aba-historico').classList.toggle('hidden', aba !== 'historico');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'opacity-100'));
+            document.getElementById(`btn-${aba}`).classList.add('active-tab', 'opacity-100');
+        };
 
-function renderLista() {
-  const lista = document.getElementById("listaNomes");
-  lista.innerHTML = "";
+        // --- LISTA ---
+        onSnapshot(query(colJogadores, orderBy("nome", "asc")), (snap) => {
+            const lista = document.getElementById('listaJogadores');
+            lista.innerHTML = ''; jogadores = []; let pagos = 0;
+            snap.forEach(d => {
+                const j = {id: d.id, ...d.data()};
+                jogadores.push(j);
+                if(j.pago) pagos++;
+                lista.innerHTML += `
+                    <li class="glass-card rounded-2xl p-4 flex justify-between items-center animate-in border-l-4 ${j.pago ? 'border-green-500' : 'border-red-500'}">
+                        <span class="font-bold text-sm tracking-tight">${j.nome}</span>
+                        <div class="flex items-center gap-3">
+                            <button onclick="togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'}">${j.pago ? 'OK' : 'PIX'}</button>
+                            <button onclick="removerJogador('${j.id}')" class="opacity-20 hover:opacity-100 transition-opacity">✕</button>
+                        </div>
+                    </li>`;
+            });
+            const v = jogadores.length > 0 ? (350/jogadores.length) : 0;
+            document.getElementById('vpp').innerText = `R$ ${v.toFixed(2)}/p`;
+            document.getElementById('barra').style.width = `${(pagos/jogadores.length*100)||0}%`;
+            document.getElementById('infoFin').innerText = `${pagos} de ${jogadores.length} pagos | Faltam R$ ${(350 - (pagos*v)).toFixed(2)}`;
+        });
 
-  nomes.forEach((n, i) => {
-    const div = document.createElement("div");
-    div.className = "nome-item";
-    div.innerHTML = `
-      ${n}
-      <button class="remove" onclick="remover(${i})">×</button>
-    `;
-    lista.appendChild(div);
-  });
-}
+        window.adicionarJogador = async () => {
+            const i = document.getElementById('nomeJogador');
+            if(i.value.trim()){ await addDoc(colJogadores, {nome: i.value.trim(), pago: false}); i.value=''; }
+        };
+        window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
+        window.removerJogador = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
 
-function shuffle(array) {
-  const a = [...array];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+        // --- SORTEIO ---
+        window.animarESortear = () => {
+            const pagos = jogadores.filter(j => j.pago);
+            if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK!");
+            
+            const container = document.getElementById('shufflingContainer');
+            container.style.display = 'block'; container.innerHTML = '';
+            pagos.forEach((j, i) => {
+                const b = document.createElement('div');
+                b.className = 'bubble'; b.innerText = j.nome;
+                b.style.left = `${Math.random()*70 + 10}%`;
+                b.style.animationDelay = `${Math.random()*0.5}s`;
+                container.appendChild(b);
+            });
 
-function animarSorteio(callback) {
-  const overlay = document.getElementById("shuffleOverlay");
-  const box = document.getElementById("shuffleBox");
+            setTimeout(() => {
+                container.style.display = 'none';
+                executarSorteio(pagos);
+            }, 2000);
+        };
 
-  overlay.classList.remove("hidden");
-  let i = 0;
+        function executarSorteio(pagos) {
+            const qtd = parseInt(document.getElementById('qtdPorTime').value);
+            const sorteados = pagos.sort(() => Math.random() - 0.5);
+            const res = document.getElementById('resultadoSorteio');
+            res.innerHTML = ''; timesParaSalvar = [];
 
-  const interval = setInterval(() => {
-    box.textContent = nomes[i % nomes.length];
-    i++;
-    if (i > 20) {
-      clearInterval(interval);
-      overlay.classList.add("hidden");
-      callback();
-    }
-  }, 90);
-}
+            let temp = [];
+            sorteados.forEach((j, i) => {
+                temp.push(j.nome);
+                if(temp.length === qtd || i === sorteados.length - 1) {
+                    timesParaSalvar.push({nome: `Time ${timesParaSalvar.length+1}`, membros: [...temp], vitorias: 0});
+                    temp = [];
+                }
+            });
 
-function sortear() {
-  const qtd = +document.getElementById("qtd").value;
-  if (nomes.length < 2 || !qtd) return alert("Adicione participantes e quantidade.");
+            timesParaSalvar.forEach(t => {
+                res.innerHTML += `
+                    <div class="glass-card rounded-2xl p-5 border-t-2 border-white/20 animate-in">
+                        <div class="text-[9px] font-black opacity-40 uppercase mb-2">${t.nome}</div>
+                        <div class="font-bold text-sm tracking-tight">${t.membros.join(', ')}</div>
+                    </div>`;
+            });
+            document.getElementById('btnSalvar').classList.remove('hidden');
+        }
 
-  const sorteados = shuffle(nomes);
-  animarSorteio(() => {
-    const res = document.getElementById("resultado");
-    res.innerHTML = "";
+        window.salvarPartida = async () => {
+            const data = new Date().toLocaleDateString('pt-BR');
+            await addDoc(colHistorico, { data, times: timesParaSalvar, criadoEm: Date.now() });
+            alert("Partida salva!");
+            document.getElementById('btnSalvar').classList.add('hidden');
+            mudarAba('historico');
+        };
 
-    let time = [];
-    let n = 1;
+        // --- HISTÓRICO ---
+        onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), (snap) => {
+            const hist = document.getElementById('listaHistorico'); hist.innerHTML = '';
+            snap.forEach(d => {
+                const partida = {id: d.id, ...d.data()};
+                let tHtml = '';
+                partida.times.forEach((t, idx) => {
+                    tHtml += `
+                        <div class="flex justify-between items-center py-4 border-b border-white/5 last:border-0">
+                            <div class="flex flex-col"><span class="text-[10px] font-black opacity-30">${t.nome}</span><span class="text-xs font-bold">${t.membros.join(', ')}</span></div>
+                            <div class="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10">
+                                <button onclick="window.vitoria('${partida.id}', ${idx}, -1)" class="w-8 h-8 rounded-xl font-black active:scale-90">-</button>
+                                <span class="font-black text-xl text-blue-500">${t.vitorias || 0}</span>
+                                <button onclick="window.vitoria('${partida.id}', ${idx}, 1)" class="w-8 h-8 bg-white text-black rounded-xl font-black active:scale-90">+</button>
+                            </div>
+                        </div>`;
+                });
+                hist.innerHTML += `
+                    <div class="glass-card rounded-[2rem] p-6 animate-in">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-[10px] font-black bg-white/10 px-3 py-1 rounded-full uppercase tracking-tighter">${partida.data}</span>
+                            <button onclick="window.removerPartida('${partida.id}')" class="text-[9px] font-black opacity-20 hover:opacity-100 uppercase">Apagar</button>
+                        </div>
+                        ${tHtml}
+                    </div>`;
+            });
+        });
 
-    sorteados.forEach((nome, i) => {
-      time.push(nome);
-      if (time.length === qtd || i === sorteados.length - 1) {
-        const card = document.createElement("div");
-        card.className = "glass reveal";
-        card.innerHTML = `
-          <div class="time-title">Time ${n++}</div>
-          <div class="time-nomes">${time.join(", ")}</div>
-        `;
-        res.appendChild(card);
-        time = [];
-      }
-    });
-  });
-}
-</script>
+        window.vitoria = async (id, idx, val) => {
+            const ref = doc(db, "historico", id);
+            const snap = await getDoc(ref);
+            if(snap.exists()) {
+                let times = snap.data().times;
+                times[idx].vitorias = Math.max(0, (times[idx].vitorias || 0) + val);
+                await updateDoc(ref, { times });
+            }
+        };
 
+        window.removerPartida = async (id) => { if(confirm("Apagar histórico?")) await deleteDoc(doc(db, "historico", id)); };
+        window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("Pix copiado!"); };
+    </script>
 </body>
 </html>
