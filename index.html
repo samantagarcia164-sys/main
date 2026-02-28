@@ -66,7 +66,6 @@
         .HabilidadeCol { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
         .HabilidadeVal { font-size: 1.5rem; font-weight: 900; line-height: 1; }
         .HabilidadeNome { font-size: 0.8rem; font-weight: 700; opacity: 0.7; text-transform: uppercase; }
-        
     </style>
 </head>
 <body class="pb-32">
@@ -175,7 +174,7 @@
                             </div>
                         </div>
                         <div class="FifaCardCentro">
-                            <img src="" alt="Foto Perfil" class="FifaCardFoto" id="cartaFoto">
+                            <img src="" alt="Foto Perfil" class="FifaCardFoto" id="cartaFoto" referrerpolicy="no-referrer">
                             <div class="FifaCardNome" id="cartaNome">SEU NOME</div>
                         </div>
                         <div class="FifaCardHabilidades">
@@ -198,7 +197,7 @@
                         </div>
                     </div>
                     <button onclick="editarPerfil()" class="ios-btn w-full mt-6 bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30">
-                        Editar Perfil
+                        Editar Carta
                     </button>
                     <button onclick="sair()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-red-400 opacity-60 hover:opacity-100 transition-all border-t border-white/5 mt-4">
                         <i class="fas fa-sign-out-alt mr-2"></i> Sair da Conta
@@ -214,22 +213,22 @@
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">URL da sua foto (Deixe em branco p/ usar a do Google)</label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">URL da sua foto (Deixe em branco para usar a do Google)</label>
                         <input type="text" id="perfilFotoUrl" class="glass-input mt-1" placeholder="Link da imagem ou deixe vazio">
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
                         <div>
-                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">Posição (ex: LEV)</label>
-                            <input type="text" id="perfilPosicao" class="glass-input text-xs mt-1 !p-3" placeholder="LEV, OPO, PON...">
+                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">Posição</label>
+                            <input type="text" id="perfilPosicao" class="glass-input text-xs mt-1 !p-3" placeholder="LEV, PON...">
                         </div>
                         <div>
-                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">Time/Clube</label>
+                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">Time</label>
                             <input type="text" id="perfilTime" class="glass-input text-xs mt-1 !p-3" placeholder="Seu time">
                         </div>
                         <div>
-                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">País/Bandeira</label>
-                            <input type="text" id="perfilPais" class="glass-input text-xs mt-1 !p-3" placeholder="Emoji bandeira">
+                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">Bandeira</label>
+                            <input type="text" id="perfilPais" class="glass-input text-xs mt-1 !p-3" placeholder="Emoji">
                         </div>
                     </div>
                     
@@ -254,13 +253,14 @@
                         </select>
                     </div>
 
-                    <button onclick="salvarPerfil()" class="ios-btn w-full bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30">
-                        Salvar Perfil e Criar Carta
-                    </button>
-                    
-                    <button onclick="sair()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-red-400 opacity-60 hover:opacity-100 transition-all border-t border-white/5 mt-4">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Sair da Conta
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="salvarPerfil()" class="ios-btn flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30">
+                            Salvar Dados
+                        </button>
+                        <button onclick="cancelarEdicao()" class="ios-btn bg-white/10 text-white py-4 px-6 rounded-2xl font-black uppercase tracking-widest text-xs border border-white/20 hidden" id="btnCancelar">
+                            Cancelar
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -330,7 +330,6 @@
 
         window.sair = () => signOut(auth);
 
-        // Ouve mudanças de login
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userAtual = user;
@@ -346,108 +345,119 @@
 
         // --- GESTÃO DE PERFIL ---
         window.carregarPerfil = async () => {
-            const docRef = doc(db, "usuarios", userAtual.uid);
-            const docSnap = await getDoc(docRef);
-            
-            // Foto do Google como Fallback principal
-            const fotoGoogle = userAtual.photoURL ? userAtual.photoURL.replace('=s96-c', '') : "https://via.placeholder.com/150";
-
-            if (docSnap.exists()) {
-                perfilAtual = docSnap.data();
+            try {
+                const docRef = doc(db, "usuarios", userAtual.uid);
+                const docSnap = await getDoc(docRef);
                 
-                // Preencher Formulário
-                document.getElementById('perfilNome').value = perfilAtual.nome || "";
-                document.getElementById('perfilFotoUrl').value = perfilAtual.fotoUrl || "";
-                document.getElementById('perfilPosicao').value = perfilAtual.posicao || "";
-                document.getElementById('perfilTime').value = perfilAtual.time || "";
-                document.getElementById('perfilPais').value = perfilAtual.pais || "🇧🇷";
-                document.getElementById('perfilNivel').value = perfilAtual.nivel || 3;
-                
-                // Preencher Habilidades (ou usar zero se não houver)
-                const hab = perfilAtual.habilidades || {};
-                document.getElementById('perfilSaque').value = hab.saque || "";
-                document.getElementById('perfilAtaque').value = hab.ataque || "";
-                document.getElementById('perfilToque').value = hab.toque || "";
-                document.getElementById('perfilLevantamento').value = hab.levantamento || "";
-                document.getElementById('perfilManchete').value = hab.manchete || "";
-                document.getElementById('perfilBloqueio').value = hab.bloqueio || "";
+                let fotoGoogle = "https://via.placeholder.com/150";
+                if (userAtual.photoURL) {
+                    fotoGoogle = userAtual.photoURL; // Pega foto do google direto
+                }
 
-                // Atualizar Carta Visual
-                document.getElementById('cartaGeral').innerText = perfilAtual.geral || "--";
-                document.getElementById('cartaPosicao').innerText = perfilAtual.posicao || "--";
-                document.getElementById('cartaBandeira').innerText = perfilAtual.pais || "🏁";
-                document.getElementById('cartaClube').innerText = perfilAtual.time || "Vôlei Pro";
-                document.getElementById('cartaNome').innerText = perfilAtual.nome || "SEU NOME";
-                
-                // Se o usuário não salvou nenhuma fotoUrl no app, usa a do Google. Se não tiver do Google, usa placeholder.
-                document.getElementById('cartaFoto').src = perfilAtual.fotoUrl || fotoGoogle;
+                if (docSnap.exists()) {
+                    perfilAtual = docSnap.data();
+                    
+                    document.getElementById('perfilNome').value = perfilAtual.nome || "";
+                    document.getElementById('perfilFotoUrl').value = perfilAtual.fotoUrl || "";
+                    document.getElementById('perfilPosicao').value = perfilAtual.posicao || "";
+                    document.getElementById('perfilTime').value = perfilAtual.time || "";
+                    document.getElementById('perfilPais').value = perfilAtual.pais || "🇧🇷";
+                    document.getElementById('perfilNivel').value = perfilAtual.nivel || 3;
+                    
+                    const hab = perfilAtual.habilidades || {};
+                    document.getElementById('perfilSaque').value = hab.saque !== undefined ? hab.saque : "";
+                    document.getElementById('perfilAtaque').value = hab.ataque !== undefined ? hab.ataque : "";
+                    document.getElementById('perfilToque').value = hab.toque !== undefined ? hab.toque : "";
+                    document.getElementById('perfilLevantamento').value = hab.levantamento !== undefined ? hab.levantamento : "";
+                    document.getElementById('perfilManchete').value = hab.manchete !== undefined ? hab.manchete : "";
+                    document.getElementById('perfilBloqueio').value = hab.bloqueio !== undefined ? hab.bloqueio : "";
 
-                document.getElementById('cartaSaque').innerText = hab.saque || "--";
-                document.getElementById('cartaAtaque').innerText = hab.ataque || "--";
-                document.getElementById('cartaToque').innerText = hab.toque || "--";
-                document.getElementById('cartaLevantamento').innerText = hab.levantamento || "--";
-                document.getElementById('cartaManchete').innerText = hab.manchete || "--";
-                document.getElementById('cartaBloqueio').innerText = hab.bloqueio || "--";
+                    document.getElementById('cartaGeral').innerText = perfilAtual.geral || "0";
+                    document.getElementById('cartaPosicao').innerText = perfilAtual.posicao || "--";
+                    document.getElementById('cartaBandeira').innerText = perfilAtual.pais || "🇧🇷";
+                    document.getElementById('cartaClube').innerText = perfilAtual.time || "Clube";
+                    document.getElementById('cartaNome').innerText = perfilAtual.nome || "JOGADOR";
+                    
+                    // Mostra foto do usuário salva ou a foto do google
+                    document.getElementById('cartaFoto').src = perfilAtual.fotoUrl ? perfilAtual.fotoUrl : fotoGoogle;
 
-                // Mostrar Carta e Ocultar Formulário
-                document.getElementById('perfil-visualizacao').classList.remove('hidden');
-                document.getElementById('perfil-edicao').classList.add('hidden');
+                    document.getElementById('cartaSaque').innerText = hab.saque || "0";
+                    document.getElementById('cartaAtaque').innerText = hab.ataque || "0";
+                    document.getElementById('cartaToque').innerText = hab.toque || "0";
+                    document.getElementById('cartaLevantamento').innerText = hab.levantamento || "0";
+                    document.getElementById('cartaManchete').innerText = hab.manchete || "0";
+                    document.getElementById('cartaBloqueio').innerText = hab.bloqueio || "0";
 
-            } else {
-                // Sem perfil ainda
-                if(userAtual.displayName) document.getElementById('perfilNome').value = userAtual.displayName.toUpperCase();
-                
-                // Deixa o input da foto vazio, mas a carta já vai carregar a imagem do Google
-                document.getElementById('perfilFotoUrl').value = ""; 
-                document.getElementById('cartaFoto').src = fotoGoogle;
+                    document.getElementById('perfil-visualizacao').classList.remove('hidden');
+                    document.getElementById('perfil-edicao').classList.add('hidden');
+                    document.getElementById('btnCancelar').classList.remove('hidden');
 
-                alert("Bem-vindo! Por favor, preencha suas habilidades para criar sua carta.");
-                mudarAba('perfil');
+                } else {
+                    if(userAtual.displayName) document.getElementById('perfilNome').value = userAtual.displayName.toUpperCase();
+                    document.getElementById('perfilFotoUrl').value = ""; 
+                    document.getElementById('cartaFoto').src = fotoGoogle;
+                    document.getElementById('btnCancelar').classList.add('hidden');
+
+                    document.getElementById('perfil-visualizacao').classList.add('hidden');
+                    document.getElementById('perfil-edicao').classList.remove('hidden');
+                    alert("Bem-vindo! Preencha suas informações para criar sua carta.");
+                }
+            } catch (error) {
+                console.error("Erro ao carregar:", error);
+                alert("Erro ao conectar com banco de dados. Verifique permissões.");
             }
         };
 
         window.salvarPerfil = async () => {
-            const nome = document.getElementById('perfilNome').value.trim().toUpperCase();
-            const fotoUrl = document.getElementById('perfilFotoUrl').value.trim(); // Pode estar vazio
-            const posicao = document.getElementById('perfilPosicao').value.trim().toUpperCase().substring(0,3);
-            const time = document.getElementById('perfilTime').value.trim();
-            const pais = document.getElementById('perfilPais').value.trim() || "🇧🇷";
-            const nivel = parseInt(document.getElementById('perfilNivel').value);
-            
-            if(!nome) return alert("O Nome é obrigatório.");
+            try {
+                const nome = document.getElementById('perfilNome').value.trim().toUpperCase();
+                const fotoUrl = document.getElementById('perfilFotoUrl').value.trim();
+                const posicao = document.getElementById('perfilPosicao').value.trim().toUpperCase().substring(0,3);
+                const time = document.getElementById('perfilTime').value.trim();
+                const pais = document.getElementById('perfilPais').value.trim() || "🇧🇷";
+                const nivel = parseInt(document.getElementById('perfilNivel').value) || 3;
+                
+                if(!nome) return alert("O Nome é obrigatório.");
 
-            // Coletar Habilidades
-            const saque = parseInt(document.getElementById('perfilSaque').value) || 0;
-            const ataque = parseInt(document.getElementById('perfilAtaque').value) || 0;
-            const toque = parseInt(document.getElementById('perfilToque').value) || 0;
-            const levantamento = parseInt(document.getElementById('perfilLevantamento').value) || 0;
-            const manchete = parseInt(document.getElementById('perfilManchete').value) || 0;
-            const bloqueio = parseInt(document.getElementById('perfilBloqueio').value) || 0;
+                const saque = parseInt(document.getElementById('perfilSaque').value) || 0;
+                const ataque = parseInt(document.getElementById('perfilAtaque').value) || 0;
+                const toque = parseInt(document.getElementById('perfilToque').value) || 0;
+                const levantamento = parseInt(document.getElementById('perfilLevantamento').value) || 0;
+                const manchete = parseInt(document.getElementById('perfilManchete').value) || 0;
+                const bloqueio = parseInt(document.getElementById('perfilBloqueio').value) || 0;
 
-            const habilidades = { saque, ataque, toque, levantamento, manchete, bloqueio };
-            const media = Math.round((saque + ataque + toque + levantamento + manchete + bloqueio) / 6);
+                const habilidades = { saque, ataque, toque, levantamento, manchete, bloqueio };
+                const media = Math.round((saque + ataque + toque + levantamento + manchete + bloqueio) / 6);
 
-            perfilAtual = { 
-                nome, 
-                fotoUrl, // Se estiver vazio, na hora de exibir ele puxará do Google
-                posicao,
-                time,
-                pais,
-                nivel,
-                habilidades,
-                geral: media,
-                email: userAtual.email 
-            };
-            
-            await setDoc(doc(db, "usuarios", userAtual.uid), perfilAtual);
-            alert("Perfil salvo e carta criada!");
-            await carregarPerfil(); 
+                perfilAtual = { 
+                    nome, 
+                    fotoUrl,
+                    posicao,
+                    time,
+                    pais,
+                    nivel,
+                    habilidades,
+                    geral: media,
+                    email: userAtual.email 
+                };
+                
+                await setDoc(doc(db, "usuarios", userAtual.uid), perfilAtual);
+                await carregarPerfil(); 
+            } catch (error) {
+                console.error("Erro ao salvar:", error);
+                alert("Falha ao salvar. Verifique sua internet ou as regras do Firebase.");
+            }
         };
 
         window.editarPerfil = () => {
             document.getElementById('perfil-visualizacao').classList.add('hidden');
             document.getElementById('perfil-edicao').classList.remove('hidden');
         };
+
+        window.cancelarEdicao = () => {
+            document.getElementById('perfil-visualizacao').classList.remove('hidden');
+            document.getElementById('perfil-edicao').classList.add('hidden');
+        }
 
         // --- NAVEGAÇÃO ---
         window.mudarAba = (aba) => {
@@ -476,7 +486,7 @@
                         </div>
                         <div class="flex items-center gap-3">
                             <button onclick="togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'} shadow-sm">${j.pago ? 'OK' : 'PIX'}</button>
-                            <button onclick="removerJogador('${j.id}', '${j.uid}')" class="opacity-30 hover:opacity-100 hover:text-red-400 transition-all px-2"><i class="fas fa-trash-alt"></i></button>
+                            <button onclick="removerJogador('${j.id}')" class="opacity-30 hover:opacity-100 hover:text-red-400 transition-all px-2"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </li>`;
             });
@@ -502,7 +512,7 @@
         };
 
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.removerJogador = async (id, uid) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.removerJogador = async (id) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => {
             if(confirm("Zerar todos os jogadores desta semana?")) {
                 const promises = jogadores.map(j => deleteDoc(doc(db, "jogadores", j.id)));
