@@ -10,11 +10,7 @@ content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no,
 <!-- iOS / PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Vôlei Pro">
 <meta name="theme-color" content="#000000">
-
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet"
@@ -23,7 +19,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <style>
 :root {
   --ios-blue:#0a84ff;
-  --glass:rgba(255,255,255,.08);
 }
 
 body{
@@ -33,29 +28,30 @@ body{
   overscroll-behavior:none;
 }
 
-/* Fundo líquido */
-.liquid-bg{
+/* FUNDO */
+.bg{
   position:fixed; inset:0; z-index:-1;
   background:linear-gradient(135deg,#1c1c1e,#000);
 }
 
-/* Glass iOS 26 */
+/* GLASS iOS 26 */
 .glass{
   background:linear-gradient(180deg,
-  rgba(255,255,255,.10),
-  rgba(255,255,255,.02));
-  backdrop-filter:blur(32px) saturate(180%);
-  -webkit-backdrop-filter:blur(32px) saturate(180%);
-  border:.5px solid rgba(255,255,255,.15);
-  border-radius:24px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),
-  0 25px 50px rgba(0,0,0,.5);
+    rgba(255,255,255,.14),
+    rgba(255,255,255,.04));
+  backdrop-filter:blur(36px) saturate(200%);
+  -webkit-backdrop-filter:blur(36px) saturate(200%);
+  border-radius:26px;
+  border:.5px solid rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 30px 60px rgba(0,0,0,.55);
 }
 
-/* Inputs */
+/* INPUT */
 .input{
-  background:var(--glass);
-  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);
   border-radius:18px;
   padding:14px 16px;
   width:100%;
@@ -66,94 +62,148 @@ body{
   box-shadow:0 0 0 2px rgba(10,132,255,.4);
 }
 
-/* Botões */
+/* BOTÕES */
 .btn{
   transition:.12s;
 }
 .btn:active{
-  transform:scale(.94);
-  filter:brightness(.9);
+  transform:scale(.92);
+  filter:brightness(.85);
 }
 
-/* Tabs */
+/* TABS */
 .tab-active{
   color:#fff;
   font-weight:700;
 }
 
-/* Safe area */
+/* SAFE AREA */
 footer{
   padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* ===== ANIMAÇÃO DE SORTEIO ===== */
+
+.shuffle-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(20px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.shuffle-box{
+  width:260px;
+  height:140px;
+  border-radius:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:-0.02em;
+
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.25),
+    rgba(255,255,255,.08)
+  );
+  backdrop-filter:blur(40px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 40px 80px rgba(0,0,0,.6);
+
+  animation:diceFloat 1.2s ease-in-out infinite;
+}
+
+@keyframes diceFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-8px) scale(1.04)}
+}
+
+/* REVELAÇÃO */
+@keyframes reveal{
+  from{opacity:0;transform:translateY(20px) scale(.95)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.reveal{
+  animation:reveal .45s cubic-bezier(.23,1,.32,1);
 }
 </style>
 </head>
 
 <body class="pb-28">
 
-<div class="liquid-bg"></div>
+<div class="bg"></div>
 
 <div class="max-w-md mx-auto min-h-screen flex flex-col">
 
-<header class="glass sticky top-0 z-50 p-5 pt-10 flex justify-between items-center">
-<h1 class="text-2xl font-extrabold">Vôlei <span class="text-gray-400">Pro</span></h1>
-<div id="pixBtn" class="text-xs glass px-3 py-2 rounded-xl cursor-pointer">
-PIX: 11959154029 <i class="fa-regular fa-copy ml-1"></i>
-</div>
+<header class="glass sticky top-0 z-50 p-5 pt-10 flex justify-between">
+  <h1 class="text-2xl font-extrabold">Vôlei <span class="text-gray-400">Pro</span></h1>
 </header>
 
 <main class="flex-1 p-4 space-y-6">
 
-<!-- LISTA -->
 <section id="lista">
-<div class="glass p-4 space-y-3">
-<p id="financeiro" class="text-sm text-center text-gray-300">Carregando…</p>
-<div class="w-full bg-gray-800 rounded-full h-2">
-<div id="barra" class="bg-white h-2 rounded-full w-0"></div>
-</div>
-</div>
+  <div class="glass p-4 space-y-3">
+    <p id="financeiro" class="text-center text-sm text-gray-300">Carregando…</p>
+    <div class="w-full bg-gray-800 h-2 rounded-full">
+      <div id="barra" class="bg-white h-2 rounded-full w-0"></div>
+    </div>
+  </div>
 
-<div class="flex gap-2">
-<input id="nome" class="input" placeholder="Nome do atleta">
-<button id="add" class="btn bg-white text-black px-6 rounded-2xl font-bold">
-<i class="fa fa-plus"></i>
-</button>
-</div>
+  <div class="flex gap-2">
+    <input id="nome" class="input" placeholder="Nome do atleta">
+    <button id="add" class="btn bg-white text-black px-6 rounded-2xl font-bold">
+      <i class="fa fa-plus"></i>
+    </button>
+  </div>
 
-<ul id="listaJogadores" class="space-y-3"></ul>
+  <ul id="listaJogadores" class="space-y-3"></ul>
 </section>
 
-<!-- SORTEIO -->
 <section id="sorteio" class="hidden space-y-4">
-<div class="glass p-5 space-y-3">
-<label class="text-sm">Jogadores por time</label>
-<input id="qtd" type="number" value="6" class="input text-center">
-<button id="sortear" class="btn bg-white text-black w-full py-4 rounded-2xl font-bold">
-<i class="fa fa-dice"></i> Sortear
-</button>
-</div>
-<div id="resultado" class="space-y-4"></div>
+  <div class="glass p-5 space-y-3">
+    <label class="text-sm">Jogadores por time</label>
+    <input id="qtd" type="number" value="6" class="input text-center">
+    <button id="sortear"
+      class="btn bg-white text-black w-full py-4 rounded-2xl font-bold">
+      <i class="fa fa-dice"></i> Sortear
+    </button>
+  </div>
+
+  <div id="resultado" class="space-y-4"></div>
 </section>
 
 </main>
 
 <footer class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4">
-<nav class="glass rounded-full flex">
-<button class="flex-1 py-3 tab-active" data-tab="lista">Lista</button>
-<button class="flex-1 py-3 text-gray-400" data-tab="sorteio">Sortear</button>
-</nav>
+  <nav class="glass rounded-full flex">
+    <button data-tab="lista" class="flex-1 py-3 tab-active">Lista</button>
+    <button data-tab="sorteio" class="flex-1 py-3 text-gray-400">Sortear</button>
+  </nav>
 </footer>
 
 </div>
 
+<!-- OVERLAY SORTEIO -->
+<div id="shuffleOverlay" class="shuffle-overlay hidden">
+  <div id="shuffleBox" class="shuffle-box"></div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from
-"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
- apiKey:"AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
- authDomain:"voleigrupo-b8a5a.firebaseapp.com",
- projectId:"voleigrupo-b8a5a"
+  apiKey:"AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
+  authDomain:"voleigrupo-b8a5a.firebaseapp.com",
+  projectId:"voleigrupo-b8a5a"
 });
 
 const db = getFirestore(app);
@@ -165,75 +215,113 @@ const barra = document.getElementById("barra");
 
 let jogadores=[];
 
-function haptic(t="light"){
- if(navigator.vibrate) navigator.vibrate(t==="light"?10:20);
-}
+/* HAPTIC */
+const haptic = (t=10)=>navigator.vibrate&&navigator.vibrate(t);
 
+/* SHUFFLE */
+const shuffle = a=>{
+  a=[...a];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+};
+
+/* FIREBASE */
 onSnapshot(col,snap=>{
- lista.innerHTML="";
- jogadores=[];
- let pagos=0;
+  lista.innerHTML="";
+  jogadores=[];
+  let pagos=0;
 
- snap.forEach(d=>{
-  const j={id:d.id,...d.data()};
-  jogadores.push(j);
-  if(j.pago)pagos++;
+  snap.forEach(d=>{
+    const j={id:d.id,...d.data()};
+    jogadores.push(j);
+    if(j.pago)pagos++;
 
-  const li=document.createElement("li");
-  li.className="glass p-4 flex justify-between items-center";
-  li.innerHTML=`
-   <span>${j.nome}</span>
-   <button class="btn ${j.pago?"bg-green-600":"bg-red-600"} px-3 py-1 rounded-lg text-xs">
-    ${j.pago?"PIX OK":"PENDENTE"}
-   </button>`;
-  li.querySelector("button").onclick=()=>{
-    haptic();
-    updateDoc(doc(db,"jogadores",j.id),{pago:!j.pago});
-  };
-  lista.appendChild(li);
- });
+    const li=document.createElement("li");
+    li.className="glass p-4 flex justify-between items-center reveal";
+    li.innerHTML=`
+      <span>${j.nome}</span>
+      <button class="btn ${j.pago?"bg-green-600":"bg-red-600"}
+        px-3 py-1 rounded-lg text-xs">
+        ${j.pago?"PIX OK":"PENDENTE"}
+      </button>`;
+    li.querySelector("button").onclick=()=>{
+      haptic();
+      updateDoc(doc(db,"jogadores",j.id),{pago:!j.pago});
+    };
+    lista.appendChild(li);
+  });
 
- const total=jogadores.length;
- const valor=total?350/total:0;
- financeiro.innerText=`${pagos}/${total} pagaram | R$ ${valor.toFixed(2)}/pessoa`;
- barra.style.width=`${total?(pagos/total*100):0}%`;
+  const total=jogadores.length;
+  const valor=total?350/total:0;
+  financeiro.innerText=`${pagos}/${total} pagaram | R$ ${valor.toFixed(2)}/pessoa`;
+  barra.style.width=`${total?(pagos/total*100):0}%`;
 });
 
 document.getElementById("add").onclick=()=>{
- const nome=document.getElementById("nome");
- if(!nome.value)return;
- haptic();
- addDoc(col,{nome:nome.value,pago:false});
- nome.value="";
+  const nome=document.getElementById("nome");
+  if(!nome.value)return;
+  haptic();
+  addDoc(col,{nome:nome.value,pago:false});
+  nome.value="";
 };
 
+/* TABS */
 document.querySelectorAll("[data-tab]").forEach(b=>{
- b.onclick=()=>{
-  haptic();
-  document.getElementById("lista").classList.toggle("hidden",b.dataset.tab!=="lista");
-  document.getElementById("sorteio").classList.toggle("hidden",b.dataset.tab!=="sorteio");
-  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.remove("tab-active"));
-  b.classList.add("tab-active");
- };
+  b.onclick=()=>{
+    haptic();
+    document.getElementById("lista").classList.toggle("hidden",b.dataset.tab!=="lista");
+    document.getElementById("sorteio").classList.toggle("hidden",b.dataset.tab!=="sorteio");
+    document.querySelectorAll("[data-tab]").forEach(x=>x.classList.remove("tab-active"));
+    b.classList.add("tab-active");
+  };
 });
 
+/* ANIMAÇÃO DE DADOS */
+function animarSorteio(nomes,cb){
+  const o=document.getElementById("shuffleOverlay");
+  const b=document.getElementById("shuffleBox");
+  o.classList.remove("hidden");
+
+  let i=0;
+  const t=setInterval(()=>{
+    b.textContent=nomes[i%nomes.length];
+    b.style.transform=`rotate(${Math.random()*20-10}deg) scale(1.05)`;
+    haptic(10);
+    if(++i>20){
+      clearInterval(t);
+      o.classList.add("hidden");
+      cb();
+    }
+  },90);
+}
+
 document.getElementById("sortear").onclick=()=>{
- haptic("medium");
- const qtd=+document.getElementById("qtd").value;
- const pagos=jogadores.filter(j=>j.pago);
- const res=document.getElementById("resultado");
- res.innerHTML="";
- let t=1, grupo=[];
- pagos.sort(()=>Math.random()-.5).forEach((j,i)=>{
-  grupo.push(j.nome);
-  if(grupo.length===qtd||i===pagos.length-1){
-   res.innerHTML+=`
-    <div class="glass p-4">
-     <b>Time ${t++}</b><br>${grupo.join(", ")}
-    </div>`;
-   grupo=[];
-  }
- });
+  const qtd=+document.getElementById("qtd").value;
+  const pagos=jogadores.filter(j=>j.pago);
+  if(pagos.length<2)return alert("Poucos jogadores com PIX OK");
+
+  const nomes=pagos.map(j=>j.nome);
+  const sorteados=shuffle(pagos);
+
+  animarSorteio(nomes,()=>{
+    const res=document.getElementById("resultado");
+    res.innerHTML="";
+    let grupo=[],t=1;
+
+    sorteados.forEach((j,i)=>{
+      grupo.push(j.nome);
+      if(grupo.length===qtd||i===sorteados.length-1){
+        res.innerHTML+=`
+          <div class="glass p-5 reveal">
+            <b>Time ${t++}</b><br>${grupo.join(", ")}
+          </div>`;
+        grupo=[];
+      }
+    });
+  });
 };
 </script>
 </body>
