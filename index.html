@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vôlei Pro - Liquid Glass</title>
+    <title>Vôlei Pro - Cartas do FIFA Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -30,10 +30,141 @@
         .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); }
+        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); }
         .dice-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 20px; }
         .die { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 40px; animation: roll-dice 0.6s infinite ease-in-out; }
         @keyframes roll-dice { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
+
+        /* Estilos da Carta do FIFA */
+        .FifaCardFundo {
+            background: linear-gradient(135deg, #FFD700 0%, #FFC107 50%, #FFD700 100%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-color: rgba(255,215,0,0.3);
+            position: relative;
+            overflow: hidden;
+            color: #1a1a1a;
+        }
+
+        .FifaCardFundo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/diagonal-stripes.png');
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .FifaCardFormato {
+            display: grid;
+            grid-template-areas:
+                "topo"
+                "centro"
+                "habilidades";
+            grid-template-rows: auto auto 1fr;
+            z-index: 1;
+            position: relative;
+        }
+
+        .FifaCardTopo {
+            grid-area: topo;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 1rem;
+            align-items: center;
+        }
+
+        .FifaCardGeralPosicao {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .FifaCardGeral {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+            font-style: italic;
+        }
+
+        .FifaCardPosicao {
+            font-size: 1rem;
+            font-weight: 700;
+            opacity: 0.8;
+            margin-top: -5px;
+        }
+
+        .FifaCardClubePais {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .FifaCardBandeira, .FifaCardClube {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .FifaCardCentro {
+            grid-area: centro;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 1rem;
+            position: relative;
+        }
+
+        .FifaCardFoto {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            /* clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); para recortar a foto se necessário */
+            margin-bottom: -10px;
+        }
+
+        .FifaCardNome {
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(26,26,26,0.1);
+            padding: 3px 15px;
+            border-radius: 10px;
+            z-index: 2;
+        }
+
+        .FifaCardHabilidades {
+            grid-area: habilidades;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem 2.5rem;
+            margin-top: 10px;
+        }
+
+        .HabilidadeCol {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .HabilidadeVal {
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .HabilidadeNome {
+            font-size: 0.8rem;
+            font-weight: 700;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+        
     </style>
 </head>
 <body class="pb-32">
@@ -119,7 +250,7 @@
                 <div id="shufflingContainer" class="hidden"></div>
                 <div id="resultadoSorteio" class="space-y-3"></div>
                 
-                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Times ✅</button>
+                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Escalação ✅</button>
             </div>
 
             <div id="aba-historico" class="hidden space-y-5 pb-10">
@@ -128,27 +259,118 @@
             </div>
 
             <div id="aba-perfil" class="hidden space-y-6">
-                <div class="glass-card rounded-[2.5rem] p-6 space-y-4">
+                <div class="glass-card rounded-[2.5rem] p-6 animate-in border border-white/5 FifaCardFundo hidden" id="perfil-visualizacao">
+                    <div class="FifaCardFormato">
+                        <div class="FifaCardTopo">
+                            <div class="FifaCardGeralPosicao">
+                                <div class="FifaCardGeral" id="cartaGeral">--</div>
+                                <div class="FifaCardPosicao" id="cartaPosicao">--</div>
+                            </div>
+                            <div class="FifaCardClubePais">
+                                <div class="FifaCardBandeira" id="cartaBandeira">🏁</div>
+                                <div class="FifaCardClube" id="cartaClube">Vôlei Pro</div>
+                            </div>
+                        </div>
+                        <div class="FifaCardCentro">
+                            <img src="https://via.placeholder.com/150" alt="Sua Foto" class="FifaCardFoto" id="cartaFoto">
+                            <div class="FifaCardNome" id="cartaNome">SEU NOME</div>
+                        </div>
+                        <div class="FifaCardHabilidades">
+                            <div class="HabilidadeCol">
+                                <div class="HabilidadeVal" id="cartaSaque">--</div>
+                                <div class="HabilidadeNome">SAQ</div>
+                                <div class="HabilidadeVal" id="cartaAtaque">--</div>
+                                <div class="HabilidadeNome">ATQ</div>
+                                <div class="HabilidadeVal" id="cartaToque">--</div>
+                                <div class="HabilidadeNome">TOQ</div>
+                            </div>
+                            <div class="HabilidadeCol">
+                                <div class="HabilidadeVal" id="cartaLevantamento">--</div>
+                                <div class="HabilidadeNome">LEV</div>
+                                <div class="HabilidadeVal" id="cartaManchete">--</div>
+                                <div class="HabilidadeNome">MAN</div>
+                                <div class="HabilidadeVal" id="cartaBloqueio">--</div>
+                                <div class="HabilidadeNome">BLO</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="editarPerfil()" class="ios-btn w-full mt-6 bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30">
+                        Editar Perfil
+                    </button>
+                    <button onclick="sair()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-red-400 opacity-60 hover:opacity-100 transition-all border-t border-white/5 mt-4">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sair da Conta
+                    </button>
+                </div>
+
+                <div class="glass-card rounded-[2.5rem] p-6 space-y-4" id="perfil-edicao">
                     <h2 class="text-lg font-black italic mb-4 border-b border-white/10 pb-2">Meu Perfil</h2>
                     
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Como você é conhecido?</label>
-                        <input type="text" id="perfilNome" class="glass-input mt-1" placeholder="Seu Nome/Apelido">
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Nome/Apelido (ex: MESSI)</label>
+                        <input type="text" id="perfilNome" class="glass-input mt-1" placeholder="Como você é conhecido">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">URL da sua foto (Imgur, etc)</label>
+                        <input type="text" id="perfilFotoUrl" class="glass-input mt-1" placeholder="Coloque o link da sua imagem">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">Posição (ex: LEV)</label>
+                            <input type="text" id="perfilPosicao" class="glass-input text-xs mt-1 !p-3" placeholder="LEV, OPO, PON...">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">Time/Clube</label>
+                            <input type="text" id="perfilTime" class="glass-input text-xs mt-1 !p-3" placeholder="Seu time">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold uppercase tracking-widest opacity-50">País/Bandeira</label>
+                            <input type="text" id="perfilPais" class="glass-input text-xs mt-1 !p-3" placeholder="Emoji bandeira">
+                        </div>
                     </div>
                     
+                    <div class="grid grid-cols-3 gap-2 mt-4 border-t border-white/10 pt-4">
+                        <div class="col-span-3 text-[10px] font-black uppercase opacity-60 tracking-widest text-center">Habilidades de Vôlei (0-99)</div>
+                        <div>
+                            <label class="text-[9px] font-bold opacity-50">SAQUE</label>
+                            <input type="number" id="perfilSaque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold opacity-50">ATAQUE</label>
+                            <input type="number" id="perfilAtaque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold opacity-50">TOQUE</label>
+                            <input type="number" id="perfilToque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold opacity-50">LEVANTAMENTO</label>
+                            <input type="number" id="perfilLevantamento" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold opacity-50">MANCHETE</label>
+                            <input type="number" id="perfilManchete" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold opacity-50">BLOQUEIO</label>
+                            <input type="number" id="perfilBloqueio" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Seu Nível Técnico</label>
-                        <select id="perfilNivel" class="glass-input mt-1 appearance-none bg-black/50">
-                            <option value="1">Nível 1 - Iniciante (Aprendendo toque/manchete)</option>
-                            <option value="2">Nível 2 - Básico (Consegue passar a bola)</option>
-                            <option value="3" selected>Nível 3 - Intermediário (Tem noção de posição)</option>
-                            <option value="4">Nível 4 - Avançado (Ataca e defende bem)</option>
-                            <option value="5">Nível 5 - Profissional (Domina o jogo)</option>
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Nível Geral (para Sorteio 1-5)</label>
+                        <select id="perfilNivel" class="glass-input mt-1 appearance-none bg-black/50 text-white">
+                            <option value="1">Nível 1 - Iniciante</option>
+                            <option value="2">Nível 2 - Básico</option>
+                            <option value="3" selected>Nível 3 - Intermediário</option>
+                            <option value="4">Nível 4 - Avançado</option>
+                            <option value="5">Nível 5 - Profissional</option>
                         </select>
                     </div>
 
                     <button onclick="salvarPerfil()" class="ios-btn w-full bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30">
-                        Salvar Perfil
+                        Salvar Perfil e Criar Carta
                     </button>
                     
                     <button onclick="sair()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-red-400 opacity-60 hover:opacity-100 transition-all border-t border-white/5 mt-4">
@@ -164,7 +386,7 @@
                 <button onclick="mudarAba('lista')" id="btn-lista" class="tab-btn active-tab flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Lista</button>
                 <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all text-center">Sortear</button>
                 <button onclick="mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Hist.</button>
-                <button onclick="mudarAba('perfil')" id="btn-perfil" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all"><i class="fas fa-user text-sm"></i></button>
+                <button onclick="mudarAba('perfil')" id="btn-perfil" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all"><i class="fas fa-id-card text-sm"></i></button>
             </nav>
         </footer>
     </div>
@@ -231,21 +453,7 @@
                 document.getElementById('main-app').classList.remove('hidden');
                 
                 // Procurar perfil no Firestore
-                const docRef = doc(db, "usuarios", user.uid);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    perfilAtual = docSnap.data();
-                    document.getElementById('perfilNome').value = perfilAtual.nome;
-                    document.getElementById('perfilNivel').value = perfilAtual.nivel;
-                } else {
-                    // Sem perfil ainda, forçar ir para a aba Perfil
-                    // Se a pessoa entrou com o Google, tentamos usar o nome do Google como padrão no input
-                    if(user.displayName) {
-                        document.getElementById('perfilNome').value = user.displayName;
-                    }
-                    alert("Bem-vindo! Por favor, confirme seu nome e preencha seu nível para começar.");
-                    mudarAba('perfil');
-                }
+                await carregarPerfil();
             } else {
                 userAtual = null; perfilAtual = null;
                 document.getElementById('auth-screen').classList.remove('hidden');
@@ -254,15 +462,105 @@
         });
 
         // --- GESTÃO DE PERFIL ---
+        window.carregarPerfil = async () => {
+            const docRef = doc(db, "usuarios", userAtual.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                perfilAtual = docSnap.data();
+                
+                // Preencher Formulário
+                document.getElementById('perfilNome').value = perfilAtual.nome || "";
+                document.getElementById('perfilFotoUrl').value = perfilAtual.fotoUrl || "";
+                document.getElementById('perfilPosicao').value = perfilAtual.posicao || "";
+                document.getElementById('perfilTime').value = perfilAtual.time || "";
+                document.getElementById('perfilPais').value = perfilAtual.pais || "🇧🇷";
+                document.getElementById('perfilNivel').value = perfilAtual.nivel || 3;
+                
+                // Preencher Habilidades (ou usar zero se não houver)
+                const hab = perfilAtual.habilidades || {};
+                document.getElementById('perfilSaque').value = hab.saque || "";
+                document.getElementById('perfilAtaque').value = hab.ataque || "";
+                document.getElementById('perfilToque').value = hab.toque || "";
+                document.getElementById('perfilLevantamento').value = hab.levantamento || "";
+                document.getElementById('perfilManchete').value = hab.manchete || "";
+                document.getElementById('perfilBloqueio').value = hab.bloqueio || "";
+
+                // Atualizar Carta Visual
+                document.getElementById('cartaGeral').innerText = perfilAtual.geral || "--";
+                document.getElementById('cartaPosicao').innerText = perfilAtual.posicao || "--";
+                document.getElementById('cartaBandeira').innerText = perfilAtual.pais || "🏁";
+                document.getElementById('cartaClube').innerText = perfilAtual.time || "Vôlei Pro";
+                document.getElementById('cartaNome').innerText = perfilAtual.nome || "SEU NOME";
+                document.getElementById('cartaFoto').src = perfilAtual.fotoUrl || "https://via.placeholder.com/150";
+
+                document.getElementById('cartaSaque').innerText = hab.saque || "--";
+                document.getElementById('cartaAtaque').innerText = hab.ataque || "--";
+                document.getElementById('cartaToque').innerText = hab.toque || "--";
+                document.getElementById('cartaLevantamento').innerText = hab.levantamento || "--";
+                document.getElementById('cartaManchete').innerText = hab.manchete || "--";
+                document.getElementById('cartaBloqueio').innerText = hab.bloqueio || "--";
+
+                // Mostrar Carta e Ocultar Formulário
+                document.getElementById('perfil-visualizacao').classList.remove('hidden');
+                document.getElementById('perfil-edicao').classList.add('hidden');
+
+            } else {
+                // Sem perfil ainda, forçar ir para a aba Perfil
+                if(userAtual.displayName) {
+                    document.getElementById('perfilNome').value = userAtual.displayName.toUpperCase();
+                }
+                if(userAtual.photoURL) {
+                    document.getElementById('perfilFotoUrl').value = userAtual.photoURL;
+                }
+                alert("Bem-vindo! Por favor, preencha o seu perfil e suas habilidades para criar sua carta.");
+                mudarAba('perfil');
+            }
+        };
+
         window.salvarPerfil = async () => {
-            const nome = document.getElementById('perfilNome').value.trim();
+            const nome = document.getElementById('perfilNome').value.trim().toUpperCase();
+            const fotoUrl = document.getElementById('perfilFotoUrl').value.trim();
+            const posicao = document.getElementById('perfilPosicao').value.trim().toUpperCase().substring(0,3);
+            const time = document.getElementById('perfilTime').value.trim();
+            const pais = document.getElementById('perfilPais').value.trim() || "🇧🇷";
             const nivel = parseInt(document.getElementById('perfilNivel').value);
-            if(!nome) return alert("O Nome é obrigatório.");
             
-            perfilAtual = { nome, nivel, email: userAtual.email };
+            if(!nome) return alert("O Nome é obrigatório.");
+
+            // Coletar Habilidades
+            const saque = parseInt(document.getElementById('perfilSaque').value) || 0;
+            const ataque = parseInt(document.getElementById('perfilAtaque').value) || 0;
+            const toque = parseInt(document.getElementById('perfilToque').value) || 0;
+            const levantamento = parseInt(document.getElementById('perfilLevantamento').value) || 0;
+            const manchete = parseInt(document.getElementById('perfilManchete').value) || 0;
+            const bloqueio = parseInt(document.getElementById('perfilBloqueio').value) || 0;
+
+            const habilidades = { saque, ataque, toque, levantamento, manchete, bloqueio };
+
+            // Calcular Média (Geral)
+            const media = Math.round((saque + ataque + toque + levantamento + manchete + bloqueio) / 6);
+
+            perfilAtual = { 
+                nome, 
+                fotoUrl,
+                posicao,
+                time,
+                pais,
+                nivel, // Mantido para o sorteio
+                habilidades,
+                geral: media,
+                email: userAtual.email 
+            };
+            
             await setDoc(doc(db, "usuarios", userAtual.uid), perfilAtual);
-            alert("Perfil salvo com sucesso!");
-            mudarAba('lista');
+            alert("Perfil salvo e carta criada!");
+            await carregarPerfil(); // Recarregar para mostrar a carta
+        };
+
+        window.editarPerfil = () => {
+            // Ocultar Carta e Mostrar Formulário
+            document.getElementById('perfil-visualizacao').classList.add('hidden');
+            document.getElementById('perfil-edicao').classList.remove('hidden');
         };
 
         // --- NAVEGAÇÃO ---
@@ -312,7 +610,7 @@
             await addDoc(colJogadores, { 
                 uid: userAtual.uid,
                 nome: perfilAtual.nome, 
-                nivel: perfilAtual.nivel, 
+                nivel: perfilAtual.nivel, // Mantido para o sorteio
                 pago: false 
             });
         };
@@ -351,7 +649,7 @@
             window.open(`https://wa.me/?text=${texto}`, '_blank');
         };
 
-        // --- SORTEIO INTELIGENTE (EQUILIBRADO PELO NÍVEL) ---
+        // --- SORTEIO INTELIGENTE (EQUILIBRADO PELO NÍVEL 1-5) ---
         window.animarESortear = () => {
             const pagos = jogadores.filter(j => j.pago);
             if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK!");
@@ -409,12 +707,10 @@
 
             // Renderizar Times
             timesParaSalvar.forEach(t => {
-                let media = (t.nivelTotal / t.membros.length).toFixed(1);
                 res.innerHTML += `
                     <div class="glass-card rounded-3xl p-5 animate-in border-t border-white/10">
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">${t.nome}</span>
-                            <span class="text-[8px] font-bold text-gray-500 uppercase">Força: ${media}★</span>
                         </div>
                         <div class="font-bold text-sm text-gray-100 leading-relaxed">${t.membros.join(', ')}</div>
                     </div>`;
@@ -440,7 +736,7 @@
             // Removemos a propriedade "nivelTotal" antes de guardar para ficar limpo
             const timesLimpos = timesParaSalvar.map(t => ({nome: t.nome, membros: t.membros, vitorias: t.vitorias}));
             await addDoc(colHistorico, { data, times: timesLimpos, proximos: proximosAtuais, criadoEm: Date.now() });
-            alert("Times salvos com sucesso!");
+            alert("Sorteio salvo no histórico!");
             mudarAba('historico');
         };
 
@@ -452,7 +748,7 @@
                 p.times.forEach((t, idx) => {
                     tHtml += `
                         <div class="flex justify-between items-center py-4 border-b border-white/5 last:border-0">
-                            <div class="flex flex-col"><span class="text-[10px] font-black opacity-30">${t.nome}</span><span class="text-xs font-bold mt-1 text-gray-200">${t.membros.join(', ')}</span></div>
+                            <div class="flex flex-col"><span class="text-[10px] font-black opacity-20">${t.nome}</span><span class="text-xs font-bold mt-1 text-gray-200">${t.membros.join(', ')}</span></div>
                             <div class="flex items-center gap-3 bg-white/5 p-1.5 rounded-[1.2rem] border border-white/10 ml-2">
                                 <button onclick="window.vitoria('${p.id}', ${idx}, -1)" class="w-7 h-7 rounded-xl font-black text-white/50 hover:text-white transition-colors">-</button>
                                 <span class="font-black text-lg text-blue-500 w-4 text-center">${t.vitorias || 0}</span>
