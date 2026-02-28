@@ -29,24 +29,15 @@
         .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Animação de Sorteio Otimizada */
         #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .dice-wrap { display: flex; gap: 20px; margin-bottom: 20px; }
         .die { width: 80px; height: 80px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.6); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: roll 0.6s infinite linear; }
         .die:nth-child(2) { animation-direction: reverse; animation-delay: 0.1s; }
-        @keyframes roll {
-            0% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-40px) rotate(90deg); }
-            50% { transform: translateY(0) rotate(180deg); }
-            75% { transform: translateY(-20px) rotate(270deg); }
-            100% { transform: translateY(0) rotate(360deg); }
-        }
+        @keyframes roll { 0% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-40px) rotate(90deg); } 50% { transform: translateY(0) rotate(180deg); } 75% { transform: translateY(-20px) rotate(270deg); } 100% { transform: translateY(0) rotate(360deg); } }
 
-        /* Estilo para troca de jogadores */
         .player-tag { display: inline-block; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 10px; margin: 3px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
         .player-tag.selected { background: rgba(0, 122, 255, 0.3); border-color: #007aff; transform: scale(1.05); }
 
-        /* Placar gigante */
         .placar-numero { font-size: 6rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
@@ -131,7 +122,7 @@
                     <button onclick="window.entrarNaLista()" class="ios-btn flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30">
                         <i class="fas fa-running mr-2"></i> Me Adicionar
                     </button>
-                    <button onclick="window.limparListaSemana()" class="ios-btn bg-red-500/20 text-red-400 px-5 rounded-2xl font-black shadow-lg border border-red-500/30">
+                    <button id="btnLimparSemana" onclick="window.limparListaSemana()" class="hidden ios-btn bg-red-500/20 text-red-400 px-5 rounded-2xl font-black shadow-lg border border-red-500/30">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -184,7 +175,7 @@
                         </div>
                     </div>
                     
-                    <button onclick="window.zerarPlacar()" class="ios-btn w-full bg-red-500/20 text-red-400 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-red-500/30">Zerar Placar</button>
+                    <button id="btnZerarPlacar" onclick="window.zerarPlacar()" class="hidden ios-btn w-full bg-red-500/20 text-red-400 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-red-500/30">Zerar Placar</button>
                 </div>
             </div>
 
@@ -262,7 +253,6 @@
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // === 1. CONFIGURAÇÕES ===
         const firebaseConfig = {
             apiKey: "AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
             authDomain: "voleigrupo-b8a5a.firebaseapp.com",
@@ -282,7 +272,6 @@
 
         const EMAIL_ADMIN = "jhonata_hip.hop@hotmail.com"; 
         
-        // === 2. VARIÁVEIS DE ESTADO ===
         let jogadores = [];
         let timesParaSalvar = [];
         let proximosAtuais = [];
@@ -290,9 +279,8 @@
         let perfilAtual = null;
         let jogadorSelecionadoParaTroca = null;
         let valorTotalArrecadadoMes = 0;
-        let listenersAtivos = []; // Para desligar o banco ao sair
+        let listenersAtivos = [];
 
-        // === 3. AUTENTICAÇÃO ===
         window.fazerLogin = () => signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value).catch(err => { document.getElementById('auth-error').innerText = err.message; document.getElementById('auth-error').classList.remove('hidden'); });
         window.criarConta = () => createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value).catch(err => { document.getElementById('auth-error').innerText = err.message; document.getElementById('auth-error').classList.remove('hidden'); });
         window.loginComGoogle = () => signInWithPopup(auth, googleProvider).catch(err => { document.getElementById('auth-error').innerText = err.message; document.getElementById('auth-error').classList.remove('hidden'); });
@@ -305,29 +293,51 @@
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 
-                if(user.email === EMAIL_ADMIN) document.getElementById('btnAdmin').classList.remove('hidden');
+                // --- SEGURANÇA E PRIVILÉGIOS ---
+                if(user.email === EMAIL_ADMIN) {
+                    document.getElementById('btnAdmin').classList.remove('hidden');
+                    document.getElementById('btnLimparSemana').classList.remove('hidden');
+                    document.getElementById('btnZerarPlacar').classList.remove('hidden');
+                } else {
+                    document.getElementById('btnAdmin').classList.add('hidden');
+                    document.getElementById('btnLimparSemana').classList.add('hidden');
+                    document.getElementById('btnZerarPlacar').classList.add('hidden');
+                }
 
                 await window.carregarPerfil();
-                iniciarConexaoBanco(); // Inicia escutas do banco
+                iniciarConexaoBanco();
             } else {
                 userAtual = null; perfilAtual = null;
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('hidden');
-                document.getElementById('btnAdmin').classList.add('hidden');
-                listenersAtivos.forEach(unsub => unsub()); // Desliga escutas
+                listenersAtivos.forEach(unsub => unsub()); 
             }
         });
 
-        // === 4. CONEXÃO COM O BANCO (TEMPO REAL) ===
         function iniciarConexaoBanco() {
-            // A. Escutar Jogadores
             const unsubJogadores = onSnapshot(query(colJogadores, orderBy("nome", "asc")), (snap) => {
                 const lista = document.getElementById('listaJogadores');
                 lista.innerHTML = ''; jogadores = []; let pagos = 0;
+                
                 snap.forEach(d => {
                     const j = {id: d.id, ...d.data()}; jogadores.push(j);
                     if(j.pago) pagos++;
                     let estrelas = j.nivel ? "★".repeat(j.nivel) + "☆".repeat(5 - j.nivel) : "★".repeat(2) + "☆".repeat(3);
+                    
+                    // LÓGICA DE PERMISSÃO DE BOTÕES (UI)
+                    let isAdmin = userAtual && userAtual.email === EMAIL_ADMIN;
+                    let isOwner = userAtual && userAtual.uid === j.uid;
+
+                    // Apenas Admin mexe no PIX, usuários comuns só enxergam a label
+                    let btnPixHtml = isAdmin 
+                        ? `<button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'} shadow-sm">${j.pago ? 'OK' : 'PIX'}</button>` 
+                        : `<span class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'} shadow-sm opacity-50">${j.pago ? 'OK' : 'PIX'}</span>`;
+                    
+                    // Apenas Admin ou o próprio jogador pode remover da lista
+                    let btnRemoverHtml = (isAdmin || isOwner)
+                        ? `<button onclick="window.removerJogador('${j.id}')" class="opacity-30 hover:opacity-100 hover:text-red-400 transition-all px-2"><i class="fas fa-trash-alt"></i></button>`
+                        : ``;
+
                     lista.innerHTML += `
                         <li class="glass-card rounded-2xl p-4 flex justify-between items-center animate-in border-l-4 ${j.pago ? 'border-green-500' : 'border-red-500'}">
                             <div class="flex flex-col">
@@ -335,8 +345,8 @@
                                 <span class="text-[9px] ${j.nivel ? 'text-orange-400' : 'text-gray-500'} tracking-widest">${j.nivel ? estrelas : 'CONVIDADO ' + estrelas}</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'} shadow-sm">${j.pago ? 'OK' : 'PIX'}</button>
-                                <button onclick="window.removerJogador('${j.id}')" class="opacity-30 hover:opacity-100 hover:text-red-400 transition-all px-2"><i class="fas fa-trash-alt"></i></button>
+                                ${btnPixHtml}
+                                ${btnRemoverHtml}
                             </div>
                         </li>`;
                 });
@@ -346,10 +356,11 @@
                 document.getElementById('infoFin').innerText = `${pagos}/${jogadores.length} com PIX OK`;
             });
 
-            // B. Escutar Histórico e Ranking
             const unsubHistorico = onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), (snap) => {
                 const histList = document.getElementById('listaHistorico'); histList.innerHTML = '';
                 let rankingData = {}; valorTotalArrecadadoMes = 0;
+
+                let isAdmin = userAtual && userAtual.email === EMAIL_ADMIN;
 
                 snap.forEach(d => {
                     const p = {id: d.id, ...d.data()};
@@ -376,11 +387,17 @@
                             rankingData[nomeLimpo] += (t.vitorias || 0);
                         });
                     });
+
+                    // Lixeira do histórico só aparece pro Admin
+                    let btnRemoverHistoricoHtml = isAdmin 
+                        ? `<button onclick="window.removerPartida('${p.id}')" class="text-[9px] font-black text-red-400/50 hover:text-red-400 uppercase"><i class="fas fa-trash-alt"></i></button>`
+                        : ``;
+
                     let proxHtml = (p.proximos && p.proximos.length > 0) ? `<div class="mt-4 pt-3 border-t border-white/10 text-[10px] text-orange-400/80 font-bold italic"><i class="fas fa-clock mr-1"></i>Fila: ${p.proximos.join(', ')}</div>` : '';
-                    histList.innerHTML += `<div class="glass-card rounded-[2.5rem] p-6 mb-4"><div class="flex justify-between items-center mb-4"><span class="text-[9px] font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full uppercase tracking-widest">${p.data}</span><button onclick="window.removerPartida('${p.id}')" class="text-[9px] font-black text-red-400/50 hover:text-red-400 uppercase"><i class="fas fa-trash-alt"></i></button></div><div>${tHtml}</div>${proxHtml}</div>`;
+                    
+                    histList.innerHTML += `<div class="glass-card rounded-[2.5rem] p-6 mb-4"><div class="flex justify-between items-center mb-4"><span class="text-[9px] font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full uppercase tracking-widest">${p.data}</span> ${btnRemoverHistoricoHtml} </div><div>${tHtml}</div>${proxHtml}</div>`;
                 });
 
-                // Renderiza o Ranking
                 const listaR = document.getElementById('listaRanking'); listaR.innerHTML = '';
                 let arrRanking = Object.keys(rankingData).map(n => ({nome: n, vit: rankingData[n]})).sort((a,b) => b.vit - a.vit);
                 
@@ -392,7 +409,6 @@
                 if(arrRanking.length === 0 || arrRanking[0].vit === 0) listaR.innerHTML = `<li class="text-center text-[10px] opacity-40 py-4 uppercase font-black">Nenhuma vitória registrada.</li>`;
             });
 
-            // C. Escutar Placar Ao Vivo
             const unsubPlacar = onSnapshot(placarRef, (snap) => {
                 if(snap.exists()) {
                     const data = snap.data();
@@ -408,7 +424,6 @@
             listenersAtivos = [unsubJogadores, unsubHistorico, unsubPlacar];
         }
 
-        // === 5. PERFIL ===
         window.carregarPerfil = async () => {
             const docSnap = await getDoc(doc(db, "usuarios", userAtual.uid));
             let fotoGoogle = userAtual.photoURL ? userAtual.photoURL.replace('=s96-c', '') : "https://via.placeholder.com/150";
@@ -439,12 +454,7 @@
         window.salvarPerfil = async () => {
             const nome = document.getElementById('perfilNome').value.trim().toUpperCase();
             if(!nome) return alert("Nome é obrigatório!");
-            perfilAtual = { 
-                nome, 
-                fotoUrl: document.getElementById('perfilFotoUrl').value.trim(), 
-                nivel: parseInt(document.getElementById('perfilNivel').value) || 3, 
-                email: userAtual.email 
-            };
+            perfilAtual = { nome, fotoUrl: document.getElementById('perfilFotoUrl').value.trim(), nivel: parseInt(document.getElementById('perfilNivel').value) || 3, email: userAtual.email };
             await setDoc(doc(db, "usuarios", userAtual.uid), perfilAtual);
             await window.carregarPerfil(); 
         };
@@ -460,7 +470,6 @@
             btn.classList.add('active-tab'); btn.style.opacity = '1'; btn.style.transform = 'scale(1.1)';
         };
 
-        // === 6. ABA LISTA (AÇÕES) ===
         window.entrarNaLista = async () => {
             if(!perfilAtual) return alert("Preencha seu perfil primeiro!");
             if(jogadores.find(j => j.uid === userAtual.uid)) return alert("Você já está na lista!");
@@ -470,21 +479,20 @@
             const i = document.getElementById('nomeConvidado');
             if(i.value.trim()){ await addDoc(colJogadores, { uid: "convidado_" + Date.now(), nome: i.value.trim() + " (Conv)", nivel: 2, pago: false }); i.value=''; }
         };
-        window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.removerJogador = async (id) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.togglePix = async (id, s) => {
+            if(userAtual.email !== EMAIL_ADMIN) return alert("Apenas o Administrador pode confirmar o PIX.");
+            await updateDoc(doc(db, "jogadores", id), {pago: !s});
+        };
+        window.removerJogador = async (id) => { if(confirm("Remover da lista?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => { if(confirm("Zerar jogadores da semana?")) await Promise.all(jogadores.map(j => deleteDoc(doc(db, "jogadores", j.id)))); };
         window.compartilharWhatsApp = () => { window.open(`https://wa.me/?text=🏐 *VÔLEI PRO STATUS* %0A✅ Pagos: ${jogadores.filter(j=>j.pago).length}/${jogadores.length} %0A🔑 Pix: 11959154029`, '_blank'); };
         window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("Pix copiado!"); };
 
-        // === 7. SORTEIO E ANIMAÇÃO ===
         window.animarESortear = () => {
             const pagos = jogadores.filter(j => j.pago);
             if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK para sortear!");
             
-            // Mostra os dados rolando
             document.getElementById('shufflingContainer').classList.remove('hidden');
-            
-            // Espera 1.5s e roda o sorteio real
             setTimeout(() => { 
                 document.getElementById('shufflingContainer').classList.add('hidden'); 
                 window.executarSorteioEquilibrado(pagos); 
@@ -516,7 +524,6 @@
             const res = document.getElementById('resultadoSorteio'); res.innerHTML = '';
             timesParaSalvar.forEach((t, tIdx) => {
                 let media = t.membros.length > 0 ? (t.nivelTotal / t.membros.length).toFixed(1) : "0.0";
-                
                 let membrosHtml = t.membros.map((m, pIdx) => {
                     let isSelected = jogadorSelecionadoParaTroca && jogadorSelecionadoParaTroca.t === tIdx && jogadorSelecionadoParaTroca.p === pIdx;
                     return `<span onclick="window.selecionarTroca(${tIdx}, ${pIdx})" class="player-tag ${isSelected ? 'selected' : ''}">${m.nome}</span>`;
@@ -559,11 +566,10 @@
             const arrecadado = jogadores.filter(j => j.pago).length * (jogadores.length > 0 ? 350/jogadores.length : 0); 
             const timesLimpos = timesParaSalvar.map(t => ({nome: t.nome, membros: t.membros.map(m=>m.nome), vitorias: t.vitorias}));
             await addDoc(colHistorico, { data, times: timesLimpos, proximos: proximosAtuais, arrecadado, criadoEm: Date.now() });
-            alert("Escalação e Financeiro salvos com sucesso!");
+            alert("Escalação salva!");
             window.mudarAba('ranking');
         };
 
-        // === 8. AÇÕES DE HISTÓRICO E PLACAR ===
         window.vitoria = async (idHistorico, indexTime, valorSoma) => {
             try {
                 const ref = doc(db, "historico", idHistorico); 
@@ -585,7 +591,6 @@
         window.salvarNomesPlacar = async () => { await updateDoc(placarRef, { nomeA: document.getElementById('nomeTimeA').value, nomeB: document.getElementById('nomeTimeB').value }); };
         window.zerarPlacar = async () => { if(confirm("Zerar placar atual?")) await updateDoc(placarRef, { pontosA: 0, pontosB: 0 }); };
 
-        // === 9. ADMIN ===
         window.abrirAdmin = () => { document.getElementById('adm-caixa').innerText = `R$ ${valorTotalArrecadadoMes.toFixed(2)}`; document.getElementById('admin-modal').classList.remove('hidden'); };
         window.fecharAdmin = () => document.getElementById('admin-modal').classList.add('hidden');
 
