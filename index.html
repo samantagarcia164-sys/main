@@ -28,7 +28,7 @@
         .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Dados do Sorteio */
+        /* Animação dos Dados */
         #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .dice-wrap { display: flex; gap: 20px; margin-bottom: 20px; }
         .die { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; animation: roll 0.5s infinite; }
@@ -131,7 +131,6 @@
                     <button onclick="window.editarPerfil()" class="ios-btn w-full mt-8 bg-white/10 py-4 rounded-2xl font-black uppercase text-xs">Editar Dados</button>
                     <button onclick="window.sair()" class="text-red-400 text-[10px] font-black uppercase mt-6 opacity-50">Sair da Conta</button>
                 </div>
-                
                 <div id="perfil-edicao" class="glass-card rounded-[2.5rem] p-6 hidden space-y-4">
                     <input type="text" id="perfilNome" class="glass-input" placeholder="Seu Nome">
                     <input type="text" id="perfilFotoUrl" class="glass-input" placeholder="URL da Foto (opcional)">
@@ -190,7 +189,6 @@
         const googleProvider = new GoogleAuthProvider();
         const EMAIL_ADMIN = "jhonata_hip.hop@hotmail.com";
 
-        // Coleções Globais
         const colJogadores = collection(db, "jogadores");
         const colHistorico = collection(db, "historico");
         const placarRef = doc(db, "sistema", "placar_ao_vivo");
@@ -198,7 +196,6 @@
         let userAtual = null, perfilAtual = null, jogadores = [], timesParaSalvar = [], proximosAtuais = [], jogadorTroca = null, unsubscribes = [];
         let valorTotalHistorico = 0;
 
-        // Login
         window.loginComGoogle = () => signInWithPopup(auth, googleProvider).catch(err => alert(err.message));
         window.fazerLogin = () => signInWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(err => alert(err.message));
         window.criarConta = () => createUserWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(err => alert(err.message));
@@ -242,7 +239,6 @@
         };
 
         function iniciarEscutas() {
-            // Jogadores
             unsubscribes.push(onSnapshot(query(colJogadores, orderBy("nome")), snap => {
                 const lista = document.getElementById('listaJogadores'); lista.innerHTML = ''; let pagos = 0;
                 jogadores = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -256,10 +252,9 @@
                 const vpp = jogadores.length > 0 ? 350/jogadores.length : 0;
                 document.getElementById('vpp').innerText = "R$ " + (pagos * vpp).toFixed(2);
                 document.getElementById('barra').style.width = ((pagos/jogadores.length)*100) + "%";
-                document.getElementById('infoFin').innerText = `${pagos}/${jogadores.length} ATLETAS PAGOS`;
+                document.getElementById('infoFin').innerText = `${pagos}/${jogadores.length} PAGOS`;
             }));
 
-            // Ranking
             unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
                 const histUl = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
                 histUl.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}; valorTotalHistorico = 0;
@@ -272,7 +267,6 @@
                         t.membros.forEach(m => { if(!ranking[m]) ranking[m]=0; ranking[m] += (t.vitorias || 0); });
                         return `<div class="flex justify-between items-center py-2 border-b border-white/5"><div><div class="text-[10px] opacity-40">${t.nome}</div><div class="text-xs font-bold">${t.membros.join(', ')}</div></div><div class="flex gap-2 items-center"><button onclick="window.vit('${d.id}',${i},-1)" class="p-2 opacity-30">-</button><span class="font-black text-blue-500">${t.vitorias || 0}</span><button onclick="window.vit('${d.id}',${i},1)" class="p-2 bg-white/10 rounded">+</button></div></div>`;
                     }).join('');
-                    
                     const delPartida = isAdmin ? `<button onclick="window.deletarHistorico('${d.id}')" class="text-red-400 opacity-30"><i class="fas fa-trash"></i></button>` : '';
                     histUl.innerHTML += `<div class="glass-card p-4 rounded-3xl mb-4"><div class="flex justify-between mb-2"><span class="text-[9px] opacity-30">${p.data}</span> ${delPartida}</div> ${tHtml} </div>`;
                 });
@@ -282,15 +276,13 @@
                 });
             }));
 
-            // Placar
             unsubscribes.push(onSnapshot(placarRef, snap => {
                 if(snap.exists()) { const d = snap.data(); pontosA.innerText = d.pontosA || 0; pontosB.innerText = d.pontosB || 0; }
             }));
         }
 
-        // Ações
         window.entrarNaLista = async () => {
-            if(!perfilAtual) return alert("Crie seu perfil primeiro!");
+            if(!perfilAtual) return alert("Crie seu perfil!");
             if(jogadores.some(j => j.uid === userAtual.uid)) return alert("Você já está na lista!");
             await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false });
         };
@@ -302,10 +294,9 @@
         };
 
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), { pago: !s });
-        window.deletar = async (id) => { if(confirm("Remover da lista?")) await deleteDoc(doc(db, "jogadores", id)); };
-        window.limparListaSemana = async () => { if(confirm("Limpar lista da semana?")) { for(let j of jogadores) { await deleteDoc(doc(db, "jogadores", j.id)); } } };
-        window.deletarHistorico = async (id) => { if(confirm("Apagar do histórico?")) await deleteDoc(doc(db, "historico", id)); };
-
+        window.deletar = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.limparListaSemana = async () => { if(confirm("Limpar lista?")) { for(let j of jogadores) { await deleteDoc(doc(db, "jogadores", j.id)); } } };
+        window.deletarHistorico = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "historico", id)); };
         window.vit = async (id, idx, val) => {
             const r = doc(db, "historico", id), s = await getDoc(r);
             const ts = s.data().times; ts[idx].vitorias = Math.max(0, (ts[idx].vitorias || 0) + val);
@@ -319,16 +310,14 @@
         };
 
         window.zerarPlacar = async () => await setDoc(placarRef, { pontosA: 0, pontosB: 0 });
-
-        // Admin
         window.abrirAdmin = () => { document.getElementById('adm-caixa').innerText = `R$ ${valorTotalHistorico.toFixed(2)}`; document.getElementById('admin-modal').classList.remove('hidden'); };
         window.fecharAdmin = () => document.getElementById('admin-modal').classList.add('hidden');
 
-        // Sorteio
+        // --- MUDANÇA AQUI: SORTEIA TODO MUNDO NA LISTA ---
         window.animarESortear = () => {
-            const p = jogadores.filter(j => j.pago); if(p.length < 2) return alert("Mínimo 2 pagos!");
+            if(jogadores.length < 2) return alert("Mínimo 2 pessoas na lista!");
             document.getElementById('shufflingContainer').classList.remove('hidden');
-            setTimeout(() => { document.getElementById('shufflingContainer').classList.add('hidden'); sortear(p); }, 1500);
+            setTimeout(() => { document.getElementById('shufflingContainer').classList.add('hidden'); sortear(jogadores); }, 1500);
         };
 
         function sortear(p) {
