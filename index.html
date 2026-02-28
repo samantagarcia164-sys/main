@@ -77,7 +77,7 @@
             <h1 class="text-3xl font-black italic text-center mb-6">Vôlei <span class="text-blue-500">Pro</span></h1>
             <p id="auth-error" class="text-red-400 text-xs text-center hidden font-bold"></p>
             
-            <button onclick="loginComGoogle()" class="ios-btn w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-white/10 flex items-center justify-center gap-3">
+            <button onclick="window.loginComGoogle()" class="ios-btn w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-white/10 flex items-center justify-center gap-3">
                 <i class="fab fa-google text-red-500 text-base"></i> Entrar com Google
             </button>
 
@@ -88,8 +88,8 @@
             <input type="email" id="emailInput" class="glass-input text-sm" placeholder="Seu E-mail">
             <input type="password" id="passInput" class="glass-input text-sm" placeholder="Senha">
             <div class="flex gap-2">
-                <button onclick="fazerLogin()" class="ios-btn flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/30">Entrar</button>
-                <button onclick="criarConta()" class="ios-btn flex-1 bg-white/10 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/20">Criar Conta</button>
+                <button onclick="window.fazerLogin()" class="ios-btn flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/30">Entrar</button>
+                <button onclick="window.criarConta()" class="ios-btn flex-1 bg-white/10 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/20">Criar Conta</button>
             </div>
         </div>
     </div>
@@ -98,7 +98,7 @@
         
         <header class="p-6 pt-12 flex justify-between items-center">
             <h1 class="text-2xl font-black tracking-tighter italic uppercase">Vôlei <span class="text-blue-500 underline decoration-blue-500/30">Pro</span></h1>
-            <button onclick="copiarPix()" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all">
+            <button onclick="window.copiarPix()" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all">
                 Pix: 11959154029 <i class="far fa-copy opacity-40"></i>
             </button>
         </header>
@@ -122,7 +122,7 @@
                     <p id="infoFin" class="text-center text-[10px] font-black opacity-40 uppercase tracking-tighter italic">Carregando...</p>
                 </div>
 
-                <button onclick="entrarNaLista()" class="ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/20 mb-4 border border-blue-400/50">
+                <button onclick="window.entrarNaLista()" class="ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/20 mb-4 border border-blue-400/50">
                     <i class="fas fa-running mr-2"></i> Adicionar-me ao Jogo
                 </button>
 
@@ -145,13 +145,13 @@
                         <span class="text-xs font-black uppercase opacity-40 tracking-widest">Jogadores / Time</span>
                         <input type="number" id="qtdPorTime" value="6" class="bg-transparent text-right font-black text-2xl w-14 outline-none text-blue-500">
                     </div>
-                    <button onclick="animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-[1.5rem] font-black uppercase tracking-[0.2em] shadow-2xl">Lançar Dados 🎲</button>
+                    <button onclick="window.animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-[1.5rem] font-black uppercase tracking-[0.2em] shadow-2xl">Lançar Dados 🎲</button>
                 </div>
                 
                 <div id="shufflingContainer" class="hidden"></div>
                 <div id="resultadoSorteio" class="space-y-3"></div>
                 
-                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Escalação ✅</button>
+                <button id="btnSalvar" onclick="window.salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Escalação ✅</button>
             </div>
 
             <div id="aba-historico" class="hidden space-y-5 pb-10">
@@ -196,10 +196,10 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="editarPerfil()" class="ios-btn w-full mt-6 bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30">
+                    <button onclick="window.editarPerfil()" class="ios-btn w-full mt-6 bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30">
                         Editar Carta
                     </button>
-                    <button onclick="sair()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-red-400 opacity-60 hover:opacity-100 transition-all border-t border-white/5 mt-4">
+                    <button onclick="window.sair()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-red-400 opacity-60 hover:opacity-100 transition-all border-t border-white/5 mt-4">
                         <i class="fas fa-sign-out-alt mr-2"></i> Sair da Conta
                     </button>
                 </div>
@@ -254,10 +254,10 @@
                     </div>
 
                     <div class="flex gap-2">
-                        <button onclick="salvarPerfil()" class="ios-btn flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30">
+                        <button onclick="window.salvarPerfil()" class="ios-btn flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30">
                             Salvar Dados
                         </button>
-                        <button onclick="cancelarEdicao()" class="ios-btn bg-white/10 text-white py-4 px-6 rounded-2xl font-black uppercase tracking-widest text-xs border border-white/20 hidden" id="btnCancelar">
+                        <button onclick="window.cancelarEdicao()" class="ios-btn bg-white/10 text-white py-4 px-6 rounded-2xl font-black uppercase tracking-widest text-xs border border-white/20 hidden" id="btnCancelar">
                             Cancelar
                         </button>
                     </div>
@@ -268,10 +268,10 @@
 
         <footer class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-md z-50">
             <nav class="glass-menu rounded-[2.5rem] p-2 flex justify-around items-center shadow-2xl border border-white/5">
-                <button onclick="mudarAba('lista')" id="btn-lista" class="tab-btn active-tab flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Lista</button>
-                <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all text-center">Sortear</button>
-                <button onclick="mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Hist.</button>
-                <button onclick="mudarAba('perfil')" id="btn-perfil" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all"><i class="fas fa-id-card text-sm"></i></button>
+                <button onclick="window.mudarAba('lista')" id="btn-lista" class="tab-btn active-tab flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Lista</button>
+                <button onclick="window.mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all text-center">Sortear</button>
+                <button onclick="window.mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Hist.</button>
+                <button onclick="window.mudarAba('perfil')" id="btn-perfil" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all"><i class="fas fa-id-card text-sm"></i></button>
             </nav>
         </footer>
     </div>
@@ -304,7 +304,6 @@
         let userAtual = null;
         let perfilAtual = null;
 
-        // --- SISTEMA DE AUTENTICAÇÃO ---
         window.fazerLogin = () => {
             const e = document.getElementById('emailInput').value;
             const p = document.getElementById('passInput').value;
@@ -335,7 +334,7 @@
                 userAtual = user;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                await carregarPerfil();
+                await window.carregarPerfil();
             } else {
                 userAtual = null; perfilAtual = null;
                 document.getElementById('auth-screen').classList.remove('hidden');
@@ -343,7 +342,6 @@
             }
         });
 
-        // --- GESTÃO DE PERFIL ---
         window.carregarPerfil = async () => {
             try {
                 const docRef = doc(db, "usuarios", userAtual.uid);
@@ -351,7 +349,7 @@
                 
                 let fotoGoogle = "https://via.placeholder.com/150";
                 if (userAtual.photoURL) {
-                    fotoGoogle = userAtual.photoURL; // Pega foto do google direto
+                    fotoGoogle = userAtual.photoURL.replace('=s96-c', '');
                 }
 
                 if (docSnap.exists()) {
@@ -378,7 +376,6 @@
                     document.getElementById('cartaClube').innerText = perfilAtual.time || "Clube";
                     document.getElementById('cartaNome').innerText = perfilAtual.nome || "JOGADOR";
                     
-                    // Mostra foto do usuário salva ou a foto do google
                     document.getElementById('cartaFoto').src = perfilAtual.fotoUrl ? perfilAtual.fotoUrl : fotoGoogle;
 
                     document.getElementById('cartaSaque').innerText = hab.saque || "0";
@@ -442,7 +439,7 @@
                 };
                 
                 await setDoc(doc(db, "usuarios", userAtual.uid), perfilAtual);
-                await carregarPerfil(); 
+                await window.carregarPerfil(); 
             } catch (error) {
                 console.error("Erro ao salvar:", error);
                 alert("Falha ao salvar. Verifique sua internet ou as regras do Firebase.");
@@ -459,7 +456,6 @@
             document.getElementById('perfil-edicao').classList.add('hidden');
         }
 
-        // --- NAVEGAÇÃO ---
         window.mudarAba = (aba) => {
             document.querySelectorAll('[id^="aba-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(`aba-${aba}`).classList.remove('hidden');
@@ -467,7 +463,6 @@
             document.getElementById(`btn-${aba}`).classList.add('active-tab', 'opacity-100');
         };
 
-        // --- LISTA DE JOGADORES DA SEMANA ---
         onSnapshot(query(colJogadores, orderBy("nome", "asc")), (snap) => {
             const lista = document.getElementById('listaJogadores');
             lista.innerHTML = ''; jogadores = []; let pagos = 0;
@@ -485,8 +480,8 @@
                             ${j.nivel ? `<span class="text-[9px] text-orange-400 tracking-widest">${estrelas}</span>` : `<span class="text-[9px] text-gray-500 italic">Convidado</span>`}
                         </div>
                         <div class="flex items-center gap-3">
-                            <button onclick="togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'} shadow-sm">${j.pago ? 'OK' : 'PIX'}</button>
-                            <button onclick="removerJogador('${j.id}')" class="opacity-30 hover:opacity-100 hover:text-red-400 transition-all px-2"><i class="fas fa-trash-alt"></i></button>
+                            <button onclick="window.togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'} shadow-sm">${j.pago ? 'OK' : 'PIX'}</button>
+                            <button onclick="window.removerJogador('${j.id}')" class="opacity-30 hover:opacity-100 hover:text-red-400 transition-all px-2"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </li>`;
             });
@@ -528,7 +523,6 @@
             window.open(`https://wa.me/?text=${texto}`, '_blank');
         };
 
-        // --- SORTEIO INTELIGENTE ---
         window.animarESortear = () => {
             const pagos = jogadores.filter(j => j.pago);
             if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK!");
@@ -537,10 +531,10 @@
             container.classList.remove('hidden');
             container.innerHTML = `<div class="dice-wrap"><div class="die">🎲</div><div class="die" style="animation-delay: 0.1s">🎲</div></div><div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-50 animate-pulse">Calculando equilíbrio...</div>`;
 
-            setTimeout(() => { container.classList.add('hidden'); executarSorteioEquilibrado(pagos); }, 1800);
+            setTimeout(() => { container.classList.add('hidden'); window.executarSorteioEquilibrado(pagos); }, 1800);
         };
 
-        function executarSorteioEquilibrado(pagos) {
+        window.executarSorteioEquilibrado = (pagos) => {
             const qtd = parseInt(document.getElementById('qtdPorTime').value);
             const sorteados = [...pagos].sort((a, b) => {
                 if (b.nivel === a.nivel) return Math.random() - 0.5;
@@ -594,7 +588,7 @@
             const timesLimpos = timesParaSalvar.map(t => ({nome: t.nome, membros: t.membros, vitorias: t.vitorias}));
             await addDoc(colHistorico, { data, times: timesLimpos, proximos: proximosAtuais, criadoEm: Date.now() });
             alert("Times salvos com sucesso!");
-            mudarAba('historico');
+            window.mudarAba('historico');
         };
 
         onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), (snap) => {
