@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vôlei Pro - Ultimate Finance</title>
+    <title>Vôlei Pro - Ultimate Admin Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -103,7 +103,7 @@
                     </div>
                     <div class="font-black opacity-10 text-2xl italic">VS</div>
                     <div class="text-center">
-                        <input type="text" id="nomeB" value="TIME 2" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-20 outline-none border-b border-white/10">
+                        <input type="text" id="nomeB" value="TIME 2" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-24 outline-none border-b border-white/10">
                         <div id="pontosB" class="placar-numero text-orange-400" onclick="window.alterarPlacar('B', 1)">0</div>
                         <button onclick="window.alterarPlacar('B', -1)" class="opacity-20 mt-4">-1</button>
                     </div>
@@ -117,7 +117,7 @@
                     <ul id="listaRanking" class="glass-card rounded-3xl p-2 divide-y divide-white/5"></ul>
                 </div>
                 <div class="space-y-4">
-                    <h2 class="text-center text-[10px] font-black opacity-40 uppercase tracking-widest">🕒 Histórico</h2>
+                    <h2 class="text-center text-[10px] font-black opacity-40 uppercase tracking-widest">🕒 Histórico de Jogos</h2>
                     <div id="listaHistorico" class="space-y-4"></div>
                 </div>
             </div>
@@ -174,7 +174,7 @@
             <button onclick="window.fecharFinanceiro()" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-green-500/20">Check-in: Marcar Semana Paga ✅</button>
 
             <div class="text-left">
-                <p class="text-[10px] font-black uppercase opacity-40 mb-2">Semanas Pagas:</p>
+                <p class="text-[10px] font-black uppercase opacity-40 mb-2">Semanas Pagas (Toque na <i class="fas fa-trash"></i> p/ apagar):</p>
                 <ul id="listaFinanceira" class="text-[10px] space-y-1 h-32 overflow-y-auto pr-2"></ul>
             </div>
 
@@ -210,7 +210,7 @@
 
         let userAtual = null, perfilAtual = null, jogadoresLocal = [], unsubscribes = [], valorQuadraAtual = 350;
 
-        // --- AUTH ---
+        // AUTH
         document.getElementById('google-login-btn').onclick = () => signInWithPopup(auth, googleProvider).catch(err => alert(err.message));
         document.getElementById('email-login-btn').onclick = () => {
             const email = document.getElementById('emailInput').value, pass = document.getElementById('passInput').value;
@@ -258,7 +258,6 @@
         };
 
         function iniciarEscutas() {
-            // Config Valor Quadra
             unsubscribes.push(onSnapshot(configRef, s => {
                 if(s.exists()){ 
                     valorQuadraAtual = s.data().valorQuadra || 350;
@@ -266,7 +265,6 @@
                 }
             }));
 
-            // Jogadores
             unsubscribes.push(onSnapshot(query(colJogadores, orderBy("nome")), snap => {
                 const lista = document.getElementById('listaJogadores'); lista.innerHTML = ''; let pagos = 0;
                 jogadoresLocal = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -283,40 +281,52 @@
                 document.getElementById('infoFin').innerText = `${pagos}/${jogadoresLocal.length} Pagos`;
             }));
 
-            // Ranking e Histórico
             unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
                 const histDiv = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
                 histDiv.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}, acumuladoTotal = 0;
+                const isAdmin = userAtual.email === EMAIL_ADMIN;
+
                 snap.forEach(d => {
-                    const p = d.data(); acumuladoTotal += (p.arrecadado || 0);
+                    const p = d.data(); const pId = d.id;
+                    acumuladoTotal += (p.arrecadado || 0);
                     let tHtml = p.times.map((t, i) => {
                         t.membros.forEach(m => { if(!ranking[m]) ranking[m]=0; ranking[m] += (t.vitorias || 0); });
                         return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-xs font-bold w-2/3">${t.membros.join(', ')}</div><div class="flex items-center gap-3"><button onclick="window.vit('${d.id}',${i},-1)" class="opacity-20">-</button><span class="font-black text-blue-500">${t.vitorias || 0}</span><button onclick="window.vit('${d.id}',${i},1)" class="bg-white/10 px-2 rounded">+</button></div></div>`;
                     }).join('');
-                    histDiv.innerHTML += `<div class="glass-card p-4 rounded-3xl mb-4"><div class="flex justify-between text-[9px] opacity-30 mb-2"><span>${p.data}</span></div>${tHtml}</div>`;
+                    
+                    // Botão de deletar jogo reativado pro Admin
+                    const lixeiraHtml = isAdmin ? `<button onclick="window.delHist('${pId}')" class="text-red-400 opacity-30"><i class="fas fa-trash"></i></button>` : '';
+
+                    histDiv.innerHTML += `<div class="glass-card p-4 rounded-3xl mb-4"><div class="flex justify-between text-[9px] opacity-30 mb-2"><span>${p.data}</span> ${lixeiraHtml}</div>${tHtml}</div>`;
                 });
                 document.getElementById('adm-caixa').innerText = `R$ ${acumuladoTotal.toFixed(2)}`;
                 Object.entries(ranking).sort((a,b)=>b[1]-a[1]).forEach(([n, v], i) => { if(v > 0) rankUl.innerHTML += `<li class="flex justify-between p-4 text-xs"><span>${i+1}º ${n}</span><span class="font-bold">${v} vit</span></li>`; });
             }));
 
-            // Financeiro Fechado
             unsubscribes.push(onSnapshot(query(colFinanceiro, orderBy("data", "desc")), snap => {
                 const list = document.getElementById('listaFinanceira'); list.innerHTML = '';
-                snap.forEach(d => { const f = d.data(); list.innerHTML += `<li class="flex justify-between border-b border-white/5 pb-1"><span>${f.dataString}</span><span class="text-green-400 font-bold">R$ ${f.valor.toFixed(2)}</span></li>`; });
+                const isAdmin = userAtual.email === EMAIL_ADMIN;
+
+                snap.forEach(d => { 
+                    const f = d.data(); const fId = d.id;
+                    const delFechamento = isAdmin ? `<i class="fas fa-trash-alt ml-2 text-red-500 opacity-40 cursor-pointer" onclick="window.delFechamento('${fId}')"></i>` : '';
+                    list.innerHTML += `<li class="flex justify-between border-b border-white/5 pb-1"><span>${f.dataString}</span><span class="text-green-400 font-bold">R$ ${f.valor.toFixed(2)} ${delFechamento}</span></li>`; 
+                });
             }));
 
-            // Placar
             unsubscribes.push(onSnapshot(placarRef, s => { if(s.exists()){ const d=s.data(); document.getElementById('pontosA').innerText=d.pontosA||0; document.getElementById('pontosB').innerText=d.pontosB||0; } }));
         }
 
         // --- FINANCEIRO ADMIN ---
         window.fecharFinanceiro = async () => {
             const valorTotalHoje = parseFloat(document.getElementById('vpp').innerText.replace("R$ ", ""));
-            if(confirm(`Deseja confirmar o pagamento da quadra de hoje no valor de R$ ${valorTotalHoje.toFixed(2)}?`)) {
+            if(confirm(`Confirmar pagamento da quadra de hoje? R$ ${valorTotalHoje.toFixed(2)}`)) {
                 await addDoc(colFinanceiro, { valor: valorTotalHoje, data: Date.now(), dataString: new Date().toLocaleDateString() });
                 alert("Semana marcada como paga!");
             }
         };
+
+        window.delFechamento = async (id) => { if(confirm("Deseja apagar este registro de pagamento?")) await deleteDoc(doc(db, "financeiro_fechado", id)); };
 
         document.getElementById('valorQuadraSemana').onchange = async (e) => {
             await setDoc(configRef, { valorQuadra: parseFloat(e.target.value) });
@@ -327,7 +337,9 @@
         window.adicionarConvidado = async () => { const i = document.getElementById('nomeConvidado'); if(!i.value) return; await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: i.value.toUpperCase()+" (C)", nivel: 2, pago: false }); i.value=""; };
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
         window.deletar = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
-        window.limparListaSemana = async () => { if(confirm("Zerar?")) { for(let j of jogadoresLocal) await deleteDoc(doc(db, "jogadores", j.id)); } };
+        window.limparListaSemana = async () => { if(confirm("Zerar lista da semana?")) { for(let j of jogadoresLocal) await deleteDoc(doc(db, "jogadores", j.id)); } };
+        window.delHist = async (id) => { if(confirm("Apagar este jogo do histórico?")) await deleteDoc(doc(db, "historico", id)); };
+
         window.vit = async (dId, tIdx, v) => { const r = doc(db, "historico", dId), s = await getDoc(r); if(s.exists()){ const ts = s.data().times; ts[tIdx].vitorias = Math.max(0, (ts[tIdx].vitorias || 0) + v); await updateDoc(r, { times: ts }); } };
         window.alterarPlacar = async (t, v) => { const s = await getDoc(placarRef); const d = s.exists() ? s.data() : { pontosA: 0, pontosB: 0 }; await setDoc(placarRef, { ...d, ["pontos"+t]: Math.max(0, (d["pontos"+t]||0) + v) }); };
         window.zerarPlacar = async () => await setDoc(placarRef, { pontosA: 0, pontosB: 0 });
