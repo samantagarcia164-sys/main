@@ -44,14 +44,18 @@
         <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm space-y-4 text-center animate-in">
             <h1 class="text-3xl font-black italic mb-6">Vôlei <span class="text-blue-500">Pro</span></h1>
             <p id="auth-error" class="text-red-400 text-xs hidden font-bold bg-red-500/10 p-2 rounded-lg"></p>
-            <button onclick="window.loginComGoogle()" class="ios-btn w-full bg-white text-black py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-3">
+            
+            <button id="google-login-btn" class="ios-btn w-full bg-white text-black py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-3">
                 <i class="fab fa-google text-red-500"></i> Google Login
             </button>
+            
+            <div class="flex items-center gap-2 opacity-20 py-2"><hr class="flex-1 border-white/30"> <span class="text-[9px] font-bold">OU E-MAIL</span> <hr class="flex-1 border-white/30"></div>
+
             <input type="email" id="emailInput" class="glass-input text-sm" placeholder="E-mail">
             <input type="password" id="passInput" class="glass-input text-sm" placeholder="Senha">
             <div class="flex gap-2">
-                <button onclick="window.fazerLogin()" class="ios-btn flex-1 bg-blue-600 py-4 rounded-2xl font-black text-[10px] uppercase">Entrar</button>
-                <button onclick="window.criarConta()" class="ios-btn flex-1 bg-white/10 py-4 rounded-2xl font-black text-[10px] uppercase">Criar</button>
+                <button id="email-login-btn" class="ios-btn flex-1 bg-blue-600 py-4 rounded-2xl font-black text-[10px] uppercase">Entrar</button>
+                <button id="register-btn" class="ios-btn flex-1 bg-white/10 py-4 rounded-2xl font-black text-[10px] uppercase">Criar</button>
             </div>
         </div>
     </div>
@@ -70,7 +74,7 @@
                 <div class="glass-card rounded-[2.5rem] p-6 text-center">
                     <span class="text-[10px] font-black uppercase opacity-50">Arrecadação Hoje</span>
                     <div id="vpp" class="text-3xl font-black">R$ 0,00</div>
-                    <div class="h-1.5 bg-white/10 rounded-full mt-4 overflow-hidden"><div id="barra" class="h-full bg-green-500 transition-all duration-700"></div></div>
+                    <div class="h-1.5 bg-white/10 rounded-full mt-4 overflow-hidden"><div id="barra" class="h-full bg-green-500 transition-all duration-700" style="width: 0%"></div></div>
                     <p id="infoFin" class="text-[9px] mt-2 opacity-40 font-bold uppercase">0/0 Pagos</p>
                 </div>
                 <button onclick="window.entrarNaLista()" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Me Adicionar</button>
@@ -179,6 +183,7 @@
             messagingSenderId: "619450859287",
             appId: "1:619450859287:web:bf9138713eb65b3c514152"
         };
+        
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
@@ -192,10 +197,34 @@
         let userAtual = null, perfilAtual = null, jogadoresLocal = [], timesSorteados = [], proximosFila = [], jogadorTroca = null, unsubscribes = [];
         let caixaTotal = 0;
 
-        // AUTH
-        window.loginComGoogle = () => signInWithPopup(auth, googleProvider).catch(err => alert(err.message));
-        window.fazerLogin = () => signInWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(err => alert(err.message));
-        window.criarConta = () => createUserWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(err => alert(err.message));
+        // --- CORREÇÃO DE LOGIN ---
+        document.getElementById('google-login-btn').onclick = () => {
+            signInWithPopup(auth, googleProvider).catch(err => {
+                document.getElementById('auth-error').innerText = "Erro: " + err.message;
+                document.getElementById('auth-error').classList.remove('hidden');
+            });
+        };
+
+        document.getElementById('email-login-btn').onclick = () => {
+            const email = document.getElementById('emailInput').value;
+            const pass = document.getElementById('passInput').value;
+            if(!email || !pass) return alert("Preencha e-mail e senha");
+            signInWithEmailAndPassword(auth, email, pass).catch(err => {
+                document.getElementById('auth-error').innerText = "Acesso Negado: Senha ou E-mail incorretos.";
+                document.getElementById('auth-error').classList.remove('hidden');
+            });
+        };
+
+        document.getElementById('register-btn').onclick = () => {
+            const email = document.getElementById('emailInput').value;
+            const pass = document.getElementById('passInput').value;
+            if(!email || !pass) return alert("Preencha e-mail e senha");
+            createUserWithEmailAndPassword(auth, email, pass).catch(err => {
+                document.getElementById('auth-error').innerText = "Erro ao criar: " + err.message;
+                document.getElementById('auth-error').classList.remove('hidden');
+            });
+        };
+
         window.sair = () => signOut(auth);
 
         onAuthStateChanged(auth, async (user) => {
@@ -210,11 +239,14 @@
                 await carregarPerfil();
                 iniciarEscutas();
             } else {
-                userAtual = null; document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('main-app').classList.add('hidden');
+                userAtual = null;
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
                 unsubscribes.forEach(u => u());
             }
         });
 
+        // --- FUNÇÕES DE NAVEGAÇÃO E SISTEMA ---
         async function carregarPerfil() {
             const s = await getDoc(doc(db, "usuarios", userAtual.uid));
             if (s.exists()) {
@@ -227,12 +259,13 @@
 
         window.editarPerfil = () => document.getElementById('perfil-edicao').classList.toggle('hidden');
         window.salvarPerfil = async () => {
-            const d = { nome: perfilNome.value.toUpperCase(), fotoUrl: perfilFotoUrl.value, nivel: parseInt(perfilNivel.value), uid: userAtual.uid };
+            const nomeInput = document.getElementById('perfilNome').value;
+            if(!nomeInput) return alert("Insira um nome");
+            const d = { nome: nomeInput.toUpperCase(), fotoUrl: document.getElementById('perfilFotoUrl').value, nivel: parseInt(document.getElementById('perfilNivel').value), uid: userAtual.uid };
             await setDoc(doc(db, "usuarios", userAtual.uid), d); carregarPerfil();
         };
 
         function iniciarEscutas() {
-            // LISTA JOGADORES
             unsubscribes.push(onSnapshot(query(colJogadores, orderBy("nome")), snap => {
                 const lista = document.getElementById('listaJogadores'); lista.innerHTML = ''; let pagos = 0;
                 jogadoresLocal = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -249,7 +282,6 @@
                 document.getElementById('infoFin').innerText = `${pagos}/${jogadoresLocal.length} Pagos`;
             }));
 
-            // HISTORICO E RANKING
             unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
                 const histDiv = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
                 histDiv.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}; caixaTotal = 0;
@@ -277,19 +309,16 @@
                 });
             }));
 
-            // PLACAR
-            unsubscribes.push(onSnapshot(placarRef, s => { if(s.exists()){ const d=s.data(); pontosA.innerText=d.pontosA||0; pontosB.innerText=d.pontosB||0; } }));
+            unsubscribes.push(onSnapshot(placarRef, s => { if(s.exists()){ const d=s.data(); document.getElementById('pontosA').innerText=d.pontosA||0; document.getElementById('pontosB').innerText=d.pontosB||0; } }));
         }
 
-        // ACTIONS
-        window.entrarNaLista = async () => { if(!perfilAtual) return alert("Crie o perfil"); await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false }); };
-        window.adicionarConvidado = async () => { if(!nomeConvidado.value) return; await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: nomeConvidado.value.toUpperCase()+" (C)", nivel: 2, pago: false }); nomeConvidado.value=""; };
+        window.entrarNaLista = async () => { if(!perfilAtual) return alert("Crie o perfil na aba Perfil"); await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false }); };
+        window.adicionarConvidado = async () => { const input = document.getElementById('nomeConvidado'); if(!input.value) return; await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: input.value.toUpperCase()+" (C)", nivel: 2, pago: false }); input.value=""; };
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
         window.deletar = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => { if(confirm("Zerar?")) { for(let j of jogadoresLocal) await deleteDoc(doc(db, "jogadores", j.id)); } };
         window.delHist = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "historico", id)); };
 
-        // PONTUAÇÃO CORRIGIDA (FLUÍDA)
         window.vit = async (docId, tIdx, val) => {
             const r = doc(db, "historico", docId); const s = await getDoc(r);
             if(!s.exists()) return;
@@ -303,15 +332,14 @@
         };
         window.zerarPlacar = async () => await setDoc(placarRef, { pontosA: 0, pontosB: 0 });
 
-        // SORTEIO
         window.animarESortear = () => {
-            if(jogadoresLocal.length < 2) return alert("Mínimo 2");
-            shufflingContainer.classList.remove('hidden');
-            setTimeout(() => { shufflingContainer.classList.add('hidden'); sortear(); }, 1200);
+            if(jogadoresLocal.length < 2) return alert("Mínimo 2 atletas na lista");
+            document.getElementById('shufflingContainer').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('shufflingContainer').classList.add('hidden'); sortear(); }, 1200);
         };
 
         function sortear() {
-            const q = parseInt(qtdPorTime.value), n = Math.floor(jogadoresLocal.length / q);
+            const q = parseInt(document.getElementById('qtdPorTime').value), n = Math.floor(jogadoresLocal.length / q);
             const ord = [...jogadoresLocal].sort((a,b) => (b.nivel||2) - (a.nivel||2));
             timesSorteados = Array.from({length: n}, (_, i) => ({ nome: "TIME " + (i+1), membros: [], nivelTotal: 0, vitorias: 0 }));
             ord.slice(0, n * q).forEach(j => {
@@ -323,13 +351,15 @@
         }
 
         function renderSorteio() {
-            resultadoSorteio.innerHTML = timesSorteados.map((t, i) => `
+            const res = document.getElementById('resultadoSorteio');
+            res.innerHTML = timesSorteados.map((t, i) => `
                 <div class="glass-card p-4 rounded-3xl">
                     <div class="text-[10px] text-blue-400 font-black mb-2 uppercase">${t.nome}</div>
                     <div class="flex flex-wrap">${t.membros.map((m, j) => `<span onclick="window.trocar(${i},${j})" class="player-tag ${jogadorTroca && jogadorTroca.t===i && jogadorTroca.j===j ? 'selected' : ''}">${m}</span>`).join('')}</div>
                 </div>`).join('');
-            if(proximosFila.length > 0) resultadoSorteio.innerHTML += `<div class="p-4 border border-dashed border-white/20 rounded-3xl text-[9px] opacity-40">FILA: ${proximosFila.join(', ')}</div>`;
-            btnSalvar.classList.remove('hidden'); dica-troca.classList.remove('hidden');
+            if(proximosFila.length > 0) res.innerHTML += `<div class="p-4 border border-dashed border-white/20 rounded-3xl text-[9px] opacity-40">FILA: ${proximosFila.join(', ')}</div>`;
+            document.getElementById('btnSalvar').classList.remove('hidden');
+            document.getElementById('dica-troca').classList.remove('hidden');
         }
 
         window.trocar = (t, j) => {
@@ -344,7 +374,7 @@
         window.salvarPartida = async () => {
             const arr = jogadoresLocal.filter(j => j.pago).length * (350/jogadoresLocal.length);
             await addDoc(colHistorico, { criadoEm: Date.now(), data: new Date().toLocaleDateString(), times: timesSorteados, proximos: proximosFila, arrecadado: arr });
-            alert("Salvo!"); window.mudarAba('ranking');
+            alert("Partida Salva!"); window.mudarAba('ranking');
         };
 
         window.mudarAba = (aba) => {
@@ -355,8 +385,8 @@
             document.getElementById('btn-tab-'+aba).classList.add('active-tab');
         };
 
-        window.abrirAdmin = () => { adm-caixa.innerText = `R$ ${caixaTotal.toFixed(2)}`; admin-modal.classList.remove('hidden'); };
-        window.fecharAdmin = () => admin-modal.classList.add('hidden');
+        window.abrirAdmin = () => { document.getElementById('adm-caixa').innerText = `R$ ${caixaTotal.toFixed(2)}`; document.getElementById('admin-modal').classList.remove('hidden'); };
+        window.fecharAdmin = () => document.getElementById('admin-modal').classList.add('hidden');
         window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("Pix Copiado"); };
     </script>
 </body>
