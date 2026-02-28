@@ -44,126 +44,28 @@
             overflow: hidden;
             color: #1a1a1a;
         }
-
         .FifaCardFundo::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('https://www.transparenttextures.com/patterns/diagonal-stripes.png');
-            opacity: 0.1;
-            z-index: 0;
+            opacity: 0.1; z-index: 0;
         }
-
         .FifaCardFormato {
-            display: grid;
-            grid-template-areas:
-                "topo"
-                "centro"
-                "habilidades";
-            grid-template-rows: auto auto 1fr;
-            z-index: 1;
-            position: relative;
+            display: grid; grid-template-areas: "topo" "centro" "habilidades";
+            grid-template-rows: auto auto 1fr; z-index: 1; position: relative;
         }
-
-        .FifaCardTopo {
-            grid-area: topo;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            padding: 1rem;
-            align-items: center;
-        }
-
-        .FifaCardGeralPosicao {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .FifaCardGeral {
-            font-size: 3rem;
-            font-weight: 900;
-            line-height: 1;
-            font-style: italic;
-        }
-
-        .FifaCardPosicao {
-            font-size: 1rem;
-            font-weight: 700;
-            opacity: 0.8;
-            margin-top: -5px;
-        }
-
-        .FifaCardClubePais {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
-        .FifaCardBandeira, .FifaCardClube {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .FifaCardCentro {
-            grid-area: centro;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 1rem;
-            position: relative;
-        }
-
-        .FifaCardFoto {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            /* clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); para recortar a foto se necessário */
-            margin-bottom: -10px;
-        }
-
-        .FifaCardNome {
-            font-size: 1.2rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: rgba(26,26,26,0.1);
-            padding: 3px 15px;
-            border-radius: 10px;
-            z-index: 2;
-        }
-
-        .FifaCardHabilidades {
-            grid-area: habilidades;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            padding: 1.5rem 2.5rem;
-            margin-top: 10px;
-        }
-
-        .HabilidadeCol {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .HabilidadeVal {
-            font-size: 1.5rem;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        .HabilidadeNome {
-            font-size: 0.8rem;
-            font-weight: 700;
-            opacity: 0.7;
-            text-transform: uppercase;
-        }
+        .FifaCardTopo { grid-area: topo; display: grid; grid-template-columns: 1fr 1fr; padding: 1rem; align-items: center; }
+        .FifaCardGeralPosicao { display: flex; flex-direction: column; align-items: flex-start; }
+        .FifaCardGeral { font-size: 3rem; font-weight: 900; line-height: 1; font-style: italic; }
+        .FifaCardPosicao { font-size: 1rem; font-weight: 700; opacity: 0.8; margin-top: -5px; }
+        .FifaCardClubePais { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .FifaCardBandeira, .FifaCardClube { font-size: 1.2rem; font-weight: 600; }
+        .FifaCardCentro { grid-area: centro; display: flex; flex-direction: column; align-items: center; padding: 0 1rem; position: relative; }
+        .FifaCardFoto { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: -10px; z-index: 1; background: #fff;}
+        .FifaCardNome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: rgba(26,26,26,0.1); padding: 3px 15px; border-radius: 10px; z-index: 2; }
+        .FifaCardHabilidades { grid-area: habilidades; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem 2.5rem; margin-top: 10px; }
+        .HabilidadeCol { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+        .HabilidadeVal { font-size: 1.5rem; font-weight: 900; line-height: 1; }
+        .HabilidadeNome { font-size: 0.8rem; font-weight: 700; opacity: 0.7; text-transform: uppercase; }
         
     </style>
 </head>
@@ -259,6 +161,7 @@
             </div>
 
             <div id="aba-perfil" class="hidden space-y-6">
+                
                 <div class="glass-card rounded-[2.5rem] p-6 animate-in border border-white/5 FifaCardFundo hidden" id="perfil-visualizacao">
                     <div class="FifaCardFormato">
                         <div class="FifaCardTopo">
@@ -272,7 +175,7 @@
                             </div>
                         </div>
                         <div class="FifaCardCentro">
-                            <img src="https://via.placeholder.com/150" alt="Sua Foto" class="FifaCardFoto" id="cartaFoto">
+                            <img src="" alt="Foto Perfil" class="FifaCardFoto" id="cartaFoto">
                             <div class="FifaCardNome" id="cartaNome">SEU NOME</div>
                         </div>
                         <div class="FifaCardHabilidades">
@@ -311,8 +214,8 @@
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">URL da sua foto (Imgur, etc)</label>
-                        <input type="text" id="perfilFotoUrl" class="glass-input mt-1" placeholder="Coloque o link da sua imagem">
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">URL da sua foto (Deixe em branco p/ usar a do Google)</label>
+                        <input type="text" id="perfilFotoUrl" class="glass-input mt-1" placeholder="Link da imagem ou deixe vazio">
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
@@ -332,34 +235,16 @@
                     
                     <div class="grid grid-cols-3 gap-2 mt-4 border-t border-white/10 pt-4">
                         <div class="col-span-3 text-[10px] font-black uppercase opacity-60 tracking-widest text-center">Habilidades de Vôlei (0-99)</div>
-                        <div>
-                            <label class="text-[9px] font-bold opacity-50">SAQUE</label>
-                            <input type="number" id="perfilSaque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold opacity-50">ATAQUE</label>
-                            <input type="number" id="perfilAtaque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold opacity-50">TOQUE</label>
-                            <input type="number" id="perfilToque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold opacity-50">LEVANTAMENTO</label>
-                            <input type="number" id="perfilLevantamento" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold opacity-50">MANCHETE</label>
-                            <input type="number" id="perfilManchete" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold opacity-50">BLOQUEIO</label>
-                            <input type="number" id="perfilBloqueio" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99">
-                        </div>
+                        <div><label class="text-[9px] font-bold opacity-50">SAQUE</label><input type="number" id="perfilSaque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99"></div>
+                        <div><label class="text-[9px] font-bold opacity-50">ATAQUE</label><input type="number" id="perfilAtaque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99"></div>
+                        <div><label class="text-[9px] font-bold opacity-50">TOQUE</label><input type="number" id="perfilToque" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99"></div>
+                        <div><label class="text-[9px] font-bold opacity-50">LEVANTAMENTO</label><input type="number" id="perfilLevantamento" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99"></div>
+                        <div><label class="text-[9px] font-bold opacity-50">MANCHETE</label><input type="number" id="perfilManchete" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99"></div>
+                        <div><label class="text-[9px] font-bold opacity-50">BLOQUEIO</label><input type="number" id="perfilBloqueio" class="glass-input text-center font-bold mt-1" placeholder="--" min="0" max="99"></div>
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Nível Geral (para Sorteio 1-5)</label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Nível Geral (Sorteio 1-5)</label>
                         <select id="perfilNivel" class="glass-input mt-1 appearance-none bg-black/50 text-white">
                             <option value="1">Nível 1 - Iniciante</option>
                             <option value="2">Nível 2 - Básico</option>
@@ -451,8 +336,6 @@
                 userAtual = user;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                
-                // Procurar perfil no Firestore
                 await carregarPerfil();
             } else {
                 userAtual = null; perfilAtual = null;
@@ -465,6 +348,10 @@
         window.carregarPerfil = async () => {
             const docRef = doc(db, "usuarios", userAtual.uid);
             const docSnap = await getDoc(docRef);
+            
+            // Foto do Google como Fallback principal
+            const fotoGoogle = userAtual.photoURL ? userAtual.photoURL.replace('=s96-c', '') : "https://via.placeholder.com/150";
+
             if (docSnap.exists()) {
                 perfilAtual = docSnap.data();
                 
@@ -491,7 +378,9 @@
                 document.getElementById('cartaBandeira').innerText = perfilAtual.pais || "🏁";
                 document.getElementById('cartaClube').innerText = perfilAtual.time || "Vôlei Pro";
                 document.getElementById('cartaNome').innerText = perfilAtual.nome || "SEU NOME";
-                document.getElementById('cartaFoto').src = perfilAtual.fotoUrl || "https://via.placeholder.com/150";
+                
+                // Se o usuário não salvou nenhuma fotoUrl no app, usa a do Google. Se não tiver do Google, usa placeholder.
+                document.getElementById('cartaFoto').src = perfilAtual.fotoUrl || fotoGoogle;
 
                 document.getElementById('cartaSaque').innerText = hab.saque || "--";
                 document.getElementById('cartaAtaque').innerText = hab.ataque || "--";
@@ -505,21 +394,21 @@
                 document.getElementById('perfil-edicao').classList.add('hidden');
 
             } else {
-                // Sem perfil ainda, forçar ir para a aba Perfil
-                if(userAtual.displayName) {
-                    document.getElementById('perfilNome').value = userAtual.displayName.toUpperCase();
-                }
-                if(userAtual.photoURL) {
-                    document.getElementById('perfilFotoUrl').value = userAtual.photoURL;
-                }
-                alert("Bem-vindo! Por favor, preencha o seu perfil e suas habilidades para criar sua carta.");
+                // Sem perfil ainda
+                if(userAtual.displayName) document.getElementById('perfilNome').value = userAtual.displayName.toUpperCase();
+                
+                // Deixa o input da foto vazio, mas a carta já vai carregar a imagem do Google
+                document.getElementById('perfilFotoUrl').value = ""; 
+                document.getElementById('cartaFoto').src = fotoGoogle;
+
+                alert("Bem-vindo! Por favor, preencha suas habilidades para criar sua carta.");
                 mudarAba('perfil');
             }
         };
 
         window.salvarPerfil = async () => {
             const nome = document.getElementById('perfilNome').value.trim().toUpperCase();
-            const fotoUrl = document.getElementById('perfilFotoUrl').value.trim();
+            const fotoUrl = document.getElementById('perfilFotoUrl').value.trim(); // Pode estar vazio
             const posicao = document.getElementById('perfilPosicao').value.trim().toUpperCase().substring(0,3);
             const time = document.getElementById('perfilTime').value.trim();
             const pais = document.getElementById('perfilPais').value.trim() || "🇧🇷";
@@ -536,17 +425,15 @@
             const bloqueio = parseInt(document.getElementById('perfilBloqueio').value) || 0;
 
             const habilidades = { saque, ataque, toque, levantamento, manchete, bloqueio };
-
-            // Calcular Média (Geral)
             const media = Math.round((saque + ataque + toque + levantamento + manchete + bloqueio) / 6);
 
             perfilAtual = { 
                 nome, 
-                fotoUrl,
+                fotoUrl, // Se estiver vazio, na hora de exibir ele puxará do Google
                 posicao,
                 time,
                 pais,
-                nivel, // Mantido para o sorteio
+                nivel,
                 habilidades,
                 geral: media,
                 email: userAtual.email 
@@ -554,11 +441,10 @@
             
             await setDoc(doc(db, "usuarios", userAtual.uid), perfilAtual);
             alert("Perfil salvo e carta criada!");
-            await carregarPerfil(); // Recarregar para mostrar a carta
+            await carregarPerfil(); 
         };
 
         window.editarPerfil = () => {
-            // Ocultar Carta e Mostrar Formulário
             document.getElementById('perfil-visualizacao').classList.add('hidden');
             document.getElementById('perfil-edicao').classList.remove('hidden');
         };
@@ -580,7 +466,6 @@
                 jogadores.push(j);
                 if(j.pago) pagos++;
                 
-                // Mostrar estrelinhas de acordo com o nível (se existir)
                 let estrelas = j.nivel ? "★".repeat(j.nivel) + "☆".repeat(5 - j.nivel) : "";
                 
                 lista.innerHTML += `
@@ -603,37 +488,21 @@
 
         window.entrarNaLista = async () => {
             if(!perfilAtual) return alert("Você precisa preencher e salvar seu perfil primeiro!");
-            // Verifica se já está na lista
             const jaEsta = jogadores.find(j => j.uid === userAtual.uid);
             if(jaEsta) return alert("Você já está na lista!");
-            
-            await addDoc(colJogadores, { 
-                uid: userAtual.uid,
-                nome: perfilAtual.nome, 
-                nivel: perfilAtual.nivel, // Mantido para o sorteio
-                pago: false 
-            });
+            await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false });
         };
 
         window.adicionarConvidado = async () => {
             const i = document.getElementById('nomeConvidado');
             if(i.value.trim()){ 
-                await addDoc(colJogadores, {
-                    uid: "convidado_" + Date.now(),
-                    nome: i.value.trim() + " (Conv)", 
-                    nivel: 2, // Convidados entram com nível básico para o sorteio
-                    pago: false
-                }); 
+                await addDoc(colJogadores, { uid: "convidado_" + Date.now(), nome: i.value.trim() + " (Conv)", nivel: 2, pago: false }); 
                 i.value=''; 
             }
         };
 
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        
-        window.removerJogador = async (id, uid) => { 
-            if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); 
-        };
-
+        window.removerJogador = async (id, uid) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => {
             if(confirm("Zerar todos os jogadores desta semana?")) {
                 const promises = jogadores.map(j => deleteDoc(doc(db, "jogadores", j.id)));
@@ -649,31 +518,20 @@
             window.open(`https://wa.me/?text=${texto}`, '_blank');
         };
 
-        // --- SORTEIO INTELIGENTE (EQUILIBRADO PELO NÍVEL 1-5) ---
+        // --- SORTEIO INTELIGENTE ---
         window.animarESortear = () => {
             const pagos = jogadores.filter(j => j.pago);
             if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK!");
             
             const container = document.getElementById('shufflingContainer');
             container.classList.remove('hidden');
-            container.innerHTML = `
-                <div class="dice-wrap">
-                    <div class="die">🎲</div>
-                    <div class="die" style="animation-delay: 0.1s">🎲</div>
-                </div>
-                <div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-50 animate-pulse">Calculando equilíbrio...</div>
-            `;
+            container.innerHTML = `<div class="dice-wrap"><div class="die">🎲</div><div class="die" style="animation-delay: 0.1s">🎲</div></div><div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-50 animate-pulse">Calculando equilíbrio...</div>`;
 
-            setTimeout(() => {
-                container.classList.add('hidden');
-                executarSorteioEquilibrado(pagos);
-            }, 1800);
+            setTimeout(() => { container.classList.add('hidden'); executarSorteioEquilibrado(pagos); }, 1800);
         };
 
         function executarSorteioEquilibrado(pagos) {
             const qtd = parseInt(document.getElementById('qtdPorTime').value);
-            
-            // 1. Ordenar do Nível Mais Alto para o Mais Baixo (e embaralhar quem tem o mesmo nível)
             const sorteados = [...pagos].sort((a, b) => {
                 if (b.nivel === a.nivel) return Math.random() - 0.5;
                 return (b.nivel || 1) - (a.nivel || 1);
@@ -684,28 +542,22 @@
 
             const numTimes = Math.floor(sorteados.length / qtd);
             const totalJogadoresEmTimes = numTimes * qtd;
-
-            // Criar array de times vazios com "força total" igual a zero
             let times = Array.from({length: numTimes}, (_, i) => ({nome: `Time ${i + 1}`, membros: [], nivelTotal: 0, vitorias: 0}));
 
             const jogadoresParaTimes = sorteados.slice(0, totalJogadoresEmTimes);
-            const jogadoresSobra = sorteados.slice(totalJogadoresEmTimes); // Os de menor nível sobram
+            const jogadoresSobra = sorteados.slice(totalJogadoresEmTimes); 
 
-            // 2. Distribuir os jogadores equilibrando a força total (Algoritmo Guloso)
             jogadoresParaTimes.forEach(jogador => {
-                // Encontrar o time com menos jogadores. Se empatar, o que tiver menor força técnica
                 times.sort((a, b) => {
                     if (a.membros.length !== b.membros.length) return a.membros.length - b.membros.length;
                     return a.nivelTotal - b.nivelTotal;
                 });
-                
                 times[0].membros.push(jogador.nome);
-                times[0].nivelTotal += (jogador.nivel || 2); // Convidados valem 2
+                times[0].nivelTotal += (jogador.nivel || 2); 
             });
 
             timesParaSalvar = times;
 
-            // Renderizar Times
             timesParaSalvar.forEach(t => {
                 res.innerHTML += `
                     <div class="glass-card rounded-3xl p-5 animate-in border-t border-white/10">
@@ -716,27 +568,22 @@
                     </div>`;
             });
 
-            // Renderizar Fila
             if (jogadoresSobra.length > 0) {
                 proximosAtuais = jogadoresSobra.map(j => j.nome);
                 res.innerHTML += `
                     <div class="glass-card rounded-3xl p-5 animate-in border-dashed border-2 border-white/10 bg-white/5 mt-4">
-                        <div class="text-[10px] font-black text-orange-400 uppercase mb-2 tracking-widest">
-                            <i class="fas fa-clock mr-1"></i> Fila de Espera
-                        </div>
+                        <div class="text-[10px] font-black text-orange-400 uppercase mb-2 tracking-widest"><i class="fas fa-clock mr-1"></i> Fila de Espera</div>
                         <div class="font-bold text-xs text-gray-400 italic">${proximosAtuais.join(', ')}</div>
                     </div>`;
             }
-
             document.getElementById('btnSalvar').classList.remove('hidden');
         }
 
         window.salvarPartida = async () => {
             const data = new Date().toLocaleDateString('pt-BR');
-            // Removemos a propriedade "nivelTotal" antes de guardar para ficar limpo
             const timesLimpos = timesParaSalvar.map(t => ({nome: t.nome, membros: t.membros, vitorias: t.vitorias}));
             await addDoc(colHistorico, { data, times: timesLimpos, proximos: proximosAtuais, criadoEm: Date.now() });
-            alert("Sorteio salvo no histórico!");
+            alert("Times salvos com sucesso!");
             mudarAba('historico');
         };
 
@@ -748,7 +595,7 @@
                 p.times.forEach((t, idx) => {
                     tHtml += `
                         <div class="flex justify-between items-center py-4 border-b border-white/5 last:border-0">
-                            <div class="flex flex-col"><span class="text-[10px] font-black opacity-20">${t.nome}</span><span class="text-xs font-bold mt-1 text-gray-200">${t.membros.join(', ')}</span></div>
+                            <div class="flex flex-col"><span class="text-[10px] font-black opacity-30">${t.nome}</span><span class="text-xs font-bold mt-1 text-gray-200">${t.membros.join(', ')}</span></div>
                             <div class="flex items-center gap-3 bg-white/5 p-1.5 rounded-[1.2rem] border border-white/10 ml-2">
                                 <button onclick="window.vitoria('${p.id}', ${idx}, -1)" class="w-7 h-7 rounded-xl font-black text-white/50 hover:text-white transition-colors">-</button>
                                 <span class="font-black text-lg text-blue-500 w-4 text-center">${t.vitorias || 0}</span>
@@ -758,9 +605,7 @@
                 });
 
                 let proximosHtml = '';
-                if(p.proximos && p.proximos.length > 0) {
-                    proximosHtml = `<div class="mt-4 pt-3 border-t border-white/10 text-[10px] text-orange-400/80 font-bold italic tracking-wide"><i class="fas fa-clock mr-1"></i>Fila: ${p.proximos.join(', ')}</div>`;
-                }
+                if(p.proximos && p.proximos.length > 0) proximosHtml = `<div class="mt-4 pt-3 border-t border-white/10 text-[10px] text-orange-400/80 font-bold italic tracking-wide"><i class="fas fa-clock mr-1"></i>Fila: ${p.proximos.join(', ')}</div>`;
 
                 hist.innerHTML += `
                     <div class="glass-card rounded-[2.5rem] p-6 animate-in mb-4">
