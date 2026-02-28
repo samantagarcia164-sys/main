@@ -6,6 +6,9 @@
     <title>Vôlei Pro - Ultimate Admin Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script defer src="/_vercel/insights/script.js"></script>
+    
     <style>
         :root { --ios-blue: #007aff; --ios-orange: #ff9500; }
         body { font-family: -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background-color: #000; color: #fff; overflow-x: hidden; touch-action: manipulation; }
@@ -87,9 +90,9 @@
                         <span class="text-xs font-black uppercase opacity-40">Atletas por Time</span>
                         <input type="number" id="qtdPorTime" value="6" class="bg-transparent text-right font-black text-2xl w-12 text-blue-500 outline-none">
                     </div>
-                    <button onclick="window.animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-2xl font-black uppercase">Sortear 🎲</button>
+                    <button onclick="window.animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-2xl font-black uppercase">Sortear Times 🎲</button>
                 </div>
-                <div id="dica-troca" class="hidden text-center text-[9px] font-bold text-blue-400 uppercase">Toque para trocar</div>
+                <div id="dica-troca" class="hidden text-center text-[9px] font-bold text-blue-400 uppercase">Toque nomes para trocar</div>
                 <div id="resultadoSorteio" class="space-y-3"></div>
                 <button id="btnSalvar" onclick="window.salvarPartida()" class="hidden ios-btn w-full bg-green-600 py-4 rounded-2xl font-black uppercase text-xs">Salvar Partida ✅</button>
             </div>
@@ -103,7 +106,7 @@
                     </div>
                     <div class="font-black opacity-10 text-2xl italic">VS</div>
                     <div class="text-center">
-                        <input type="text" id="nomeB" value="TIME 2" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-24 outline-none border-b border-white/10">
+                        <input type="text" id="nomeB" value="TIME 2" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-20 outline-none border-b border-white/10">
                         <div id="pontosB" class="placar-numero text-orange-400" onclick="window.alterarPlacar('B', 1)">0</div>
                         <button onclick="window.alterarPlacar('B', -1)" class="opacity-20 mt-4">-1</button>
                     </div>
@@ -174,7 +177,7 @@
             <button onclick="window.fecharFinanceiro()" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-green-500/20">Check-in: Marcar Semana Paga ✅</button>
 
             <div class="text-left">
-                <p class="text-[10px] font-black uppercase opacity-40 mb-2">Semanas Pagas (Toque na <i class="fas fa-trash"></i> p/ apagar):</p>
+                <p class="text-[10px] font-black uppercase opacity-40 mb-2">Semanas Pagas (Toque no <i class="fas fa-trash"></i> p/ apagar):</p>
                 <ul id="listaFinanceira" class="text-[10px] space-y-1 h-32 overflow-y-auto pr-2"></ul>
             </div>
 
@@ -291,10 +294,9 @@
                     acumuladoTotal += (p.arrecadado || 0);
                     let tHtml = p.times.map((t, i) => {
                         t.membros.forEach(m => { if(!ranking[m]) ranking[m]=0; ranking[m] += (t.vitorias || 0); });
-                        return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-xs font-bold w-2/3">${t.membros.join(', ')}</div><div class="flex items-center gap-3"><button onclick="window.vit('${d.id}',${i},-1)" class="opacity-20">-</button><span class="font-black text-blue-500">${t.vitorias || 0}</span><button onclick="window.vit('${d.id}',${i},1)" class="bg-white/10 px-2 rounded">+</button></div></div>`;
+                        return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-xs font-bold w-2/3">${t.membros.join(', ')}</div><div class="flex items-center gap-3"><button onclick="window.vit('${pId}',${i},-1)" class="opacity-20">-</button><span class="font-black text-blue-500">${t.vitorias || 0}</span><button onclick="window.vit('${pId}',${i},1)" class="bg-white/10 px-2 rounded">+</button></div></div>`;
                     }).join('');
                     
-                    // Botão de deletar jogo reativado pro Admin
                     const lixeiraHtml = isAdmin ? `<button onclick="window.delHist('${pId}')" class="text-red-400 opacity-30"><i class="fas fa-trash"></i></button>` : '';
 
                     histDiv.innerHTML += `<div class="glass-card p-4 rounded-3xl mb-4"><div class="flex justify-between text-[9px] opacity-30 mb-2"><span>${p.data}</span> ${lixeiraHtml}</div>${tHtml}</div>`;
@@ -336,7 +338,7 @@
         window.entrarNaLista = async () => { if(!perfilAtual) return alert("Crie o perfil"); await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false }); };
         window.adicionarConvidado = async () => { const i = document.getElementById('nomeConvidado'); if(!i.value) return; await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: i.value.toUpperCase()+" (C)", nivel: 2, pago: false }); i.value=""; };
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.deletar = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.deletar = async (id) => { if(confirm("Remover da lista?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => { if(confirm("Zerar lista da semana?")) { for(let j of jogadoresLocal) await deleteDoc(doc(db, "jogadores", j.id)); } };
         window.delHist = async (id) => { if(confirm("Apagar este jogo do histórico?")) await deleteDoc(doc(db, "historico", id)); };
 
