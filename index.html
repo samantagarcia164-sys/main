@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vôlei Pro - Official</title>
+    <title>Vôlei Pro - Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -29,14 +29,14 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Dados do Sorteio */
-        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .dice-wrap { display: flex; gap: 20px; margin-bottom: 20px; }
         .die { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; animation: roll 0.5s infinite; }
-        @keyframes roll { 0% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(180deg) translateY(-20px); } 100% { transform: rotate(360deg) translateY(0); } }
+        @keyframes roll { 0% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(180deg) translateY(-25px); } 100% { transform: rotate(360deg) translateY(0); } }
 
-        .player-tag { display: inline-block; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 12px; margin: 4px; cursor: pointer; border: 1px solid transparent; font-weight: 600; }
-        .player-tag.selected { background: var(--ios-blue); border-color: #fff; }
-        .placar-numero { font-size: 5rem; font-weight: 900; }
+        .player-tag { display: inline-block; background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 12px; margin: 4px; cursor: pointer; border: 1px solid transparent; font-weight: 600; font-size: 13px; }
+        .player-tag.selected { background: var(--ios-blue); border-color: #fff; box-shadow: 0 0 15px var(--ios-blue); }
+        .placar-numero { font-size: 5.5rem; font-weight: 900; line-height: 1; }
     </style>
 </head>
 <body class="pb-32">
@@ -48,7 +48,7 @@
             <h1 class="text-3xl font-black italic mb-6">Vôlei <span class="text-blue-500">Pro</span></h1>
             <p id="auth-error" class="text-red-400 text-xs hidden font-bold bg-red-500/10 p-2 rounded-lg"></p>
             <button onclick="window.loginComGoogle()" class="ios-btn w-full bg-white text-black py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-3">
-                <i class="fab fa-google text-red-500"></i> Google Login
+                <i class="fab fa-google text-red-500"></i> Entrar com Google
             </button>
             <div class="opacity-30 text-[9px] font-bold uppercase tracking-widest">Ou use e-mail</div>
             <input type="email" id="emailInput" class="glass-input text-sm" placeholder="E-mail">
@@ -106,7 +106,7 @@
                         <div id="pontosA" class="placar-numero text-blue-400" onclick="window.alterarPlacar('A', 1)">0</div>
                         <button onclick="window.alterarPlacar('A', -1)" class="text-[10px] opacity-30 mt-4">-1</button>
                     </div>
-                    <div class="font-black opacity-20">VS</div>
+                    <div class="font-black opacity-20 text-xl italic">VS</div>
                     <div class="text-center">
                         <input type="text" id="nomeB" value="TIME 2" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-24 outline-none border-b border-white/10">
                         <div id="pontosB" class="placar-numero text-orange-400" onclick="window.alterarPlacar('B', 1)">0</div>
@@ -156,7 +156,18 @@
 
     <div id="shufflingContainer" class="hidden">
         <div class="dice-wrap"><div class="die">🎲</div><div class="die" style="animation-delay: 0.2s">🎲</div></div>
-        <div class="font-black uppercase tracking-widest text-blue-400">Misturando...</div>
+        <div class="font-black uppercase tracking-[0.3em] text-blue-400 text-sm">Misturando Times...</div>
+    </div>
+
+    <div id="admin-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm animate-in space-y-4 text-center">
+            <h2 class="text-xl font-black uppercase tracking-widest text-orange-400"><i class="fas fa-crown"></i> Painel Adm</h2>
+            <div class="py-6">
+                <p class="text-[10px] font-black uppercase opacity-50 tracking-widest mb-2">Total Arrecadado (Histórico)</p>
+                <p id="adm-caixa" class="text-4xl font-black text-green-400">R$ 0,00</p>
+            </div>
+            <button onclick="window.fecharAdmin()" class="ios-btn w-full bg-white/10 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs border border-white/20">Fechar</button>
+        </div>
     </div>
 
     <script type="module">
@@ -172,15 +183,22 @@
             messagingSenderId: "619450859287",
             appId: "1:619450859287:web:bf9138713eb65b3c514152"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const googleProvider = new GoogleAuthProvider();
         const EMAIL_ADMIN = "jhonata_hip.hop@hotmail.com";
 
-        let userAtual = null, perfilAtual = null, jogadores = [], timesParaSalvar = [], proximosAtuais = [], jogadorTroca = null, unsubscribes = [];
+        // Coleções Globais
+        const colJogadores = collection(db, "jogadores");
+        const colHistorico = collection(db, "historico");
+        const placarRef = doc(db, "sistema", "placar_ao_vivo");
 
-        // LOGIN
+        let userAtual = null, perfilAtual = null, jogadores = [], timesParaSalvar = [], proximosAtuais = [], jogadorTroca = null, unsubscribes = [];
+        let valorTotalHistorico = 0;
+
+        // Login
         window.loginComGoogle = () => signInWithPopup(auth, googleProvider).catch(err => alert(err.message));
         window.fazerLogin = () => signInWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(err => alert(err.message));
         window.criarConta = () => createUserWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(err => alert(err.message));
@@ -211,76 +229,102 @@
                 document.getElementById('perfilFotoBadge').src = perfilAtual.fotoUrl || userAtual.photoURL || "https://via.placeholder.com/150";
                 document.getElementById('perfilNivelBadge').innerText = "NÍVEL " + perfilAtual.nivel;
                 document.getElementById('perfil-edicao').classList.add('hidden');
+                document.getElementById('perfilNome').value = perfilAtual.nome;
             } else { editarPerfil(); }
         }
 
         window.editarPerfil = () => document.getElementById('perfil-edicao').classList.remove('hidden');
         window.salvarPerfil = async () => {
+            if(!perfilNome.value.trim()) return alert("Nome é obrigatório");
             const d = { nome: perfilNome.value.toUpperCase(), fotoUrl: perfilFotoUrl.value, nivel: parseInt(perfilNivel.value), uid: userAtual.uid };
-            await setDoc(doc(db, "usuarios", userAtual.uid), d); carregarPerfil();
+            await setDoc(doc(db, "usuarios", userAtual.uid), d); 
+            await carregarPerfil();
         };
 
         function iniciarEscutas() {
-            unsubscribes.push(onSnapshot(query(collection(db, "jogadores"), orderBy("nome")), snap => {
+            // Jogadores
+            unsubscribes.push(onSnapshot(query(colJogadores, orderBy("nome")), snap => {
                 const lista = document.getElementById('listaJogadores'); lista.innerHTML = ''; let pagos = 0;
                 jogadores = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 jogadores.forEach(j => {
                     if(j.pago) pagos++;
                     const isAdmin = userAtual.email === EMAIL_ADMIN, isOwner = userAtual.uid === j.uid;
-                    const btnPix = isAdmin ? `<button onclick="window.togglePix('${j.id}', ${j.pago})" class="p-2 rounded ${j.pago ? 'bg-green-600' : 'bg-red-600'} text-[9px] font-bold">PIX</button>` : `<span class="text-[9px] font-bold ${j.pago ? 'text-green-500' : 'text-red-500'}">${j.pago ? 'OK' : 'PENDENTE'}</span>`;
+                    const btnPix = isAdmin ? `<button onclick="window.togglePix('${j.id}', ${j.pago})" class="p-2 rounded ${j.pago ? 'bg-green-600' : 'bg-red-600'} text-[9px] font-black">PIX</button>` : `<span class="text-[9px] font-bold ${j.pago ? 'text-green-500' : 'text-red-500'}">${j.pago ? 'OK' : 'PENDENTE'}</span>`;
                     const btnDel = (isAdmin || isOwner) ? `<button onclick="window.deletar('${j.id}')" class="opacity-20"><i class="fas fa-trash"></i></button>` : '';
                     lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm">${j.nome}</div><div class="text-[8px] opacity-40">${"★".repeat(j.nivel)}</div></div><div class="flex items-center gap-4">${btnPix}${btnDel}</div></li>`;
                 });
                 const vpp = jogadores.length > 0 ? 350/jogadores.length : 0;
                 document.getElementById('vpp').innerText = "R$ " + (pagos * vpp).toFixed(2);
-                document.getElementById('barra').style.width = (pagos/jogadores.length*100) + "%";
-                document.getElementById('infoFin').innerText = `${pagos}/${jogadores.length} PAGOS`;
+                document.getElementById('barra').style.width = ((pagos/jogadores.length)*100) + "%";
+                document.getElementById('infoFin').innerText = `${pagos}/${jogadores.length} ATLETAS PAGOS`;
             }));
 
-            unsubscribes.push(onSnapshot(query(collection(db, "historico"), orderBy("criadoEm", "desc")), snap => {
-                const hist = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
-                hist.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {};
+            // Ranking
+            unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
+                const histUl = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
+                histUl.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}; valorTotalHistorico = 0;
+                const isAdmin = userAtual.email === EMAIL_ADMIN;
+
                 snap.forEach(d => {
                     const p = d.data();
+                    valorTotalHistorico += (p.arrecadado || 0);
                     let tHtml = p.times.map((t, i) => {
                         t.membros.forEach(m => { if(!ranking[m]) ranking[m]=0; ranking[m] += (t.vitorias || 0); });
                         return `<div class="flex justify-between items-center py-2 border-b border-white/5"><div><div class="text-[10px] opacity-40">${t.nome}</div><div class="text-xs font-bold">${t.membros.join(', ')}</div></div><div class="flex gap-2 items-center"><button onclick="window.vit('${d.id}',${i},-1)" class="p-2 opacity-30">-</button><span class="font-black text-blue-500">${t.vitorias || 0}</span><button onclick="window.vit('${d.id}',${i},1)" class="p-2 bg-white/10 rounded">+</button></div></div>`;
                     }).join('');
-                    hist.innerHTML += `<div class="glass-card p-4 rounded-3xl"> ${tHtml} </div>`;
+                    
+                    const delPartida = isAdmin ? `<button onclick="window.deletarHistorico('${d.id}')" class="text-red-400 opacity-30"><i class="fas fa-trash"></i></button>` : '';
+                    histUl.innerHTML += `<div class="glass-card p-4 rounded-3xl mb-4"><div class="flex justify-between mb-2"><span class="text-[9px] opacity-30">${p.data}</span> ${delPartida}</div> ${tHtml} </div>`;
                 });
+
                 Object.entries(ranking).sort((a,b)=>b[1]-a[1]).forEach(([n, v], i) => {
                     rankUl.innerHTML += `<li class="flex justify-between p-3 border-b border-white/5 text-xs"><span>${i+1}º ${n}</span><span class="font-bold">${v} vit</span></li>`;
                 });
             }));
 
-            unsubscribes.push(onSnapshot(doc(db, "sistema", "placar_ao_vivo"), snap => {
-                if(snap.exists()) { const d = snap.data(); pontosA.innerText = d.pontosA; pontosB.innerText = d.pontosB; }
+            // Placar
+            unsubscribes.push(onSnapshot(placarRef, snap => {
+                if(snap.exists()) { const d = snap.data(); pontosA.innerText = d.pontosA || 0; pontosB.innerText = d.pontosB || 0; }
             }));
         }
 
-        // AÇÕES
+        // Ações
         window.entrarNaLista = async () => {
-            if(!perfilAtual) return alert("Crie seu perfil!");
+            if(!perfilAtual) return alert("Crie seu perfil primeiro!");
+            if(jogadores.some(j => j.uid === userAtual.uid)) return alert("Você já está na lista!");
             await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false });
         };
+
         window.adicionarConvidado = async () => {
+            if(!nomeConvidado.value.trim()) return;
             await addDoc(colJogadores, { uid: "conv_"+Date.now(), nome: nomeConvidado.value.toUpperCase() + " (CONV)", nivel: 2, pago: false });
             nomeConvidado.value = "";
         };
+
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), { pago: !s });
-        window.deletar = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.deletar = async (id) => { if(confirm("Remover da lista?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.limparListaSemana = async () => { if(confirm("Limpar lista da semana?")) { for(let j of jogadores) { await deleteDoc(doc(db, "jogadores", j.id)); } } };
+        window.deletarHistorico = async (id) => { if(confirm("Apagar do histórico?")) await deleteDoc(doc(db, "historico", id)); };
+
         window.vit = async (id, idx, val) => {
             const r = doc(db, "historico", id), s = await getDoc(r);
             const ts = s.data().times; ts[idx].vitorias = Math.max(0, (ts[idx].vitorias || 0) + val);
             await updateDoc(r, { times: ts });
         };
-        window.alterarPlacar = async (t, v) => {
-            const s = await getDoc(doc(db, "sistema", "placar_ao_vivo")), d = s.data() || { pontosA: 0, pontosB: 0 };
-            await setDoc(doc(db, "sistema", "placar_ao_vivo"), { ...d, ["pontos"+t]: Math.max(0, (d["pontos"+t]||0) + v) });
-        };
-        window.zerarPlacar = async () => await setDoc(doc(db, "sistema", "placar_ao_vivo"), { pontosA: 0, pontosB: 0 });
 
-        // SORTEIO
+        window.alterarPlacar = async (t, v) => {
+            const s = await getDoc(placarRef);
+            let d = s.exists() ? s.data() : { pontosA: 0, pontosB: 0 };
+            await setDoc(placarRef, { ...d, ["pontos"+t]: Math.max(0, (d["pontos"+t]||0) + v) });
+        };
+
+        window.zerarPlacar = async () => await setDoc(placarRef, { pontosA: 0, pontosB: 0 });
+
+        // Admin
+        window.abrirAdmin = () => { document.getElementById('adm-caixa').innerText = `R$ ${valorTotalHistorico.toFixed(2)}`; document.getElementById('admin-modal').classList.remove('hidden'); };
+        window.fecharAdmin = () => document.getElementById('admin-modal').classList.add('hidden');
+
+        // Sorteio
         window.animarESortear = () => {
             const p = jogadores.filter(j => j.pago); if(p.length < 2) return alert("Mínimo 2 pagos!");
             document.getElementById('shufflingContainer').classList.remove('hidden');
@@ -296,42 +340,44 @@
                 timesParaSalvar[0].membros.push(j.nome); timesParaSalvar[0].nivelTotal += j.nivel;
             });
             proximosAtuais = ord.slice(n * q).map(j => j.nome);
-            render();
+            renderSorteio();
         }
 
-        function render() {
+        function renderSorteio() {
             resultadoSorteio.innerHTML = timesParaSalvar.map((t, i) => `
-                <div class="glass-card p-4 rounded-3xl">
-                    <div class="text-[10px] text-blue-400 font-black">${t.nome} (Força: ${t.nivelTotal})</div>
-                    <div class="font-bold">${t.membros.map((m, j) => `<span onclick="window.trocar(${i},${j})" class="player-tag ${jogadorTroca && jogadorTroca.t===i && jogadorTroca.j===j ? 'selected' : ''}">${m}</span>`).join('')}</div>
+                <div class="glass-card p-4 rounded-3xl mb-4">
+                    <div class="text-[10px] text-blue-400 font-black mb-2 uppercase">${t.nome} (Força: ${t.nivelTotal})</div>
+                    <div class="flex flex-wrap">${t.membros.map((m, j) => `<span onclick="window.trocar(${i},${j})" class="player-tag ${jogadorTroca && jogadorTroca.t===i && jogadorTroca.j===j ? 'selected' : ''}">${m}</span>`).join('')}</div>
                 </div>`).join('');
+            if(proximosAtuais.length > 0) resultadoSorteio.innerHTML += `<div class="p-4 border border-dashed border-white/20 rounded-3xl text-[9px] opacity-40">FILA: ${proximosAtuais.join(', ')}</div>`;
             document.getElementById('btnSalvar').classList.remove('hidden');
             document.getElementById('dica-troca').classList.remove('hidden');
         }
 
         window.trocar = (t, j) => {
-            if(!jogadorTroca) { jogadorTroca = {t, j}; render(); }
+            if(!jogadorTroca) { jogadorTroca = {t, j}; renderSorteio(); }
             else {
                 const j1 = timesParaSalvar[jogadorTroca.t].membros[jogadorTroca.j], j2 = timesParaSalvar[t].membros[j];
                 timesParaSalvar[jogadorTroca.t].membros[jogadorTroca.j] = j2; timesParaSalvar[t].membros[j] = j1;
-                jogadorTroca = null; render();
+                jogadorTroca = null; renderSorteio();
             }
         };
 
         window.salvarPartida = async () => {
-            await addDoc(colHistorico, { criadoEm: Date.now(), data: new Date().toLocaleDateString(), times: timesParaSalvar, proximos: proximosAtuais });
-            alert("Salvo!"); window.mudarAba('ranking');
+            const arr = jogadores.filter(j => j.pago).length * (350/jogadores.length);
+            await addDoc(colHistorico, { criadoEm: Date.now(), data: new Date().toLocaleDateString(), times: timesParaSalvar, proximos: proximosAtuais, arrecadado: arr });
+            alert("Sucesso!"); window.mudarAba('ranking');
         };
 
         window.mudarAba = (aba) => {
             document.querySelectorAll('.aba-content').forEach(a => a.classList.add('hidden'));
             document.getElementById('aba-'+aba).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('opacity-40'));
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.add('opacity-40'); b.classList.remove('active-tab'); });
             document.getElementById('btn-tab-'+aba).classList.remove('opacity-40');
             document.getElementById('btn-tab-'+aba).classList.add('active-tab');
         };
 
-        window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("PIX Copiado!"); };
+        window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("PIX COPIADO!"); };
     </script>
 </body>
 </html>
