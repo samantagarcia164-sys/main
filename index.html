@@ -34,6 +34,10 @@
         .placar-numero { font-size: 5.5rem; font-weight: 900; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .badge-live { background: #ef4444; animation: pulse 2s infinite; padding: 2px 8px; border-radius: 4px; font-size: 8px; font-weight: 900; color: white; vertical-align: middle; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        /* Botão gigante de Lixeira do Admin */
+        .admin-delete-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: rgba(239, 68, 68, 0.15); color: #f87171; border-radius: 12px; transition: all 0.2s; }
+        .admin-delete-btn:active { background: rgba(239, 68, 68, 0.3); transform: scale(0.9); }
     </style>
 </head>
 <body class="pb-32">
@@ -111,6 +115,15 @@
                 <button onclick="window.entrarNaLista()" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Me Adicionar ao Jogo</button>
                 <div class="flex gap-2">
                     <input type="text" id="nomeConvidado" placeholder="Convidado..." class="glass-input flex-1">
+                    
+                    <select id="nivelConvidado" class="glass-input w-20 text-center px-1 bg-black text-[10px] font-black">
+                        <option value="1">⭐ 1</option>
+                        <option value="2" selected>⭐ 2</option>
+                        <option value="3">⭐ 3</option>
+                        <option value="4">⭐ 4</option>
+                        <option value="5">⭐ 5</option>
+                    </select>
+                    
                     <button onclick="window.adicionarConvidado()" class="ios-btn bg-white/20 px-6 rounded-2xl font-black">+</button>
                 </div>
                 <ul id="listaJogadores" class="space-y-2"></ul>
@@ -280,9 +293,16 @@
                 jogadoresLocal.forEach(j => {
                     if(j.pago) pagos++;
                     const isAdmin = userAtual.email === EMAIL_ADMIN;
+                    
                     const btnPix = isAdmin ? `<button onclick="window.togglePix('${j.id}', ${j.pago})" class="px-4 py-2 rounded-xl ${j.pago ? 'bg-green-600' : 'bg-red-600'} text-[9px] font-black">PIX</button>` : `<span class="text-[9px] font-bold ${j.pago ? 'text-green-500' : 'text-red-500'}">${j.pago ? 'OK' : 'PENDENTE'}</span>`;
                     const btnDel = (isAdmin || userAtual.uid === j.uid) ? `<button onclick="window.deletar('${j.id}')" class="opacity-20 px-2"><i class="fas fa-trash"></i></button>` : '';
-                    lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm tracking-wide">${j.nome}</div><div class="text-[8px] opacity-40 mt-1">${"★".repeat(j.nivel||2)}</div></div><div class="flex items-center gap-3">${btnPix}${btnDel}</div></li>`;
+                    
+                    // LÓGICA DE ESTRELAS CLICÁVEIS PARA O ADMIN
+                    const starHtml = isAdmin 
+                        ? `<div class="text-[9px] opacity-60 mt-1 cursor-pointer hover:text-blue-400 transition-colors" onclick="window.mudarNivel('${j.id}', ${j.nivel || 2})">${"★".repeat(j.nivel||2)} <i class="fas fa-pen text-[8px] ml-1 opacity-50"></i></div>` 
+                        : `<div class="text-[9px] opacity-40 mt-1">${"★".repeat(j.nivel||2)}</div>`;
+                        
+                    lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm tracking-wide">${j.nome}</div>${starHtml}</div><div class="flex items-center gap-3">${btnPix}${btnDel}</div></li>`;
                 });
                 const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual/jogadoresLocal.length : 0;
                 document.getElementById('vpp').innerText = "R$ " + (pagos * vpp).toFixed(2);
@@ -308,17 +328,24 @@
                 }
             }));
 
-            // RANKING E HISTORICO
+            // RANKING E HISTORICO (COM LIXEIRA DE VOLTA)
             unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
                 const histDiv = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
                 histDiv.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}, acumulado = 0;
+                const isAdmin = userAtual.email === EMAIL_ADMIN;
+
                 snap.forEach(d => {
-                    const p = d.data(); acumulado += (p.arrecadado || 0);
+                    const p = d.data(); const pId = d.id;
+                    acumulado += (p.arrecadado || 0);
                     let tHtml = p.times.map((t, i) => {
                         t.membros.forEach(m => { if(!ranking[m]) ranking[m]=0; ranking[m] += (t.vitorias || 0); });
                         return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-xs font-bold w-2/3">${t.membros.join(', ')}</div><div class="flex items-center gap-3"><span class="font-black text-blue-500">${t.vitorias || 0} vit</span></div></div>`;
                     }).join('');
-                    histDiv.innerHTML += `<div class="glass-card p-5 rounded-3xl mb-4"><div class="text-[9px] opacity-30 mb-2">${p.data}</div>${tHtml}</div>`;
+                    
+                    // LIXEIRA DO HISTÓRICO
+                    const btnDelHist = isAdmin ? `<button onclick="window.delHist('${pId}')" class="admin-delete-btn ml-2"><i class="fas fa-trash text-lg"></i></button>` : '';
+                    
+                    histDiv.innerHTML += `<div class="glass-card p-6 rounded-[2rem] mb-4"><div class="flex justify-between items-center mb-3"><span class="text-[10px] opacity-30">${p.data}</span>${btnDelHist}</div>${tHtml}</div>`;
                 });
                 caixaTotalLocal = acumulado;
                 Object.entries(ranking).sort((a,b)=>b[1]-a[1]).forEach(([n, v], i) => { if(v > 0) rankUl.innerHTML += `<li class="flex justify-between p-4 text-xs"><span>${i+1}º ${n}</span><span class="font-bold">${v} vit</span></li>`; });
@@ -330,7 +357,20 @@
             }));
         }
 
-        // --- SISTEMA DE MATCH (NOVO) ---
+        // --- SISTEMA DE MATCH E EDIÇÕES ---
+        window.mudarNivel = async (id, nivelAtual) => {
+            let novoNivel = nivelAtual >= 5 ? 1 : nivelAtual + 1;
+            await updateDoc(doc(db, "jogadores", id), { nivel: novoNivel });
+        };
+
+        window.adicionarConvidado = async () => { 
+            const i = document.getElementById('nomeConvidado'); 
+            const n = document.getElementById('nivelConvidado').value;
+            if(!i.value) return; 
+            await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: i.value.toUpperCase()+" (C)", nivel: parseInt(n), pago: false }); 
+            i.value=""; 
+        };
+
         window.ativarMatchSorteada = async () => {
             if(!timesSorteadosGlobal[0]) return;
             const matchData = {
@@ -360,20 +400,17 @@
             const d = s.data();
             const vencedor = d.pontosA > d.pontosB ? "A" : "B";
             
-            // Salva no histórico real para o ranking
             const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual/jogadoresLocal.length : 0;
             const partidaFinal = {
                 criadoEm: Date.now(),
                 data: new Date().toLocaleDateString(),
                 arrecadado: jogadoresLocal.filter(j => j.pago).length * vpp,
                 times: [
-                    { nome: d.nomeA, membros: d.membrosA, vitorias: vencedor === "A" ? 1 : 0 },
-                    { nome: d.nomeB, membros: d.membrosB, vitorias: vencedor === "B" ? 1 : 0 }
+                    { nome: d.nomeA, membros: d.membrosA || [], vitorias: vencedor === "A" ? 1 : 0 },
+                    { nome: d.nomeB, membros: d.membrosB || [], vitorias: vencedor === "B" ? 1 : 0 }
                 ]
             };
             await addDoc(colHistorico, partidaFinal);
-            
-            // Reseta o placar mantendo os nomes (ou limpando)
             await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
             alert("Set Finalizado e Salvo no Ranking!");
         };
@@ -382,7 +419,6 @@
 
         // --- OUTRAS ACTIONS ---
         window.entrarNaLista = async () => { if(!perfilAtual) return alert("Crie o perfil"); await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false }); };
-        window.adicionarConvidado = async () => { const i = document.getElementById('nomeConvidado'); if(!i.value) return; await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: i.value.toUpperCase()+" (C)", nivel: 2, pago: false }); i.value=""; };
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
         window.deletar = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => { if(confirm("Zerar?")) { for(let j of jogadoresLocal) await deleteDoc(doc(db, "jogadores", j.id)); } };
@@ -392,6 +428,12 @@
                 await addDoc(colFinanceiro, { valor: v, data: Date.now(), dataString: new Date().toLocaleDateString() });
                 alert("Fechado!");
             }
+        };
+
+        window.delHist = async (id) => { if(confirm("Deseja apagar este jogo do histórico? Isso pode alterar o Ranking.")) await deleteDoc(doc(db, "historico", id)); };
+
+        document.getElementById('valorQuadraSemana').onchange = async (e) => {
+            if(e.target.value > 0) await setDoc(configRef, { valorQuadra: parseFloat(e.target.value) });
         };
 
         window.animarESortear = () => {
