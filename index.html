@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vôlei Pro - Ultimate Admin Control</title>
+    <title>Vôlei Pro - Ultimate Admin</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vôlei Pro">
+    
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3063/3063063.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063063.png">
+    
+    <meta name="theme-color" content="#007aff">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -34,7 +45,7 @@
         .die { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 35px; animation: roll 0.4s infinite; }
         @keyframes roll { 0%, 100% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(180deg) translateY(-20px); } }
 
-        .player-tag { display: inline-block; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 10px; margin: 3px; font-weight: 600; font-size: 12px; border: 1px solid transparent; }
+        .player-tag { display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 5px 12px; border-radius: 10px; margin: 3px; font-weight: 600; font-size: 12px; border: 1px solid transparent; }
         .player-tag.selected { background: var(--ios-blue); border-color: #fff; }
         .placar-numero { font-size: 5rem; font-weight: 900; line-height: 1; }
     </style>
@@ -44,14 +55,19 @@
     <div class="liquid-bg"><div class="metaball"></div><div class="metaball"></div></div>
 
     <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black">
-        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm space-y-4 text-center animate-in">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-sm space-y-4 text-center animate-in flex flex-col items-center">
+            
+            <div class="w-20 h-20 rounded-full bg-blue-600/20 border-4 border-white/10 flex items-center justify-center mb-4 shadow-xl">
+                <img src="https://cdn-icons-png.flaticon.com/512/3063/3063063.png" alt="Vôlei Pro Logo" class="w-12 h-12 opacity-80">
+            </div>
+            
             <h1 class="text-3xl font-black italic mb-6">Vôlei <span class="text-blue-500">Pro</span></h1>
             <p id="auth-error" class="text-red-400 text-xs hidden font-bold bg-red-500/10 p-2 rounded-lg"></p>
             <button id="google-login-btn" class="ios-btn w-full bg-white text-black py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-3"><i class="fab fa-google text-red-500"></i> Google Login</button>
-            <div class="flex items-center gap-2 opacity-20 py-2"><hr class="flex-1 border-white/30"> <span class="text-[9px] font-bold">OU E-MAIL</span> <hr class="flex-1 border-white/30"></div>
+            <div class="flex items-center gap-2 opacity-20 py-2 w-full"><hr class="flex-1 border-white/30"> <span class="text-[9px] font-bold">OU E-MAIL</span> <hr class="flex-1 border-white/30"></div>
             <input type="email" id="emailInput" class="glass-input text-sm" placeholder="E-mail">
             <input type="password" id="passInput" class="glass-input text-sm" placeholder="Senha">
-            <div class="flex gap-2">
+            <div class="flex gap-2 w-full">
                 <button id="email-login-btn" class="ios-btn flex-1 bg-blue-600 py-4 rounded-2xl font-black text-[10px] uppercase">Entrar</button>
                 <button id="register-btn" class="ios-btn flex-1 bg-white/10 py-4 rounded-2xl font-black text-[10px] uppercase">Criar</button>
             </div>
@@ -106,7 +122,7 @@
                     </div>
                     <div class="font-black opacity-10 text-2xl italic">VS</div>
                     <div class="text-center">
-                        <input type="text" id="nomeB" value="TIME 2" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-20 outline-none border-b border-white/10">
+                        <input type="text" id="nomeB" value="TIME 2" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-24 outline-none border-b border-white/10">
                         <div id="pontosB" class="placar-numero text-orange-400" onclick="window.alterarPlacar('B', 1)">0</div>
                         <button onclick="window.alterarPlacar('B', -1)" class="opacity-20 mt-4">-1</button>
                     </div>
@@ -163,24 +179,19 @@
     <div id="admin-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/90 hidden">
         <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm text-center space-y-4">
             <h2 class="text-xl font-black text-orange-400 uppercase">Gestão Admin</h2>
-            
             <div class="bg-white/5 p-4 rounded-2xl">
                 <p class="text-[10px] font-black uppercase opacity-50 mb-2">Valor da Quadra (Semana)</p>
                 <input type="number" id="valorQuadraSemana" value="350" class="bg-transparent text-center text-2xl font-black text-green-400 outline-none w-full">
             </div>
-
             <div class="bg-white/5 p-4 rounded-2xl">
                 <p class="text-[10px] font-black uppercase opacity-50 mb-1">Caixa Total Acumulado</p>
                 <p id="adm-caixa" class="text-3xl font-black text-green-400">R$ 0,00</p>
             </div>
-
             <button onclick="window.fecharFinanceiro()" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-green-500/20">Check-in: Marcar Semana Paga ✅</button>
-
             <div class="text-left">
-                <p class="text-[10px] font-black uppercase opacity-40 mb-2">Semanas Pagas (Toque no <i class="fas fa-trash"></i> p/ apagar):</p>
+                <p class="text-[10px] font-black uppercase opacity-40 mb-2">Semanas Pagas:</p>
                 <ul id="listaFinanceira" class="text-[10px] space-y-1 h-32 overflow-y-auto pr-2"></ul>
             </div>
-
             <button onclick="window.fecharAdmin()" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black">Fechar</button>
         </div>
     </div>
@@ -287,18 +298,14 @@
             unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
                 const histDiv = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
                 histDiv.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}, acumuladoTotal = 0;
-                const isAdmin = userAtual.email === EMAIL_ADMIN;
-
                 snap.forEach(d => {
                     const p = d.data(); const pId = d.id;
                     acumuladoTotal += (p.arrecadado || 0);
                     let tHtml = p.times.map((t, i) => {
                         t.membros.forEach(m => { if(!ranking[m]) ranking[m]=0; ranking[m] += (t.vitorias || 0); });
-                        return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-xs font-bold w-2/3">${t.membros.join(', ')}</div><div class="flex items-center gap-3"><button onclick="window.vit('${pId}',${i},-1)" class="opacity-20">-</button><span class="font-black text-blue-500">${t.vitorias || 0}</span><button onclick="window.vit('${pId}',${i},1)" class="bg-white/10 px-2 rounded">+</button></div></div>`;
+                        return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-xs font-bold w-2/3">${t.membros.join(', ')}</div><div class="flex items-center gap-3"><button onclick="window.vit('${d.id}',${i},-1)" class="opacity-20">-</button><span class="font-black text-blue-500">${t.vitorias || 0}</span><button onclick="window.vit('${d.id}',${i},1)" class="bg-white/10 px-2 rounded">+</button></div></div>`;
                     }).join('');
-                    
                     const lixeiraHtml = isAdmin ? `<button onclick="window.delHist('${pId}')" class="text-red-400 opacity-30"><i class="fas fa-trash"></i></button>` : '';
-
                     histDiv.innerHTML += `<div class="glass-card p-4 rounded-3xl mb-4"><div class="flex justify-between text-[9px] opacity-30 mb-2"><span>${p.data}</span> ${lixeiraHtml}</div>${tHtml}</div>`;
                 });
                 document.getElementById('adm-caixa').innerText = `R$ ${acumuladoTotal.toFixed(2)}`;
@@ -307,19 +314,13 @@
 
             unsubscribes.push(onSnapshot(query(colFinanceiro, orderBy("data", "desc")), snap => {
                 const list = document.getElementById('listaFinanceira'); list.innerHTML = '';
-                const isAdmin = userAtual.email === EMAIL_ADMIN;
-
-                snap.forEach(d => { 
-                    const f = d.data(); const fId = d.id;
-                    const delFechamento = isAdmin ? `<i class="fas fa-trash-alt ml-2 text-red-500 opacity-40 cursor-pointer" onclick="window.delFechamento('${fId}')"></i>` : '';
-                    list.innerHTML += `<li class="flex justify-between border-b border-white/5 pb-1"><span>${f.dataString}</span><span class="text-green-400 font-bold">R$ ${f.valor.toFixed(2)} ${delFechamento}</span></li>`; 
-                });
+                snap.forEach(d => { const f = d.data(); list.innerHTML += `<li class="flex justify-between border-b border-white/5 pb-1"><span>${f.dataString}</span><span class="text-green-400 font-bold">R$ ${f.valor.toFixed(2)}</span></li>`; });
             }));
 
             unsubscribes.push(onSnapshot(placarRef, s => { if(s.exists()){ const d=s.data(); document.getElementById('pontosA').innerText=d.pontosA||0; document.getElementById('pontosB').innerText=d.pontosB||0; } }));
         }
 
-        // --- FINANCEIRO ADMIN ---
+        // FINANCEIRO ADMIN
         window.fecharFinanceiro = async () => {
             const valorTotalHoje = parseFloat(document.getElementById('vpp').innerText.replace("R$ ", ""));
             if(confirm(`Confirmar pagamento da quadra de hoje? R$ ${valorTotalHoje.toFixed(2)}`)) {
@@ -327,21 +328,16 @@
                 alert("Semana marcada como paga!");
             }
         };
+        window.delFechamento = async (id) => { if(confirm("Apagar registro?")) await deleteDoc(doc(db, "financeiro_fechado", id)); };
+        document.getElementById('valorQuadraSemana').onchange = async (e) => await setDoc(configRef, { valorQuadra: parseFloat(e.target.value) });
 
-        window.delFechamento = async (id) => { if(confirm("Deseja apagar este registro de pagamento?")) await deleteDoc(doc(db, "financeiro_fechado", id)); };
-
-        document.getElementById('valorQuadraSemana').onchange = async (e) => {
-            await setDoc(configRef, { valorQuadra: parseFloat(e.target.value) });
-        };
-
-        // --- ACTIONS ---
+        // ACTIONS
         window.entrarNaLista = async () => { if(!perfilAtual) return alert("Crie o perfil"); await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false }); };
         window.adicionarConvidado = async () => { const i = document.getElementById('nomeConvidado'); if(!i.value) return; await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: i.value.toUpperCase()+" (C)", nivel: 2, pago: false }); i.value=""; };
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.deletar = async (id) => { if(confirm("Remover da lista?")) await deleteDoc(doc(db, "jogadores", id)); };
+        window.deletar = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "jogadores", id)); };
         window.limparListaSemana = async () => { if(confirm("Zerar lista da semana?")) { for(let j of jogadoresLocal) await deleteDoc(doc(db, "jogadores", j.id)); } };
-        window.delHist = async (id) => { if(confirm("Apagar este jogo do histórico?")) await deleteDoc(doc(db, "historico", id)); };
-
+        window.delHist = async (id) => { if(confirm("Apagar jogo do histórico?")) await deleteDoc(doc(db, "historico", id)); };
         window.vit = async (dId, tIdx, v) => { const r = doc(db, "historico", dId), s = await getDoc(r); if(s.exists()){ const ts = s.data().times; ts[tIdx].vitorias = Math.max(0, (ts[tIdx].vitorias || 0) + v); await updateDoc(r, { times: ts }); } };
         window.alterarPlacar = async (t, v) => { const s = await getDoc(placarRef); const d = s.exists() ? s.data() : { pontosA: 0, pontosB: 0 }; await setDoc(placarRef, { ...d, ["pontos"+t]: Math.max(0, (d["pontos"+t]||0) + v) }); };
         window.zerarPlacar = async () => await setDoc(placarRef, { pontosA: 0, pontosB: 0 });
@@ -385,6 +381,11 @@
             document.getElementById('btn-tab-'+aba).classList.remove('opacity-40');
             document.getElementById('btn-tab-'+aba).classList.add('active-tab');
         };
+
+        // PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW falhou:', err));
+        }
     </script>
 </body>
 </html>
