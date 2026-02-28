@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vôlei Pro - Sistema de Fila</title>
+    <title>Vôlei Pro - Liquid Glass</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -18,17 +18,19 @@
 
         .glass-card { background: rgba(255, 255, 255, 0.05); -webkit-backdrop-filter: blur(25px); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .glass-menu { background: rgba(20, 20, 20, 0.8); -webkit-backdrop-filter: blur(25px); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glass-input { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none; }
+        .glass-input { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none; width: 100%; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; }
+        .glass-input:focus { border-color: rgba(0, 122, 255, 0.5); }
         
+        .ios-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
         .ios-btn:active { transform: scale(0.96); opacity: 0.8; }
         .active-tab { color: #fff; font-weight: 800; position: relative; }
         .active-tab::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #fff; border-radius: 50%; }
         
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); }
+        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); }
         .dice-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 20px; }
         .die { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 40px; animation: roll-dice 0.6s infinite ease-in-out; }
         @keyframes roll-dice { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
@@ -38,10 +40,21 @@
 
     <div class="liquid-bg"><div class="metaball"></div><div class="metaball"></div></div>
 
-    <div class="max-w-md mx-auto flex flex-col min-h-screen">
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/40 backdrop-blur-md">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm animate-in space-y-4">
+            <h1 class="text-3xl font-black italic text-center mb-6">Vôlei <span class="text-blue-500">Pro</span></h1>
+            <p id="auth-error" class="text-red-400 text-xs text-center hidden font-bold"></p>
+            <input type="email" id="emailInput" class="glass-input text-sm" placeholder="Seu E-mail">
+            <input type="password" id="passInput" class="glass-input text-sm" placeholder="Senha">
+            <button onclick="fazerLogin()" class="ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30">Entrar</button>
+            <button onclick="criarConta()" class="ios-btn w-full bg-white/10 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs border border-white/20 mt-2">Criar Conta</button>
+        </div>
+    </div>
+
+    <div id="main-app" class="max-w-md mx-auto flex flex-col min-h-screen hidden">
         
         <header class="p-6 pt-12 flex justify-between items-center">
-            <h1 class="text-3xl font-black tracking-tighter italic uppercase">Vôlei <span class="text-blue-500 underline decoration-blue-500/30">Pro</span></h1>
+            <h1 class="text-2xl font-black tracking-tighter italic uppercase">Vôlei <span class="text-blue-500 underline decoration-blue-500/30">Pro</span></h1>
             <button onclick="copiarPix()" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all">
                 Pix: 11959154029 <i class="far fa-copy opacity-40"></i>
             </button>
@@ -66,12 +79,17 @@
                     <p id="infoFin" class="text-center text-[10px] font-black opacity-40 uppercase tracking-tighter italic">Carregando...</p>
                 </div>
 
+                <button onclick="entrarNaLista()" class="ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/20 mb-4 border border-blue-400/50">
+                    <i class="fas fa-running mr-2"></i> Adicionar-me ao Jogo
+                </button>
+
+                <div class="flex items-center gap-2 mt-4 opacity-50 text-xs font-bold uppercase tracking-widest justify-center"><hr class="w-10 border-white/20"><span>Convidados</span><hr class="w-10 border-white/20"></div>
                 <div class="flex gap-2">
-                    <input type="text" id="nomeJogador" placeholder="Nome do jogador..." class="glass-input flex-1 p-4 rounded-2xl text-sm font-medium">
-                    <button onclick="window.adicionarJogador()" class="ios-btn bg-white text-black px-7 rounded-2xl font-black shadow-lg shadow-white/5">+</button>
+                    <input type="text" id="nomeConvidado" placeholder="Nome do convidado..." class="glass-input !mb-0 flex-1 p-4 rounded-2xl text-sm font-medium">
+                    <button onclick="window.adicionarConvidado()" class="ios-btn bg-white/20 text-white px-7 rounded-2xl font-black shadow-lg border border-white/10">+</button>
                 </div>
 
-                <ul id="listaJogadores" class="space-y-3"></ul>
+                <ul id="listaJogadores" class="space-y-3 mt-4"></ul>
 
                 <button onclick="window.limparListaSemana()" class="w-full py-4 text-[9px] font-black uppercase tracking-[0.4em] opacity-20 hover:opacity-100 transition-all border-t border-white/5 mt-4">
                     <i class="fas fa-history mr-2"></i> Reiniciar Semana
@@ -87,10 +105,10 @@
                     <button onclick="animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-[1.5rem] font-black uppercase tracking-[0.2em] shadow-2xl">Lançar Dados 🎲</button>
                 </div>
                 
-                <div id="shufflingContainer"></div>
+                <div id="shufflingContainer" class="hidden"></div>
                 <div id="resultadoSorteio" class="space-y-3"></div>
                 
-                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Escalação ✅</button>
+                <button id="btnSalvar" onclick="salvarPartida()" class="hidden ios-btn w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-blue-900/40 animate-in">Salvar Times ✅</button>
             </div>
 
             <div id="aba-historico" class="hidden space-y-5 pb-10">
@@ -98,20 +116,52 @@
                 <div id="listaHistorico" class="space-y-4"></div>
             </div>
 
+            <div id="aba-perfil" class="hidden space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-6 space-y-4">
+                    <h2 class="text-lg font-black italic mb-4 border-b border-white/10 pb-2">Meu Perfil</h2>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Como você é conhecido?</label>
+                        <input type="text" id="perfilNome" class="glass-input mt-1" placeholder="Seu Nome/Apelido">
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest opacity-50 ml-2">Seu Nível Técnico</label>
+                        <select id="perfilNivel" class="glass-input mt-1 appearance-none bg-black/50">
+                            <option value="1">Nível 1 - Iniciante (Aprendendo toque/manchete)</option>
+                            <option value="2">Nível 2 - Básico (Consegue passar a bola)</option>
+                            <option value="3" selected>Nível 3 - Intermediário (Tem noção de posição)</option>
+                            <option value="4">Nível 4 - Avançado (Ataca e defende bem)</option>
+                            <option value="5">Nível 5 - Profissional (Domina o jogo)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="salvarPerfil()" class="ios-btn w-full bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30">
+                        Salvar Perfil
+                    </button>
+                    
+                    <button onclick="sair()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-red-400 opacity-60 hover:opacity-100 transition-all border-t border-white/5 mt-4">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sair da Conta
+                    </button>
+                </div>
+            </div>
+
         </main>
 
-        <footer class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
+        <footer class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-md z-50">
             <nav class="glass-menu rounded-[2.5rem] p-2 flex justify-around items-center shadow-2xl border border-white/5">
                 <button onclick="mudarAba('lista')" id="btn-lista" class="tab-btn active-tab flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Lista</button>
                 <button onclick="mudarAba('sorteio')" id="btn-sorteio" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all text-center">Sortear</button>
-                <button onclick="mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Histórico</button>
+                <button onclick="mudarAba('historico')" id="btn-historico" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all">Hist.</button>
+                <button onclick="mudarAba('perfil')" id="btn-perfil" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40 transition-all"><i class="fas fa-user text-sm"></i></button>
             </nav>
         </footer>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
@@ -124,13 +174,75 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        
         const colJogadores = collection(db, "jogadores");
         const colHistorico = collection(db, "historico");
 
         let jogadores = [];
         let timesParaSalvar = [];
         let proximosAtuais = [];
+        let userAtual = null;
+        let perfilAtual = null;
 
+        // --- SISTEMA DE AUTENTICAÇÃO ---
+        window.fazerLogin = () => {
+            const e = document.getElementById('emailInput').value;
+            const p = document.getElementById('passInput').value;
+            signInWithEmailAndPassword(auth, e, p).catch(err => {
+                document.getElementById('auth-error').innerText = "Erro ao entrar: " + err.message;
+                document.getElementById('auth-error').classList.remove('hidden');
+            });
+        };
+
+        window.criarConta = () => {
+            const e = document.getElementById('emailInput').value;
+            const p = document.getElementById('passInput').value;
+            if(p.length < 6) return alert("A senha deve ter no mínimo 6 caracteres.");
+            createUserWithEmailAndPassword(auth, e, p).catch(err => alert(err.message));
+        };
+
+        window.sair = () => signOut(auth);
+
+        // Ouve mudanças de login
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userAtual = user;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                
+                // Procurar perfil no Firestore
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    perfilAtual = docSnap.data();
+                    document.getElementById('perfilNome').value = perfilAtual.nome;
+                    document.getElementById('perfilNivel').value = perfilAtual.nivel;
+                } else {
+                    // Sem perfil ainda, forçar ir para a aba Perfil
+                    alert("Bem-vindo! Por favor, preencha o seu perfil para começar.");
+                    mudarAba('perfil');
+                }
+            } else {
+                userAtual = null; perfilAtual = null;
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            }
+        });
+
+        // --- GESTÃO DE PERFIL ---
+        window.salvarPerfil = async () => {
+            const nome = document.getElementById('perfilNome').value.trim();
+            const nivel = parseInt(document.getElementById('perfilNivel').value);
+            if(!nome) return alert("O Nome é obrigatório.");
+            
+            perfilAtual = { nome, nivel, email: userAtual.email };
+            await setDoc(doc(db, "usuarios", userAtual.uid), perfilAtual);
+            alert("Perfil salvo com sucesso!");
+            mudarAba('lista');
+        };
+
+        // --- NAVEGAÇÃO ---
         window.mudarAba = (aba) => {
             document.querySelectorAll('[id^="aba-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(`aba-${aba}`).classList.remove('hidden');
@@ -138,6 +250,7 @@
             document.getElementById(`btn-${aba}`).classList.add('active-tab', 'opacity-100');
         };
 
+        // --- LISTA DE JOGADORES DA SEMANA ---
         onSnapshot(query(colJogadores, orderBy("nome", "asc")), (snap) => {
             const lista = document.getElementById('listaJogadores');
             lista.innerHTML = ''; jogadores = []; let pagos = 0;
@@ -145,12 +258,19 @@
                 const j = {id: d.id, ...d.data()};
                 jogadores.push(j);
                 if(j.pago) pagos++;
+                
+                // Mostrar estrelinhas de acordo com o nível (se existir)
+                let estrelas = j.nivel ? "★".repeat(j.nivel) + "☆".repeat(5 - j.nivel) : "";
+                
                 lista.innerHTML += `
                     <li class="glass-card rounded-2xl p-4 flex justify-between items-center animate-in border-l-4 ${j.pago ? 'border-green-500' : 'border-red-500'}">
-                        <span class="font-bold text-sm tracking-tight">${j.nome}</span>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm tracking-tight">${j.nome}</span>
+                            ${j.nivel ? `<span class="text-[9px] text-orange-400 tracking-widest">${estrelas}</span>` : `<span class="text-[9px] text-gray-500 italic">Convidado</span>`}
+                        </div>
                         <div class="flex items-center gap-3">
-                            <button onclick="togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'}">${j.pago ? 'OK' : 'PIX'}</button>
-                            <button onclick="removerJogador('${j.id}')" class="opacity-10 hover:opacity-100 transition-opacity px-2">✕</button>
+                            <button onclick="togglePix('${j.id}', ${j.pago})" class="text-[9px] font-black px-4 py-2 rounded-xl text-white ${j.pago ? 'bg-green-600' : 'bg-red-600'} shadow-sm">${j.pago ? 'OK' : 'PIX'}</button>
+                            <button onclick="removerJogador('${j.id}', '${j.uid}')" class="opacity-30 hover:opacity-100 hover:text-red-400 transition-all px-2"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </li>`;
             });
@@ -160,12 +280,39 @@
             document.getElementById('infoFin').innerText = `${pagos}/${jogadores.length} pagos | Faltam R$ ${(350 - (pagos*v)).toFixed(2)}`;
         });
 
-        window.adicionarJogador = async () => {
-            const i = document.getElementById('nomeJogador');
-            if(i.value.trim()){ await addDoc(colJogadores, {nome: i.value.trim(), pago: false}); i.value=''; }
+        window.entrarNaLista = async () => {
+            if(!perfilAtual) return alert("Você precisa preencher e salvar seu perfil primeiro!");
+            // Verifica se já está na lista
+            const jaEsta = jogadores.find(j => j.uid === userAtual.uid);
+            if(jaEsta) return alert("Você já está na lista!");
+            
+            await addDoc(colJogadores, { 
+                uid: userAtual.uid,
+                nome: perfilAtual.nome, 
+                nivel: perfilAtual.nivel, 
+                pago: false 
+            });
         };
+
+        window.adicionarConvidado = async () => {
+            const i = document.getElementById('nomeConvidado');
+            if(i.value.trim()){ 
+                await addDoc(colJogadores, {
+                    uid: "convidado_" + Date.now(),
+                    nome: i.value.trim() + " (Conv)", 
+                    nivel: 2, // Convidados entram com nível básico para o sorteio
+                    pago: false
+                }); 
+                i.value=''; 
+            }
+        };
+
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
-        window.removerJogador = async (id) => { if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); };
+        
+        window.removerJogador = async (id, uid) => { 
+            if(confirm("Remover atleta?")) await deleteDoc(doc(db, "jogadores", id)); 
+        };
+
         window.limparListaSemana = async () => {
             if(confirm("Zerar todos os jogadores desta semana?")) {
                 const promises = jogadores.map(j => deleteDoc(doc(db, "jogadores", j.id)));
@@ -181,59 +328,84 @@
             window.open(`https://wa.me/?text=${texto}`, '_blank');
         };
 
+        // --- SORTEIO INTELIGENTE (EQUILIBRADO PELO NÍVEL) ---
         window.animarESortear = () => {
             const pagos = jogadores.filter(j => j.pago);
             if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK!");
             
             const container = document.getElementById('shufflingContainer');
-            container.style.display = 'block';
+            container.classList.remove('hidden');
             container.innerHTML = `
                 <div class="dice-wrap">
                     <div class="die">🎲</div>
                     <div class="die" style="animation-delay: 0.1s">🎲</div>
                 </div>
-                <div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-40">Misturando atletas...</div>
+                <div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-50 animate-pulse">Calculando equilíbrio...</div>
             `;
 
             setTimeout(() => {
-                container.style.display = 'none';
-                executarSorteio(pagos);
+                container.classList.add('hidden');
+                executarSorteioEquilibrado(pagos);
             }, 1800);
         };
 
-        function executarSorteio(pagos) {
+        function executarSorteioEquilibrado(pagos) {
             const qtd = parseInt(document.getElementById('qtdPorTime').value);
-            const sorteados = [...pagos].sort(() => Math.random() - 0.5);
+            
+            // 1. Ordenar do Nível Mais Alto para o Mais Baixo (e embaralhar quem tem o mesmo nível)
+            const sorteados = [...pagos].sort((a, b) => {
+                if (b.nivel === a.nivel) return Math.random() - 0.5;
+                return (b.nivel || 1) - (a.nivel || 1);
+            });
+
             const res = document.getElementById('resultadoSorteio');
             res.innerHTML = ''; timesParaSalvar = []; proximosAtuais = [];
 
             const numTimes = Math.floor(sorteados.length / qtd);
             const totalJogadoresEmTimes = numTimes * qtd;
 
+            // Criar array de times vazios com "força total" igual a zero
+            let times = Array.from({length: numTimes}, (_, i) => ({nome: `Time ${i + 1}`, membros: [], nivelTotal: 0, vitorias: 0}));
+
             const jogadoresParaTimes = sorteados.slice(0, totalJogadoresEmTimes);
-            const jogadoresSobra = sorteados.slice(totalJogadoresEmTimes);
+            const jogadoresSobra = sorteados.slice(totalJogadoresEmTimes); // Os de menor nível sobram
 
-            for (let i = 0; i < numTimes; i++) {
-                const membros = jogadoresParaTimes.slice(i * qtd, (i + 1) * qtd).map(j => j.nome);
-                timesParaSalvar.push({nome: `Time ${i + 1}`, membros: membros, vitorias: 0});
-            }
+            // 2. Distribuir os jogadores equilibrando a força total (Algoritmo Guloso)
+            jogadoresParaTimes.forEach(jogador => {
+                // Encontrar o time com menos jogadores. Se empatar, o que tiver menor força técnica
+                times.sort((a, b) => {
+                    if (a.membros.length !== b.membros.length) return a.membros.length - b.membros.length;
+                    return a.nivelTotal - b.nivelTotal;
+                });
+                
+                times[0].membros.push(jogador.nome);
+                times[0].nivelTotal += (jogador.nivel || 2); // Convidados valem 2
+            });
 
+            timesParaSalvar = times;
+
+            // Renderizar Times
             timesParaSalvar.forEach(t => {
+                let media = (t.nivelTotal / t.membros.length).toFixed(1);
                 res.innerHTML += `
-                    <div class="glass-card rounded-3xl p-5 animate-in border-t border-white/5">
-                        <div class="text-[9px] font-black opacity-20 uppercase mb-2 tracking-widest">${t.nome}</div>
-                        <div class="font-bold text-sm text-gray-100">${t.membros.join(', ')}</div>
+                    <div class="glass-card rounded-3xl p-5 animate-in border-t border-white/10">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">${t.nome}</span>
+                            <span class="text-[8px] font-bold text-gray-500 uppercase">Força: ${media}★</span>
+                        </div>
+                        <div class="font-bold text-sm text-gray-100 leading-relaxed">${t.membros.join(', ')}</div>
                     </div>`;
             });
 
+            // Renderizar Fila
             if (jogadoresSobra.length > 0) {
                 proximosAtuais = jogadoresSobra.map(j => j.nome);
                 res.innerHTML += `
-                    <div class="glass-card rounded-3xl p-5 animate-in border-dashed border-2 border-white/10 bg-white/5">
-                        <div class="text-[9px] font-black text-blue-500 uppercase mb-2 tracking-widest">
-                            <i class="fas fa-clock mr-1"></i> Próximos da Fila
+                    <div class="glass-card rounded-3xl p-5 animate-in border-dashed border-2 border-white/10 bg-white/5 mt-4">
+                        <div class="text-[10px] font-black text-orange-400 uppercase mb-2 tracking-widest">
+                            <i class="fas fa-clock mr-1"></i> Fila de Espera
                         </div>
-                        <div class="font-bold text-xs text-gray-500 italic">${proximosAtuais.join(', ')}</div>
+                        <div class="font-bold text-xs text-gray-400 italic">${proximosAtuais.join(', ')}</div>
                     </div>`;
             }
 
@@ -242,8 +414,10 @@
 
         window.salvarPartida = async () => {
             const data = new Date().toLocaleDateString('pt-BR');
-            await addDoc(colHistorico, { data, times: timesParaSalvar, proximos: proximosAtuais, criadoEm: Date.now() });
-            alert("Sorteio salvo no histórico!");
+            // Removemos a propriedade "nivelTotal" antes de guardar para ficar limpo
+            const timesLimpos = timesParaSalvar.map(t => ({nome: t.nome, membros: t.membros, vitorias: t.vitorias}));
+            await addDoc(colHistorico, { data, times: timesLimpos, proximos: proximosAtuais, criadoEm: Date.now() });
+            alert("Times salvos com sucesso!");
             mudarAba('historico');
         };
 
@@ -255,25 +429,25 @@
                 p.times.forEach((t, idx) => {
                     tHtml += `
                         <div class="flex justify-between items-center py-4 border-b border-white/5 last:border-0">
-                            <div class="flex flex-col"><span class="text-[10px] font-black opacity-20">${t.nome}</span><span class="text-xs font-bold">${t.membros.join(', ')}</span></div>
-                            <div class="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10">
-                                <button onclick="window.vitoria('${p.id}', ${idx}, -1)" class="w-8 h-8 rounded-xl font-black active:scale-90">-</button>
-                                <span class="font-black text-xl text-blue-500">${t.vitorias || 0}</span>
-                                <button onclick="window.vitoria('${p.id}', ${idx}, 1)" class="w-8 h-8 bg-white text-black rounded-xl font-black active:scale-90">+</button>
+                            <div class="flex flex-col"><span class="text-[10px] font-black opacity-30">${t.nome}</span><span class="text-xs font-bold mt-1 text-gray-200">${t.membros.join(', ')}</span></div>
+                            <div class="flex items-center gap-3 bg-white/5 p-1.5 rounded-[1.2rem] border border-white/10 ml-2">
+                                <button onclick="window.vitoria('${p.id}', ${idx}, -1)" class="w-7 h-7 rounded-xl font-black text-white/50 hover:text-white transition-colors">-</button>
+                                <span class="font-black text-lg text-blue-500 w-4 text-center">${t.vitorias || 0}</span>
+                                <button onclick="window.vitoria('${p.id}', ${idx}, 1)" class="w-7 h-7 bg-white text-black rounded-xl font-black active:scale-90">+</button>
                             </div>
                         </div>`;
                 });
 
                 let proximosHtml = '';
                 if(p.proximos && p.proximos.length > 0) {
-                    proximosHtml = `<div class="mt-3 pt-3 border-t border-white/5 text-[10px] text-gray-500 font-medium italic">Próximos: ${p.proximos.join(', ')}</div>`;
+                    proximosHtml = `<div class="mt-4 pt-3 border-t border-white/10 text-[10px] text-orange-400/80 font-bold italic tracking-wide"><i class="fas fa-clock mr-1"></i>Fila: ${p.proximos.join(', ')}</div>`;
                 }
 
                 hist.innerHTML += `
-                    <div class="glass-card rounded-[2.5rem] p-6 animate-in">
+                    <div class="glass-card rounded-[2.5rem] p-6 animate-in mb-4">
                         <div class="flex justify-between items-center mb-4">
-                            <span class="text-[9px] font-black bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-tighter">${p.data}</span>
-                            <button onclick="window.removerPartida('${p.id}')" class="text-[9px] font-black opacity-20 hover:opacity-100 uppercase tracking-widest">Excluir</button>
+                            <span class="text-[9px] font-black bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-full uppercase tracking-widest">${p.data}</span>
+                            <button onclick="window.removerPartida('${p.id}')" class="text-[9px] font-black text-red-400/50 hover:text-red-400 uppercase tracking-widest transition-colors"><i class="fas fa-trash-alt"></i></button>
                         </div>
                         <div class="space-y-1">${tHtml}</div>
                         ${proximosHtml}
@@ -291,7 +465,7 @@
             }
         };
 
-        window.removerPartida = async (id) => { if(confirm("Apagar histórico de jogo?")) await deleteDoc(doc(db, "historico", id)); };
+        window.removerPartida = async (id) => { if(confirm("Apagar histórico do jogo?")) await deleteDoc(doc(db, "historico", id)); };
         window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("Pix copiado!"); };
     </script>
 </body>
