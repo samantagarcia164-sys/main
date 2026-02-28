@@ -65,8 +65,8 @@
         <p class="text-xs opacity-50 mb-8 font-bold tracking-wider">Grupos que você participa</p>
         
         <div class="flex gap-3 mb-8">
-            <button onclick="window.criarLiga()" class="ios-btn flex-1 bg-blue-600 py-4 rounded-2xl font-black uppercase text-[10px] shadow-xl shadow-blue-500/20"><i class="fas fa-plus mr-1"></i> Criar Nova</button>
-            <button onclick="window.entrarComCodigo()" class="ios-btn flex-1 bg-white/10 py-4 rounded-2xl font-black uppercase text-[10px]"><i class="fas fa-key mr-1"></i> Usar Código</button>
+            <button onclick="window.abrirModalCriarLiga()" class="ios-btn flex-1 bg-blue-600 py-4 rounded-2xl font-black uppercase text-[10px] shadow-xl shadow-blue-500/20"><i class="fas fa-plus mr-1"></i> Criar Nova</button>
+            <button onclick="window.abrirModalEntrarLiga()" class="ios-btn flex-1 bg-white/10 py-4 rounded-2xl font-black uppercase text-[10px]"><i class="fas fa-key mr-1"></i> Usar Código</button>
         </div>
         
         <div class="flex-1 overflow-y-auto pb-10 space-y-3" id="lista-ligas-disponiveis">
@@ -220,6 +220,25 @@
         </div>
     </div>
 
+    <div id="modal-nova-liga" class="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-black/95 hidden animate-in">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm text-center space-y-4">
+            <h2 class="text-xl font-black text-blue-400 uppercase tracking-widest mb-4">Criar Nova Liga</h2>
+            <input type="text" id="inputNomeLiga" class="glass-input text-center text-sm font-bold" placeholder="Nome do Grupo (Ex: Vôlei Terça)">
+            <button onclick="window.confirmarCriarLiga()" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Criar e Gerar Código</button>
+            <button onclick="document.getElementById('modal-nova-liga').classList.add('hidden')" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs mt-2">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-codigo-liga" class="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-black/95 hidden animate-in">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm text-center space-y-4">
+            <h2 class="text-xl font-black text-orange-400 uppercase tracking-widest mb-4">Entrar na Liga</h2>
+            <p class="text-[10px] opacity-50 mb-4">Peça o código de 6 letras para o Admin do seu grupo.</p>
+            <input type="text" id="inputCodigoLiga" class="glass-input text-center text-2xl font-black uppercase tracking-[0.5em]" placeholder="XXXXXX" maxlength="6">
+            <button onclick="window.confirmarEntrarCodigo()" class="ios-btn w-full bg-orange-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Entrar Agora</button>
+            <button onclick="document.getElementById('modal-codigo-liga').classList.add('hidden')" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs mt-2">Cancelar</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc, setDoc, where, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -294,9 +313,8 @@
             carregarPerfil();
         };
 
-        // --- SISTEMA DE LIGAS COM CÓDIGO ---
+        // --- SISTEMA DE LIGAS E MODAIS ---
         function carregarLigasDisponiveis() {
-            // Busca apenas ligas onde o usuário é membro
             const q = query(collection(db, "ligas"), where("membros", "array-contains", userAtual.uid));
             
             onSnapshot(q, snap => {
@@ -317,49 +335,73 @@
                             ${adminTag}
                         </div>`;
                 });
+            }, error => {
+                console.error("Erro ao ler ligas:", error);
+                document.getElementById('lista-ligas-disponiveis').innerHTML = `<div class="text-red-400 text-xs text-center mt-5">Erro ao carregar ligas. Verifique suas regras no Firebase.</div>`;
             });
         }
 
-        window.criarLiga = async () => {
-            const nomeLiga = prompt("Qual o nome do seu novo Grupo ou Liga?");
-            if(!nomeLiga) return;
-            
-            // Gera código de 6 caracteres aleatórios
-            const codigoUnico = Math.random().toString(36).substring(2, 8).toUpperCase();
-            
-            const docRef = await addDoc(collection(db, "ligas"), {
-                nome: nomeLiga.toUpperCase(),
-                adminUid: userAtual.uid,
-                criadoEm: Date.now(),
-                codigo: codigoUnico,
-                membros: [userAtual.uid] // Admin já entra como membro
-            });
-            
-            await setDoc(doc(db, `ligas/${docRef.id}/sistema/configuracao`), { valorQuadra: 350 });
-            await setDoc(doc(db, `ligas/${docRef.id}/sistema/match_atual`), { pontosA: 0, pontosB: 0 });
-            
-            alert(`Liga criada! O código de convite é: ${codigoUnico}`);
+        window.abrirModalCriarLiga = () => {
+            document.getElementById('inputNomeLiga').value = '';
+            document.getElementById('modal-nova-liga').classList.remove('hidden');
         };
 
-        window.entrarComCodigo = async () => {
-            const codigoInput = prompt("Digite o código de 6 letras da Liga:");
-            if(!codigoInput) return;
+        window.confirmarCriarLiga = async () => {
+            const nomeLiga = document.getElementById('inputNomeLiga').value;
+            if(!nomeLiga) return alert("Digite um nome!");
             
-            const q = query(collection(db, "ligas"), where("codigo", "==", codigoInput.toUpperCase()));
-            const querySnapshot = await getDocs(q);
-            
-            if(querySnapshot.empty) {
-                alert("Código inválido ou liga não encontrada.");
-                return;
+            try {
+                document.getElementById('modal-nova-liga').classList.add('hidden');
+                const codigoUnico = Math.random().toString(36).substring(2, 8).toUpperCase();
+                
+                const docRef = await addDoc(collection(db, "ligas"), {
+                    nome: nomeLiga.toUpperCase(),
+                    adminUid: userAtual.uid,
+                    criadoEm: Date.now(),
+                    codigo: codigoUnico,
+                    membros: [userAtual.uid]
+                });
+                
+                await setDoc(doc(db, `ligas/${docRef.id}/sistema/configuracao`), { valorQuadra: 350 });
+                await setDoc(doc(db, `ligas/${docRef.id}/sistema/match_atual`), { pontosA: 0, pontosB: 0 });
+                
+                alert(`Liga criada! Código: ${codigoUnico}`);
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao criar liga. O Firebase bloqueou a gravação: " + error.message);
             }
+        };
+
+        window.abrirModalEntrarLiga = () => {
+            document.getElementById('inputCodigoLiga').value = '';
+            document.getElementById('modal-codigo-liga').classList.remove('hidden');
+        };
+
+        window.confirmarEntrarCodigo = async () => {
+            const codigoInput = document.getElementById('inputCodigoLiga').value;
+            if(!codigoInput || codigoInput.length < 5) return alert("Código inválido!");
             
-            // Pega o primeiro documento encontrado e adiciona o user
-            const ligaDoc = querySnapshot.docs[0];
-            await updateDoc(doc(db, "ligas", ligaDoc.id), {
-                membros: arrayUnion(userAtual.uid)
-            });
-            
-            alert("Você entrou na Liga com sucesso!");
+            try {
+                const q = query(collection(db, "ligas"), where("codigo", "==", codigoInput.toUpperCase()));
+                const querySnapshot = await getDocs(q);
+                
+                if(querySnapshot.empty) {
+                    alert("Código incorreto ou liga não existe.");
+                    return;
+                }
+                
+                document.getElementById('modal-codigo-liga').classList.add('hidden');
+                
+                const ligaDoc = querySnapshot.docs[0];
+                await updateDoc(doc(db, "ligas", ligaDoc.id), {
+                    membros: arrayUnion(userAtual.uid)
+                });
+                
+                alert("Você entrou na Liga com sucesso!");
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao entrar na liga: " + error.message);
+            }
         };
 
         window.entrarLiga = (id, nome, adminUid, codigo) => {
@@ -395,9 +437,9 @@
         };
 
         window.copiarCodigo = () => {
-            if(codigoLigaAtual === "ANTIGO") return alert("Liga antiga não possui código. Recrie a liga.");
+            if(codigoLigaAtual === "ANTIGO") return alert("Liga antiga não possui código.");
             navigator.clipboard.writeText(codigoLigaAtual);
-            alert(`Código ${codigoLigaAtual} copiado! Envie para seus amigos.`);
+            alert(`Código ${codigoLigaAtual} copiado!`);
         };
 
         // --- SISTEMA INTERNO DA LIGA ---
@@ -425,7 +467,7 @@
                 document.getElementById('infoFin').innerText = `${pagos}/${jogadoresLocal.length} Pagos`;
             }));
 
-            // PLACAR E SISTEMA DE ROTATIVIDADE
+            // PLACAR
             unsubscribes.push(onSnapshot(placarRef, s => {
                 if(s.exists()){
                     const d = s.data();
