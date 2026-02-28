@@ -1,328 +1,274 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-
-<title>Vôlei Pro</title>
-
-<!-- iOS / PWA -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#000000">
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sorteio de Times</title>
 
 <style>
-:root {
-  --ios-blue:#0a84ff;
+/* RESET */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  background: radial-gradient(circle at top, #1b1b1f, #000);
+  color: white;
+  padding: 24px;
 }
 
-body{
-  background:#000;
-  color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont;
-  overscroll-behavior:none;
+/* LAYOUT */
+.app {
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
-/* FUNDO */
-.bg{
-  position:fixed; inset:0; z-index:-1;
-  background:linear-gradient(135deg,#1c1c1e,#000);
-}
-
-/* GLASS iOS 26 */
-.glass{
-  background:linear-gradient(180deg,
-    rgba(255,255,255,.14),
-    rgba(255,255,255,.04));
-  backdrop-filter:blur(36px) saturate(200%);
-  -webkit-backdrop-filter:blur(36px) saturate(200%);
-  border-radius:26px;
-  border:.5px solid rgba(255,255,255,.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.18),
-    0 30px 60px rgba(0,0,0,.55);
-}
-
-/* INPUT */
-.input{
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.2);
-  border-radius:18px;
-  padding:14px 16px;
-  width:100%;
-}
-.input:focus{
-  outline:none;
-  border-color:var(--ios-blue);
-  box-shadow:0 0 0 2px rgba(10,132,255,.4);
-}
-
-/* BOTÕES */
-.btn{
-  transition:.12s;
-}
-.btn:active{
-  transform:scale(.92);
-  filter:brightness(.85);
-}
-
-/* TABS */
-.tab-active{
-  color:#fff;
-  font-weight:700;
-}
-
-/* SAFE AREA */
-footer{
-  padding-bottom:env(safe-area-inset-bottom);
-}
-
-/* ===== ANIMAÇÃO DE SORTEIO ===== */
-
-.shuffle-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(20px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-}
-
-.shuffle-box{
-  width:260px;
-  height:140px;
-  border-radius:28px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-size:22px;
-  font-weight:800;
-  letter-spacing:-0.02em;
-
-  background:linear-gradient(
+/* GLASS CARD */
+.glass {
+  background: linear-gradient(
     180deg,
-    rgba(255,255,255,.25),
-    rgba(255,255,255,.08)
+    rgba(255,255,255,0.18),
+    rgba(255,255,255,0.06)
   );
-  backdrop-filter:blur(40px);
+  backdrop-filter: blur(36px) saturate(200%);
+  -webkit-backdrop-filter: blur(36px) saturate(200%);
+  border-radius: 28px;
+  border: 0.5px solid rgba(255,255,255,0.2);
+  padding: 22px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.25),
-    0 40px 80px rgba(0,0,0,.6);
-
-  animation:diceFloat 1.2s ease-in-out infinite;
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 30px 60px rgba(0,0,0,0.6);
 }
 
-@keyframes diceFloat{
-  0%,100%{transform:translateY(0) scale(1)}
-  50%{transform:translateY(-8px) scale(1.04)}
+/* TEXTOS */
+h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-align: center;
 }
 
-/* REVELAÇÃO */
-@keyframes reveal{
-  from{opacity:0;transform:translateY(20px) scale(.95)}
-  to{opacity:1;transform:translateY(0) scale(1)}
+.subtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  margin-top: 6px;
 }
-.reveal{
-  animation:reveal .45s cubic-bezier(.23,1,.32,1);
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  opacity: 0.85;
+}
+
+/* INPUTS */
+input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 18px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+
+/* BOTÃO */
+button {
+  width: 100%;
+  padding: 18px;
+  border-radius: 22px;
+  border: none;
+  font-size: 17px;
+  font-weight: 700;
+  color: black;
+  background: linear-gradient(180deg, #fff, #dcdcdc);
+  transition: transform .12s ease, filter .12s ease;
+}
+
+button:active {
+  transform: scale(0.93);
+  filter: brightness(0.85);
+}
+
+/* RESULTADO */
+#resultado {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.time-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.time-nomes {
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 1.5;
+}
+
+/* SHUFFLE OVERLAY */
+.shuffle-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(22px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.hidden { display: none; }
+
+.shuffle-box {
+  width: 280px;
+  height: 150px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.3),
+    rgba(255,255,255,0.1)
+  );
+  backdrop-filter: blur(40px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 40px 80px rgba(0,0,0,0.7);
+
+  animation: float 1.2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
+}
+
+/* ANIMAÇÃO DE REVELAÇÃO */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reveal {
+  animation: reveal 0.45s cubic-bezier(.23,1,.32,1);
 }
 </style>
 </head>
 
-<body class="pb-28">
+<body>
 
-<div class="bg"></div>
+<div class="app">
 
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-
-<header class="glass sticky top-0 z-50 p-5 pt-10 flex justify-between">
-  <h1 class="text-2xl font-extrabold">Vôlei <span class="text-gray-400">Pro</span></h1>
-</header>
-
-<main class="flex-1 p-4 space-y-6">
-
-<section id="lista">
-  <div class="glass p-4 space-y-3">
-    <p id="financeiro" class="text-center text-sm text-gray-300">Carregando…</p>
-    <div class="w-full bg-gray-800 h-2 rounded-full">
-      <div id="barra" class="bg-white h-2 rounded-full w-0"></div>
-    </div>
+  <!-- HEADER -->
+  <div class="glass">
+    <h1>Sorteio de Times</h1>
+    <div class="subtitle">Visual iOS 26 • Mobile First</div>
   </div>
 
-  <div class="flex gap-2">
-    <input id="nome" class="input" placeholder="Nome do atleta">
-    <button id="add" class="btn bg-white text-black px-6 rounded-2xl font-bold">
-      <i class="fa fa-plus"></i>
-    </button>
+  <!-- CONFIG -->
+  <div class="glass">
+    <div class="section-title">Configuração</div>
+    <input id="nomes" placeholder="Nomes separados por vírgula"/>
+    <input id="qtd" type="number" placeholder="Jogadores por time"/>
+    <button id="sortear">🎲 Sortear Times</button>
   </div>
 
-  <ul id="listaJogadores" class="space-y-3"></ul>
-</section>
-
-<section id="sorteio" class="hidden space-y-4">
-  <div class="glass p-5 space-y-3">
-    <label class="text-sm">Jogadores por time</label>
-    <input id="qtd" type="number" value="6" class="input text-center">
-    <button id="sortear"
-      class="btn bg-white text-black w-full py-4 rounded-2xl font-bold">
-      <i class="fa fa-dice"></i> Sortear
-    </button>
-  </div>
-
-  <div id="resultado" class="space-y-4"></div>
-</section>
-
-</main>
-
-<footer class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4">
-  <nav class="glass rounded-full flex">
-    <button data-tab="lista" class="flex-1 py-3 tab-active">Lista</button>
-    <button data-tab="sorteio" class="flex-1 py-3 text-gray-400">Sortear</button>
-  </nav>
-</footer>
+  <!-- RESULTADO -->
+  <div id="resultado"></div>
 
 </div>
 
-<!-- OVERLAY SORTEIO -->
+<!-- SHUFFLE -->
 <div id="shuffleOverlay" class="shuffle-overlay hidden">
   <div id="shuffleBox" class="shuffle-box"></div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const app = initializeApp({
-  apiKey:"AIzaSyDxQThqrjNEXmmpreEQwRBaihTAIpoZaAM",
-  authDomain:"voleigrupo-b8a5a.firebaseapp.com",
-  projectId:"voleigrupo-b8a5a"
-});
-
-const db = getFirestore(app);
-const col = collection(db,"jogadores");
-
-const lista = document.getElementById("listaJogadores");
-const financeiro = document.getElementById("financeiro");
-const barra = document.getElementById("barra");
-
-let jogadores=[];
-
-/* HAPTIC */
-const haptic = (t=10)=>navigator.vibrate&&navigator.vibrate(t);
-
-/* SHUFFLE */
-const shuffle = a=>{
-  a=[...a];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
+<script>
+function shuffle(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-};
-
-/* FIREBASE */
-onSnapshot(col,snap=>{
-  lista.innerHTML="";
-  jogadores=[];
-  let pagos=0;
-
-  snap.forEach(d=>{
-    const j={id:d.id,...d.data()};
-    jogadores.push(j);
-    if(j.pago)pagos++;
-
-    const li=document.createElement("li");
-    li.className="glass p-4 flex justify-between items-center reveal";
-    li.innerHTML=`
-      <span>${j.nome}</span>
-      <button class="btn ${j.pago?"bg-green-600":"bg-red-600"}
-        px-3 py-1 rounded-lg text-xs">
-        ${j.pago?"PIX OK":"PENDENTE"}
-      </button>`;
-    li.querySelector("button").onclick=()=>{
-      haptic();
-      updateDoc(doc(db,"jogadores",j.id),{pago:!j.pago});
-    };
-    lista.appendChild(li);
-  });
-
-  const total=jogadores.length;
-  const valor=total?350/total:0;
-  financeiro.innerText=`${pagos}/${total} pagaram | R$ ${valor.toFixed(2)}/pessoa`;
-  barra.style.width=`${total?(pagos/total*100):0}%`;
-});
-
-document.getElementById("add").onclick=()=>{
-  const nome=document.getElementById("nome");
-  if(!nome.value)return;
-  haptic();
-  addDoc(col,{nome:nome.value,pago:false});
-  nome.value="";
-};
-
-/* TABS */
-document.querySelectorAll("[data-tab]").forEach(b=>{
-  b.onclick=()=>{
-    haptic();
-    document.getElementById("lista").classList.toggle("hidden",b.dataset.tab!=="lista");
-    document.getElementById("sorteio").classList.toggle("hidden",b.dataset.tab!=="sorteio");
-    document.querySelectorAll("[data-tab]").forEach(x=>x.classList.remove("tab-active"));
-    b.classList.add("tab-active");
-  };
-});
-
-/* ANIMAÇÃO DE DADOS */
-function animarSorteio(nomes,cb){
-  const o=document.getElementById("shuffleOverlay");
-  const b=document.getElementById("shuffleBox");
-  o.classList.remove("hidden");
-
-  let i=0;
-  const t=setInterval(()=>{
-    b.textContent=nomes[i%nomes.length];
-    b.style.transform=`rotate(${Math.random()*20-10}deg) scale(1.05)`;
-    haptic(10);
-    if(++i>20){
-      clearInterval(t);
-      o.classList.add("hidden");
-      cb();
-    }
-  },90);
 }
 
-document.getElementById("sortear").onclick=()=>{
-  const qtd=+document.getElementById("qtd").value;
-  const pagos=jogadores.filter(j=>j.pago);
-  if(pagos.length<2)return alert("Poucos jogadores com PIX OK");
+function animarSorteio(nomes, callback) {
+  const overlay = document.getElementById("shuffleOverlay");
+  const box = document.getElementById("shuffleBox");
+  overlay.classList.remove("hidden");
 
-  const nomes=pagos.map(j=>j.nome);
-  const sorteados=shuffle(pagos);
+  let i = 0;
+  const max = 22;
 
-  animarSorteio(nomes,()=>{
-    const res=document.getElementById("resultado");
-    res.innerHTML="";
-    let grupo=[],t=1;
+  const interval = setInterval(() => {
+    box.textContent = nomes[i % nomes.length];
+    box.style.transform = `rotate(${Math.random()*20-10}deg) scale(1.1)`;
+    if (navigator.vibrate) navigator.vibrate(10);
 
-    sorteados.forEach((j,i)=>{
-      grupo.push(j.nome);
-      if(grupo.length===qtd||i===sorteados.length-1){
-        res.innerHTML+=`
-          <div class="glass p-5 reveal">
-            <b>Time ${t++}</b><br>${grupo.join(", ")}
-          </div>`;
-        grupo=[];
+    i++;
+    if (i > max) {
+      clearInterval(interval);
+      overlay.classList.add("hidden");
+      callback();
+    }
+  }, 90);
+}
+
+document.getElementById("sortear").onclick = () => {
+  const nomes = document.getElementById("nomes").value
+    .split(",")
+    .map(n => n.trim())
+    .filter(Boolean);
+
+  const qtd = +document.getElementById("qtd").value;
+  if (nomes.length < 2 || !qtd) return alert("Preencha corretamente.");
+
+  const sorteados = shuffle(nomes);
+
+  animarSorteio(nomes, () => {
+    const res = document.getElementById("resultado");
+    res.innerHTML = "";
+
+    let time = [];
+    let n = 1;
+
+    sorteados.forEach((nome, i) => {
+      time.push(nome);
+
+      if (time.length === qtd || i === sorteados.length - 1) {
+        const card = document.createElement("div");
+        card.className = "glass reveal";
+        card.innerHTML = `
+          <div class="time-title">Time ${n++}</div>
+          <div class="time-nomes">${time.join(", ")}</div>
+        `;
+        res.appendChild(card);
+        time = [];
       }
     });
   });
 };
 </script>
+
 </body>
 </html>
