@@ -6,8 +6,8 @@
 <title>Sorteio de Times</title>
 
 <style>
-/* RESET */
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
   background: radial-gradient(circle at top, #1b1b1f, #000);
@@ -15,7 +15,6 @@ body {
   padding: 24px;
 }
 
-/* LAYOUT */
 .app {
   max-width: 420px;
   margin: 0 auto;
@@ -24,7 +23,7 @@ body {
   gap: 28px;
 }
 
-/* GLASS CARD */
+/* GLASS */
 .glass {
   background: linear-gradient(
     180deg,
@@ -51,7 +50,7 @@ h1 {
 
 .subtitle {
   font-size: 14px;
-  color: rgba(255,255,255,0.6);
+  opacity: 0.6;
   text-align: center;
   margin-top: 6px;
 }
@@ -59,7 +58,7 @@ h1 {
 .section-title {
   font-size: 15px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   opacity: 0.85;
 }
 
@@ -69,29 +68,65 @@ input {
   padding: 16px;
   border-radius: 18px;
   border: none;
-  outline: none;
   background: rgba(255,255,255,0.12);
   color: white;
   font-size: 16px;
-  margin-bottom: 14px;
+  outline: none;
 }
 
-/* BOTÃO */
-button {
-  width: 100%;
+/* ADD BUTTON */
+.add-btn {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  font-weight: 700;
+}
+
+.add-btn:active {
+  transform: scale(0.95);
+}
+
+/* LISTA DE NOMES */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.nome-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.08);
+  font-size: 15px;
+}
+
+.remove {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 18px;
+}
+
+/* BOTÃO SORTEAR */
+.sortear-btn {
   padding: 18px;
   border-radius: 22px;
   border: none;
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 800;
   color: black;
   background: linear-gradient(180deg, #fff, #dcdcdc);
-  transition: transform .12s ease, filter .12s ease;
 }
 
-button:active {
+.sortear-btn:active {
   transform: scale(0.93);
-  filter: brightness(0.85);
 }
 
 /* RESULTADO */
@@ -104,7 +139,7 @@ button:active {
 .time-title {
   font-size: 18px;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .time-nomes {
@@ -113,7 +148,7 @@ button:active {
   line-height: 1.5;
 }
 
-/* SHUFFLE OVERLAY */
+/* SHUFFLE */
 .shuffle-overlay {
   position: fixed;
   inset: 0;
@@ -156,21 +191,12 @@ button:active {
   50% { transform: translateY(-10px) scale(1.05); }
 }
 
-/* ANIMAÇÃO DE REVELAÇÃO */
 @keyframes reveal {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.reveal {
-  animation: reveal 0.45s cubic-bezier(.23,1,.32,1);
-}
+.reveal { animation: reveal .45s cubic-bezier(.23,1,.32,1); }
 </style>
 </head>
 
@@ -178,31 +204,66 @@ button:active {
 
 <div class="app">
 
-  <!-- HEADER -->
   <div class="glass">
     <h1>Sorteio de Times</h1>
-    <div class="subtitle">Visual iOS 26 • Mobile First</div>
+    <div class="subtitle">Adicionar participantes individualmente</div>
   </div>
 
-  <!-- CONFIG -->
   <div class="glass">
-    <div class="section-title">Configuração</div>
-    <input id="nomes" placeholder="Nomes separados por vírgula"/>
-    <input id="qtd" type="number" placeholder="Jogadores por time"/>
-    <button id="sortear">🎲 Sortear Times</button>
+    <div class="section-title">Adicionar participante</div>
+    <input id="nomeInput" placeholder="Nome do participante" />
+    <button class="add-btn" onclick="addNome()">＋ Adicionar</button>
+
+    <div class="lista" id="listaNomes"></div>
   </div>
 
-  <!-- RESULTADO -->
+  <div class="glass">
+    <div class="section-title">Jogadores por time</div>
+    <input id="qtd" type="number" placeholder="Ex: 4" />
+    <button class="sortear-btn" onclick="sortear()">🎲 Sortear Times</button>
+  </div>
+
   <div id="resultado"></div>
 
 </div>
 
-<!-- SHUFFLE -->
 <div id="shuffleOverlay" class="shuffle-overlay hidden">
   <div id="shuffleBox" class="shuffle-box"></div>
 </div>
 
 <script>
+let nomes = [];
+
+function addNome() {
+  const input = document.getElementById("nomeInput");
+  const nome = input.value.trim();
+  if (!nome) return;
+
+  nomes.push(nome);
+  input.value = "";
+  renderLista();
+}
+
+function remover(index) {
+  nomes.splice(index, 1);
+  renderLista();
+}
+
+function renderLista() {
+  const lista = document.getElementById("listaNomes");
+  lista.innerHTML = "";
+
+  nomes.forEach((n, i) => {
+    const div = document.createElement("div");
+    div.className = "nome-item";
+    div.innerHTML = `
+      ${n}
+      <button class="remove" onclick="remover(${i})">×</button>
+    `;
+    lista.appendChild(div);
+  });
+}
+
 function shuffle(array) {
   const a = [...array];
   for (let i = a.length - 1; i > 0; i--) {
@@ -212,21 +273,17 @@ function shuffle(array) {
   return a;
 }
 
-function animarSorteio(nomes, callback) {
+function animarSorteio(callback) {
   const overlay = document.getElementById("shuffleOverlay");
   const box = document.getElementById("shuffleBox");
-  overlay.classList.remove("hidden");
 
+  overlay.classList.remove("hidden");
   let i = 0;
-  const max = 22;
 
   const interval = setInterval(() => {
     box.textContent = nomes[i % nomes.length];
-    box.style.transform = `rotate(${Math.random()*20-10}deg) scale(1.1)`;
-    if (navigator.vibrate) navigator.vibrate(10);
-
     i++;
-    if (i > max) {
+    if (i > 20) {
       clearInterval(interval);
       overlay.classList.add("hidden");
       callback();
@@ -234,18 +291,12 @@ function animarSorteio(nomes, callback) {
   }, 90);
 }
 
-document.getElementById("sortear").onclick = () => {
-  const nomes = document.getElementById("nomes").value
-    .split(",")
-    .map(n => n.trim())
-    .filter(Boolean);
-
+function sortear() {
   const qtd = +document.getElementById("qtd").value;
-  if (nomes.length < 2 || !qtd) return alert("Preencha corretamente.");
+  if (nomes.length < 2 || !qtd) return alert("Adicione participantes e quantidade.");
 
   const sorteados = shuffle(nomes);
-
-  animarSorteio(nomes, () => {
+  animarSorteio(() => {
     const res = document.getElementById("resultado");
     res.innerHTML = "";
 
@@ -254,7 +305,6 @@ document.getElementById("sortear").onclick = () => {
 
     sorteados.forEach((nome, i) => {
       time.push(nome);
-
       if (time.length === qtd || i === sorteados.length - 1) {
         const card = document.createElement("div");
         card.className = "glass reveal";
@@ -267,7 +317,7 @@ document.getElementById("sortear").onclick = () => {
       }
     });
   });
-};
+}
 </script>
 
 </body>
