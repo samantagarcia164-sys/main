@@ -302,7 +302,7 @@
                 document.getElementById('infoFin').innerText = `${pagos}/${jogadoresLocal.length} Pagos`;
             }));
 
-            // PLACAR (RENDERIZANDO TIMES PRÓXIMOS E RESERVAS)
+            // PLACAR E SISTEMA DE ROTATIVIDADE
             unsubscribes.push(onSnapshot(placarRef, s => {
                 if(s.exists()){
                     const d = s.data();
@@ -412,10 +412,16 @@
             await updateDoc(placarRef, { ['pontos'+time]: novoValor });
         };
 
+        // LÓGICA DE ROTATIVIDADE (REI DA QUADRA)
         window.finalizarSet = async () => {
             const s = await getDoc(placarRef);
             if(!s.exists()) return;
             const d = s.data();
+            
+            if (d.pontosA === d.pontosB) {
+                return alert("A partida está empatada! Desempate antes de finalizar para definir quem fica na quadra.");
+            }
+
             const vencedor = d.pontosA > d.pontosB ? "A" : "B";
             
             const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual/jogadoresLocal.length : 0;
@@ -429,8 +435,29 @@
                 ]
             };
             await addDoc(colHistorico, partidaFinal);
-            await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
-            alert("Set Finalizado e Salvo no Ranking!");
+
+            if (d.timesProximos && d.timesProximos.length > 0) {
+                const timeVencedor = { nome: vencedor === "A" ? d.nomeA : d.nomeB, membros: vencedor === "A" ? d.membrosA : d.membrosB };
+                const timePerdedor = { nome: vencedor === "A" ? d.nomeB : d.nomeA, membros: vencedor === "A" ? d.membrosB : d.membrosA };
+
+                const proximoEntrar = d.timesProximos[0];
+                const novaFila = d.timesProximos.slice(1);
+                novaFila.push(timePerdedor); 
+
+                await updateDoc(placarRef, {
+                    nomeA: timeVencedor.nome,
+                    membrosA: timeVencedor.membros,
+                    pontosA: 0,
+                    nomeB: proximoEntrar.nome,
+                    membrosB: proximoEntrar.membros,
+                    pontosB: 0,
+                    timesProximos: novaFila
+                });
+                alert(`Salvo! O ${timeVencedor.nome} continua na quadra para enfrentar o ${proximoEntrar.nome}.`);
+            } else {
+                await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
+                alert("Set Finalizado e Salvo! Não há mais times na fila.");
+            }
         };
 
         window.zerarPlacar = async () => await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
