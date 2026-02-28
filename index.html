@@ -29,7 +29,7 @@
         .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); }
+        #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); }
         .dice-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 20px; }
         .die { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.6); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); animation: bounce-roll 0.6s infinite linear; }
         @keyframes bounce-roll { 0% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-40px) rotate(90deg); } 50% { transform: translateY(0) rotate(180deg); } 75% { transform: translateY(-20px) rotate(270deg); } 100% { transform: translateY(0) rotate(360deg); } }
@@ -264,8 +264,8 @@
         const colHistorico = collection(db, "historico");
         const placarRef = doc(db, "sistema", "placar_ao_vivo");
 
-        // === CONFIGURAÇÃO ADMIN (Coloque seu email aqui) ===
-        const EMAIL_ADMIN = "seuemail@gmail.com"; 
+        // === CONFIGURAÇÃO ADMIN ===
+        const EMAIL_ADMIN = "jhonata_hip.hop@hotmail.com"; 
         
         let jogadores = [];
         let timesParaSalvar = [];
@@ -275,7 +275,6 @@
         let jogadorSelecionadoParaTroca = null;
         let valorTotalArrecadadoMes = 0;
 
-        // Variaveis de segurança para parar as consultas quando deslogar
         let unsubJogadores = null;
         let unsubHistorico = null;
         let unsubPlacar = null;
@@ -308,12 +307,10 @@
 
         window.sair = () => signOut(auth);
 
-        // --- SISTEMA DE AUTENTICAÇÃO SEGURO ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userAtual = user;
                 
-                // Esconde a tela de login primeiro
                 document.getElementById('auth-error').classList.add('hidden');
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
@@ -322,10 +319,7 @@
                     document.getElementById('btnAdmin').classList.remove('hidden');
                 }
 
-                // Carrega o perfil do usuário
                 await window.carregarPerfil();
-
-                // SÓ INICIA A BUSCA NO BANCO DE DADOS DEPOIS DE LOGADO
                 iniciarConexaoBanco();
             } else {
                 userAtual = null; perfilAtual = null;
@@ -333,16 +327,13 @@
                 document.getElementById('main-app').classList.add('hidden');
                 document.getElementById('btnAdmin').classList.add('hidden');
                 
-                // Se deslogar, para de buscar dados do Firebase
                 if(unsubJogadores) unsubJogadores();
                 if(unsubHistorico) unsubHistorico();
                 if(unsubPlacar) unsubPlacar();
             }
         });
 
-        // --- FUNÇÃO QUE INICIA TUDO QUE É EM TEMPO REAL ---
         function iniciarConexaoBanco() {
-            // 1. LISTA DA SEMANA
             unsubJogadores = onSnapshot(query(colJogadores, orderBy("nome", "asc")), (snap) => {
                 const lista = document.getElementById('listaJogadores');
                 lista.innerHTML = ''; jogadores = []; let pagos = 0;
@@ -369,7 +360,6 @@
                 document.getElementById('infoFin').innerText = `${pagos}/${jogadores.length} com PIX OK`;
             });
 
-            // 2. HISTÓRICO E RANKING
             unsubHistorico = onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), (snap) => {
                 const histList = document.getElementById('listaHistorico'); histList.innerHTML = '';
                 let rankingData = {}; valorTotalArrecadadoMes = 0;
@@ -406,7 +396,6 @@
                 if(arrRanking.length === 0 || arrRanking[0].vit === 0) listaR.innerHTML = `<li class="text-center text-[10px] opacity-40 py-4 uppercase font-black">Nenhuma vitória registrada ainda.</li>`;
             });
 
-            // 3. PLACAR AO VIVO
             unsubPlacar = onSnapshot(placarRef, (snap) => {
                 if(snap.exists()) {
                     const data = snap.data();
@@ -420,8 +409,6 @@
             });
         }
 
-
-        // --- GESTÃO DE PERFIL ---
         window.carregarPerfil = async () => {
             try {
                 const docSnap = await getDoc(doc(db, "usuarios", userAtual.uid));
@@ -473,7 +460,6 @@
             btn.classList.add('active-tab'); btn.style.opacity = '1'; btn.style.transform = 'scale(1.1)';
         };
 
-        // --- MANIPULAÇÃO DA LISTA ---
         window.entrarNaLista = async () => {
             if(!perfilAtual) return alert("Preencha seu perfil primeiro!");
             if(jogadores.find(j => j.uid === userAtual.uid)) return alert("Você já está na lista!");
@@ -491,12 +477,28 @@
         window.compartilharWhatsApp = () => { window.open(`https://wa.me/?text=🏐 *VÔLEI PRO STATUS* %0A✅ Pagos: ${jogadores.filter(j=>j.pago).length}/${jogadores.length} %0A🔑 Pix: 11959154029`, '_blank'); };
         window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("Pix copiado!"); };
 
-        // --- SORTEIO COM TAP-TO-SWAP ---
+        // --- SORTEIO COM ANIMAÇÃO CORRIGIDA ---
         window.animarESortear = () => {
             const pagos = jogadores.filter(j => j.pago);
             if(pagos.length < 2) return alert("Pelo menos 2 pagos para sortear!");
-            document.getElementById('shufflingContainer').classList.remove('hidden');
-            setTimeout(() => { document.getElementById('shufflingContainer').classList.add('hidden'); window.executarSorteioEquilibrado(pagos); }, 1500);
+            
+            const container = document.getElementById('shufflingContainer');
+            // INJETANDO O HTML DOS DADOS DE VOLTA
+            container.innerHTML = `
+                <div class="dice-wrap">
+                    <div class="die">🎲</div>
+                    <div class="die" style="animation-delay: 0.2s">🎲</div>
+                </div>
+                <div class="absolute bottom-1/4 w-full text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-80 text-blue-400 animate-pulse">
+                    Equilibrando Times...
+                </div>
+            `;
+            container.classList.remove('hidden');
+            
+            setTimeout(() => { 
+                container.classList.add('hidden'); 
+                window.executarSorteioEquilibrado(pagos); 
+            }, 1500);
         };
 
         window.executarSorteioEquilibrado = (pagos) => {
@@ -577,14 +579,12 @@
             window.mudarAba('ranking');
         };
 
-        // --- MANIPULAÇÃO DO HISTÓRICO ---
         window.vitoria = async (id, idx, val) => {
             const ref = doc(db, "historico", id); const snap = await getDoc(ref);
             if(snap.exists()) { let times = snap.data().times; times[idx].vitorias = Math.max(0, (times[idx].vitorias || 0) + val); await updateDoc(ref, { times }); }
         };
         window.removerPartida = async (id) => { if(confirm("Apagar partida e perder dados do Ranking?")) await deleteDoc(doc(db, "historico", id)); };
 
-        // --- MANIPULAÇÃO DO PLACAR AO VIVO ---
         window.alterarPlacar = async (time, valor) => {
             const snap = await getDoc(placarRef);
             if(snap.exists()){
@@ -597,7 +597,6 @@
         };
         window.zerarPlacar = async () => { if(confirm("Zerar placar atual?")) await updateDoc(placarRef, { pontosA: 0, pontosB: 0 }); };
 
-        // --- PAINEL ADMIN ---
         window.abrirAdmin = () => {
             document.getElementById('adm-caixa').innerText = `R$ ${valorTotalArrecadadoMes.toFixed(2)}`;
             document.getElementById('admin-modal').classList.remove('hidden');
