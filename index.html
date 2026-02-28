@@ -9,42 +9,33 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Vôlei Pro">
-    
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3063/3063063.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063063.png">
-    
     <meta name="theme-color" content="#007aff">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script defer src="/_vercel/insights/script.js"></script>
     
     <style>
         :root { --ios-blue: #007aff; --ios-orange: #ff9500; }
         body { font-family: -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background-color: #000; color: #fff; overflow-x: hidden; touch-action: manipulation; }
-        
         .liquid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: linear-gradient(135deg, #1d1d1f 0%, #000 100%); }
         .metaball { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.3; }
         .metaball:nth-child(1) { width: 300px; height: 300px; top: -5%; left: -10%; background: var(--ios-blue); }
         .metaball:nth-child(2) { width: 400px; height: 400px; bottom: -10%; right: -10%; background: var(--ios-orange); }
-
-        .glass-card { background: rgba(255, 255, 255, 0.05); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .glass-menu { background: rgba(15, 15, 15, 0.9); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-menu { background: rgba(15, 15, 15, 0.9); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.1); }
         .glass-input { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none; width: 100%; padding: 0.8rem; border-radius: 1rem; }
-        
         .ios-btn { transition: transform 0.1s; cursor: pointer; user-select: none; }
         .ios-btn:active { transform: scale(0.95); opacity: 0.8; }
         .active-tab { color: var(--ios-blue); font-weight: 900; }
-        
         .hidden { display: none !important; }
         .animate-in { animation: fadeInUp 0.3s ease-out; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         #shufflingContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .die { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 35px; animation: roll 0.4s infinite; }
         @keyframes roll { 0%, 100% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(180deg) translateY(-20px); } }
-
         .player-tag { display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 5px 12px; border-radius: 10px; margin: 3px; font-weight: 600; font-size: 12px; border: 1px solid transparent; }
         .player-tag.selected { background: var(--ios-blue); border-color: #fff; }
         .placar-numero { font-size: 5rem; font-weight: 900; line-height: 1; }
@@ -55,10 +46,12 @@
     <div class="liquid-bg"><div class="metaball"></div><div class="metaball"></div></div>
 
     <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black">
-        <div class="glass-card p-8 rounded-[2.5rem] w-full max-sm space-y-4 text-center animate-in flex flex-col items-center">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm space-y-4 text-center animate-in flex flex-col items-center">
             
             <div class="w-20 h-20 rounded-full bg-blue-600/20 border-4 border-white/10 flex items-center justify-center mb-4 shadow-xl">
-                <img src="https://cdn-icons-png.flaticon.com/512/3063/3063063.png" alt="Vôlei Pro Logo" class="w-12 h-12 opacity-80">
+                <svg viewBox="0 0 512 512" class="w-12 h-12 fill-blue-500">
+                    <path d="M256 48C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48zm0 32c25.4 0 49.8 5.6 71.9 15.6l-50.5 87.4c-6.9-1.9-14.1-3-21.4-3s-14.5 1.1-21.4 3l-50.5-87.4C206.2 85.6 230.6 80 256 80zM102 169.5c15.2-26.4 36.6-48.4 62-64.3l50.5 87.4c-11.1 6.4-20.2 15.5-26.6 26.6l-85.9 0c0-.1 0-.1 0 0zM80 256c0-14 1.7-27.6 4.9-40.6l85.9 0c-1.9 6.9-3 14.1-3 21.4s1.1 14.5 3 21.4H84.9C81.7 283.6 80 270 80 256zm22 86.5l85.9 0c6.4 11.1 15.5 20.2 26.6 26.6l-50.5 87.4c-25.4-15.9-46.8-37.9-62-64.3l0 .3zm154 89.5c-25.4 0-49.8-5.6-71.9-15.6l50.5-87.4c6.9 1.9 14.1 3 21.4 3s14.5-1.1 21.4-3l50.5 87.4C305.8 424.4 281.4 430 256 430zm154-87.5c-15.2 26.4-36.6 48.4-62 64.3l-50.5-87.4c11.1-6.4 20.2-15.5 26.6-26.6l85.9 0zM432 256c0 14-1.7 27.6-4.9 40.6h-85.9c1.9-6.9 3-14.1 3-21.4s-1.1-14.5-3-21.4h85.9c3.2 13 4.9 26.6 4.9 40.6zm-22-86.5h-85.9c-6.4-11.1-15.5-20.2-26.6-26.6l50.5-87.4c25.4 15.9 46.8 37.9 62 64.3l0-.3z"></path>
+                </svg>
             </div>
             
             <h1 class="text-3xl font-black italic mb-6">Vôlei <span class="text-blue-500">Pro</span></h1>
@@ -187,7 +180,7 @@
                 <p class="text-[10px] font-black uppercase opacity-50 mb-1">Caixa Total Acumulado</p>
                 <p id="adm-caixa" class="text-3xl font-black text-green-400">R$ 0,00</p>
             </div>
-            <button onclick="window.fecharFinanceiro()" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-green-500/20">Check-in: Marcar Semana Paga ✅</button>
+            <button onclick="window.fecharFinanceiro()" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-xs uppercase">Check-in: Semana Paga ✅</button>
             <div class="text-left">
                 <p class="text-[10px] font-black uppercase opacity-40 mb-2">Semanas Pagas:</p>
                 <ul id="listaFinanceira" class="text-[10px] space-y-1 h-32 overflow-y-auto pr-2"></ul>
@@ -224,7 +217,6 @@
 
         let userAtual = null, perfilAtual = null, jogadoresLocal = [], unsubscribes = [], valorQuadraAtual = 350;
 
-        // AUTH
         document.getElementById('google-login-btn').onclick = () => signInWithPopup(auth, googleProvider).catch(err => alert(err.message));
         document.getElementById('email-login-btn').onclick = () => {
             const email = document.getElementById('emailInput').value, pass = document.getElementById('passInput').value;
@@ -298,6 +290,7 @@
             unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
                 const histDiv = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
                 histDiv.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}, acumuladoTotal = 0;
+                const isAdmin = userAtual.email === EMAIL_ADMIN;
                 snap.forEach(d => {
                     const p = d.data(); const pId = d.id;
                     acumuladoTotal += (p.arrecadado || 0);
@@ -314,13 +307,17 @@
 
             unsubscribes.push(onSnapshot(query(colFinanceiro, orderBy("data", "desc")), snap => {
                 const list = document.getElementById('listaFinanceira'); list.innerHTML = '';
-                snap.forEach(d => { const f = d.data(); list.innerHTML += `<li class="flex justify-between border-b border-white/5 pb-1"><span>${f.dataString}</span><span class="text-green-400 font-bold">R$ ${f.valor.toFixed(2)}</span></li>`; });
+                const isAdmin = userAtual.email === EMAIL_ADMIN;
+                snap.forEach(d => { 
+                    const f = d.data(); const fId = d.id;
+                    const delFechamento = isAdmin ? `<i class="fas fa-trash-alt ml-2 text-red-500 opacity-40 cursor-pointer" onclick="window.delFechamento('${fId}')"></i>` : '';
+                    list.innerHTML += `<li class="flex justify-between border-b border-white/5 pb-1"><span>${f.dataString}</span><span class="text-green-400 font-bold">R$ ${f.valor.toFixed(2)} ${delFechamento}</span></li>`; 
+                });
             }));
 
             unsubscribes.push(onSnapshot(placarRef, s => { if(s.exists()){ const d=s.data(); document.getElementById('pontosA').innerText=d.pontosA||0; document.getElementById('pontosB').innerText=d.pontosB||0; } }));
         }
 
-        // FINANCEIRO ADMIN
         window.fecharFinanceiro = async () => {
             const valorTotalHoje = parseFloat(document.getElementById('vpp').innerText.replace("R$ ", ""));
             if(confirm(`Confirmar pagamento da quadra de hoje? R$ ${valorTotalHoje.toFixed(2)}`)) {
@@ -331,7 +328,6 @@
         window.delFechamento = async (id) => { if(confirm("Apagar registro?")) await deleteDoc(doc(db, "financeiro_fechado", id)); };
         document.getElementById('valorQuadraSemana').onchange = async (e) => await setDoc(configRef, { valorQuadra: parseFloat(e.target.value) });
 
-        // ACTIONS
         window.entrarNaLista = async () => { if(!perfilAtual) return alert("Crie o perfil"); await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false }); };
         window.adicionarConvidado = async () => { const i = document.getElementById('nomeConvidado'); if(!i.value) return; await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: i.value.toUpperCase()+" (C)", nivel: 2, pago: false }); i.value=""; };
         window.togglePix = async (id, s) => await updateDoc(doc(db, "jogadores", id), {pago: !s});
@@ -382,7 +378,6 @@
             document.getElementById('btn-tab-'+aba).classList.add('active-tab');
         };
 
-        // PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW falhou:', err));
         }
