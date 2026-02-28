@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007aff">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Vôlei Pro - Ultimate Edition</title>
@@ -477,10 +479,23 @@
         window.copiarPix = () => { navigator.clipboard.writeText("11959154029"); alert("Pix copiado!"); };
 
         // === 7. SORTEIO E ANIMAÇÃO ===
-        window.animarESortear = () => {
-            const pagos = jogadores.filter(j => j.pago);
-            if(pagos.length < 2) return alert("Pelo menos 2 com PIX OK para sortear!");
-            
+       function sortearTimesAvancado(jogadores) {
+  // Ordena do melhor pro pior
+  jogadores.sort((a, b) => b.nivel - a.nivel);
+
+  const timeA = [];
+  const timeB = [];
+
+  jogadores.forEach((jogador, index) => {
+    if (index % 2 === 0) {
+      timeA.push(jogador);
+    } else {
+      timeB.push(jogador);
+    }
+  });
+
+  return { timeA, timeB };
+}
             // Mostra os dados rolando
             document.getElementById('shufflingContainer').classList.remove('hidden');
             
@@ -588,7 +603,11 @@
         // === 9. ADMIN ===
         window.abrirAdmin = () => { document.getElementById('adm-caixa').innerText = `R$ ${valorTotalArrecadadoMes.toFixed(2)}`; document.getElementById('admin-modal').classList.remove('hidden'); };
         window.fecharAdmin = () => document.getElementById('admin-modal').classList.add('hidden');
+        if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
 
     </script>
 </body>
 </html>
+
