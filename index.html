@@ -245,7 +245,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc, setDoc, where, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        // IMPORTANTE: Foi trocado signInWithPopup por signInWithRedirect
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -269,6 +268,21 @@
 
         let userAtual = null, perfilAtual = null, jogadoresLocal = [], unsubscribes = [], valorQuadraAtual = 350, caixaTotalLocal = 0;
         let timesSorteadosGlobal = [], filaFilaGlobal = [], jogadorTroca = null;
+
+        // --- SISTEMA DE SONS ---
+        const sons = {
+            ponto: new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'),
+            apito: new Audio('https://assets.mixkit.co/active_storage/sfx/2967/2967-preview.mp3'),
+            sorteio: new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'),
+            click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3')
+        };
+
+        window.tocarSom = (nomeSom) => {
+            try {
+                sons[nomeSom].currentTime = 0;
+                sons[nomeSom].play().catch(e => console.log("Navegador bloqueou o áudio", e));
+            } catch(e) {}
+        };
 
         // --- AUTENTICAÇÃO ---
         document.getElementById('google-login-btn').onclick = () => {
@@ -315,7 +329,6 @@
             } else { window.editarPerfil(); }
         }
 
-        // --- CORREÇÃO DO PERFIL ---
         window.editarPerfil = () => {
             if (perfilAtual) {
                 document.getElementById('perfilNome').value = perfilAtual.nome || "";
@@ -331,7 +344,7 @@
             
             const btn = event ? event.target : document.querySelector('#perfil-edicao button');
             const textoOriginal = btn.innerText;
-            btn.innerText = "Salvando..."; // Feedback visual
+            btn.innerText = "Salvando..."; 
             
             try {
                 await setDoc(doc(db, "usuarios", userAtual.uid), { 
@@ -607,6 +620,10 @@
 
         window.alterarPlacar = async (time, valor) => {
             if(!isLigaAdmin) return alert("Apenas o admin da liga pode alterar o placar.");
+            
+            if (valor > 0) window.tocarSom('ponto');
+            else window.tocarSom('click');
+
             const s = await getDoc(placarRef);
             const d = s.exists() ? s.data() : { pontosA: 0, pontosB: 0 };
             const novoValor = Math.max(0, (d['pontos'+time] || 0) + valor);
@@ -621,6 +638,8 @@
             if (d.pontosA === d.pontosB) {
                 return alert("A partida está empatada! Desempate antes de finalizar.");
             }
+
+            window.tocarSom('apito');
 
             const vencedor = d.pontosA > d.pontosB ? "A" : "B";
             const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual/jogadoresLocal.length : 0;
@@ -680,6 +699,7 @@
 
         window.animarESortear = () => {
             if(jogadoresLocal.length < 2) return alert("Mínimo 2");
+            window.tocarSom('sorteio');
             document.getElementById('shufflingContainer').classList.remove('hidden');
             setTimeout(() => { document.getElementById('shufflingContainer').classList.add('hidden'); sortear(); }, 1200);
         };
