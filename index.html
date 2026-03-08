@@ -81,28 +81,28 @@
         <p class="text-xs opacity-50 mb-8 font-bold tracking-wider">Grupos que você participa</p>
         
         <div class="flex gap-3 mb-8">
-            <button onclick="window.abrirModalCriarLiga()" class="ios-btn flex-1 bg-blue-600 py-4 rounded-2xl font-black uppercase text-[10px] shadow-xl shadow-blue-500/20"><i class="fas fa-plus mr-1"></i> Criar Nova</button>
-            <button onclick="window.abrirModalEntrarLiga()" class="ios-btn flex-1 bg-white/10 py-4 rounded-2xl font-black uppercase text-[10px]"><i class="fas fa-key mr-1"></i> Usar Código</button>
+            <button id="btn-criar-liga" class="ios-btn flex-1 bg-blue-600 py-4 rounded-2xl font-black uppercase text-[10px] shadow-xl shadow-blue-500/20"><i class="fas fa-plus mr-1"></i> Criar Nova</button>
+            <button id="btn-entrar-liga" class="ios-btn flex-1 bg-white/10 py-4 rounded-2xl font-black uppercase text-[10px]"><i class="fas fa-key mr-1"></i> Usar Código</button>
         </div>
         
         <div class="flex-1 overflow-y-auto pb-10 space-y-3" id="lista-ligas-disponiveis">
             <div class="text-center opacity-40 text-xs mt-10">Buscando suas ligas...</div>
         </div>
         
-        <button onclick="window.sair()" class="text-red-400 text-xs font-black uppercase mt-6 opacity-50 text-center w-full py-4">Fazer Logout</button>
+        <button id="btn-sair-ligas" class="text-red-400 text-xs font-black uppercase mt-6 opacity-50 text-center w-full py-4">Fazer Logout</button>
     </div>
 
     <div id="main-app" class="max-w-md mx-auto hidden">
         <header class="p-6 pt-10 flex justify-between items-center border-b border-white/5 pb-4 mb-4">
             <div class="flex flex-col w-2/3">
                 <h1 id="nome-liga-header" class="text-xl font-black italic uppercase truncate">Nome da Liga</h1>
-                <span id="badge-codigo" onclick="window.copiarCodigo()" class="text-[9px] font-black text-blue-400 mt-1 cursor-pointer w-fit bg-blue-500/10 px-2 py-1 rounded-md transition hover:bg-blue-500/20">
+                <span id="badge-codigo" class="text-[9px] font-black text-blue-400 mt-1 cursor-pointer w-fit bg-blue-500/10 px-2 py-1 rounded-md transition hover:bg-blue-500/20">
                     <i class="fas fa-copy mr-1"></i> ID: <span id="codigo-texto">...</span>
                 </span>
             </div>
             <div class="flex gap-2">
-                <button id="btnAdmin" onclick="window.abrirAdmin()" class="hidden glass-card px-4 py-2 rounded-2xl text-orange-400"><i class="fas fa-crown"></i></button>
-                <button onclick="window.copiarPix()" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase">PIX</button>
+                <button id="btnAdmin" class="hidden glass-card px-4 py-2 rounded-2xl text-orange-400"><i class="fas fa-crown"></i></button>
+                <button id="btnPix" class="glass-card px-4 py-2 rounded-2xl text-[10px] font-black uppercase">PIX</button>
             </div>
         </header>
 
@@ -114,19 +114,19 @@
                     <div class="flex justify-around items-center pt-4">
                         <div class="text-center w-2/5">
                             <input type="text" id="nomeA" value="TIME A" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-full outline-none">
-                            <div id="pontosA" class="placar-numero text-blue-400 ios-btn" onclick="window.alterarPlacar('A', 1)">0</div>
-                            <button onclick="window.alterarPlacar('A', -1)" class="opacity-20 mt-4 text-xs font-bold">-1 PONTO</button>
+                            <div id="pontosA" class="placar-numero text-blue-400 ios-btn">0</div>
+                            <button id="btnMenosA" class="opacity-20 mt-4 text-xs font-bold">-1 PONTO</button>
                         </div>
                         <div class="font-black opacity-10 text-2xl italic pt-6">VS</div>
                         <div class="text-center w-2/5">
                             <input type="text" id="nomeB" value="TIME B" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-full outline-none">
-                            <div id="pontosB" class="placar-numero text-orange-400 ios-btn" onclick="window.alterarPlacar('B', 1)">0</div>
-                            <button onclick="window.alterarPlacar('B', -1)" class="opacity-20 mt-4 text-xs font-bold">-1 PONTO</button>
+                            <div id="pontosB" class="placar-numero text-orange-400 ios-btn">0</div>
+                            <button id="btnMenosB" class="opacity-20 mt-4 text-xs font-bold">-1 PONTO</button>
                         </div>
                     </div>
                     <div id="admin-match-controls" class="hidden mt-8 pt-6 border-t border-white/10 space-y-3">
-                        <button onclick="window.finalizarSet()" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest">Finalizar Set e Salvar ✅</button>
-                        <button onclick="window.zerarPlacar()" class="ios-btn w-full bg-white/5 py-3 rounded-2xl font-bold uppercase text-[9px] opacity-40">Zerar Placar sem Salvar</button>
+                        <button id="btnFinalizarSet" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest">Finalizar Set e Salvar ✅</button>
+                        <button id="btnZerarPlacar" class="ios-btn w-full bg-white/5 py-3 rounded-2xl font-bold uppercase text-[9px] opacity-40">Zerar Placar sem Salvar</button>
                     </div>
                 </div>
 
@@ -143,16 +143,16 @@
                     <div class="h-1.5 bg-white/10 rounded-full mt-4 overflow-hidden"><div id="barra" class="h-full bg-green-500 transition-all duration-700"></div></div>
                     <p id="infoFin" class="text-[9px] mt-2 opacity-40 font-bold uppercase">0/0 Pagos</p>
                 </div>
-                <button onclick="window.entrarNaLista()" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Me Adicionar ao Jogo</button>
+                <button id="btnEntrarLista" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Me Adicionar ao Jogo</button>
                 <div class="flex gap-2">
                     <input type="text" id="nomeConvidado" placeholder="Convidado..." class="glass-input flex-1">
                     <select id="nivelConvidado" class="glass-input w-20 text-center px-1 bg-black text-[10px] font-black">
                         <option value="1">⭐ 1</option><option value="2" selected>⭐ 2</option><option value="3">⭐ 3</option><option value="4">⭐ 4</option><option value="5">⭐ 5</option>
                     </select>
-                    <button onclick="window.adicionarConvidado()" class="ios-btn bg-white/20 px-6 rounded-2xl font-black">+</button>
+                    <button id="btnAdicionarConvidado" class="ios-btn bg-white/20 px-6 rounded-2xl font-black">+</button>
                 </div>
                 <ul id="listaJogadores" class="space-y-2"></ul>
-                <button id="btnLimparSemana" onclick="window.limparListaSemana()" class="hidden w-full py-4 text-[9px] font-black uppercase opacity-20">Zerar Lista</button>
+                <button id="btnLimparSemana" class="hidden w-full py-4 text-[9px] font-black uppercase opacity-20">Zerar Lista</button>
             </div>
 
             <div id="aba-sorteio" class="aba-content hidden space-y-4">
@@ -162,7 +162,7 @@
                         <span class="text-xs font-black uppercase opacity-40">Jogadores por Time</span>
                         <input type="number" id="qtdPorTime" value="6" class="bg-transparent text-right font-black text-2xl w-12 text-blue-500 outline-none">
                     </div>
-                    <button onclick="window.animarESortear()" class="ios-btn w-full bg-white text-black py-5 rounded-2xl font-black uppercase">Sortear p/ Todos 🎲</button>
+                    <button id="btnSortear" class="ios-btn w-full bg-white text-black py-5 rounded-2xl font-black uppercase">Sortear p/ Todos 🎲</button>
                 </div>
                 
                 <h2 class="text-center text-[10px] font-black opacity-40 uppercase tracking-widest mt-2 mb-2">Escalação Atual</h2>
@@ -172,7 +172,7 @@
                     <div class="text-center opacity-40 text-xs py-10">Aguardando o Admin sortear...</div>
                 </div>
                 
-                <button id="btnAtivarMatch" onclick="window.ativarMatchSorteada()" class="hidden ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Ativar Partida (Placar) 🏐</button>
+                <button id="btnAtivarMatch" class="hidden ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Ativar Partida (Placar) 🏐</button>
             </div>
 
             <div id="aba-ranking" class="aba-content hidden space-y-6">
@@ -191,9 +191,9 @@
                     <img id="perfilFotoBadge" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full border-4 border-white/10 mb-4 object-cover">
                     <h2 id="perfilNomeBadge" class="text-2xl font-black uppercase">Atleta</h2>
                     <span id="perfilNivelBadge" class="px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[10px] font-black mt-2">NÍVEL 3</span>
-                    <button onclick="window.editarPerfil()" class="ios-btn w-full mt-8 bg-white/10 py-4 rounded-2xl font-black uppercase text-xs">Editar Meus Dados</button>
-                    <button onclick="window.voltarLigas()" class="ios-btn w-full mt-4 bg-orange-600/20 text-orange-400 py-4 rounded-2xl font-black uppercase text-xs">Trocar de Liga</button>
-                    <button onclick="window.sair()" class="text-red-400 text-[10px] font-black uppercase mt-8 opacity-50">Sair da Conta</button>
+                    <button id="btnEditarPerfil" class="ios-btn w-full mt-8 bg-white/10 py-4 rounded-2xl font-black uppercase text-xs">Editar Meus Dados</button>
+                    <button id="btnVoltarLigas" class="ios-btn w-full mt-4 bg-orange-600/20 text-orange-400 py-4 rounded-2xl font-black uppercase text-xs">Trocar de Liga</button>
+                    <button id="btnSairConta" class="text-red-400 text-[10px] font-black uppercase mt-8 opacity-50">Sair da Conta</button>
                 </div>
                 
                 <div id="perfil-edicao" class="glass-card rounded-[2.5rem] p-6 hidden space-y-4 mt-4 animate-in">
@@ -202,18 +202,18 @@
                     <select id="perfilNivel" class="glass-input bg-black text-white text-sm">
                         <option value="1">1 - Iniciante</option><option value="2">2 - Básico</option><option value="3" selected>3 - Intermediário</option><option value="4">4 - Avançado</option><option value="5">5 - Profissional</option>
                     </select>
-                    <button onclick="window.salvarPerfil(event)" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Salvar Alterações</button>
+                    <button id="btnSalvarPerfil" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Salvar Alterações</button>
                 </div>
             </div>
         </main>
 
         <footer class="fixed bottom-4 left-0 w-full z-40 px-4">
             <nav class="glass-menu rounded-[2rem] p-1 flex justify-around items-center max-w-md mx-auto">
-                <button onclick="window.mudarAba('placar')" id="btn-tab-placar" class="tab-btn active-tab p-4 flex flex-col items-center text-xl"><i class="fas fa-volleyball-ball"></i></button>
-                <button onclick="window.mudarAba('lista')" id="btn-tab-lista" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-users"></i></button>
-                <button onclick="window.mudarAba('sorteio')" id="btn-tab-sorteio" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-random"></i></button>
-                <button onclick="window.mudarAba('ranking')" id="btn-tab-ranking" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-trophy"></i></button>
-                <button onclick="window.mudarAba('perfil')" id="btn-tab-perfil" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-user"></i></button>
+                <button id="btn-tab-placar" class="tab-btn active-tab p-4 flex flex-col items-center text-xl"><i class="fas fa-volleyball-ball"></i></button>
+                <button id="btn-tab-lista" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-users"></i></button>
+                <button id="btn-tab-sorteio" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-random"></i></button>
+                <button id="btn-tab-ranking" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-trophy"></i></button>
+                <button id="btn-tab-perfil" class="tab-btn opacity-40 p-4 flex flex-col items-center text-xl"><i class="fas fa-user"></i></button>
             </nav>
         </footer>
     </div>
@@ -221,6 +221,8 @@
     <div id="shufflingContainer" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/90 hidden">
         <div class="text-6xl animate-spin mb-4">🎲</div>
         <div class="font-black text-blue-400 tracking-widest animate-pulse uppercase text-xs">O Admin está sorteando os times...</div>
+        <!-- FIX: Botão de timeout para desbloquear se a animação travar -->
+        <button id="btnCancelarLoading" class="mt-8 text-[10px] text-white/30 font-bold uppercase">Cancelar</button>
     </div>
 
     <div id="admin-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/95 hidden">
@@ -234,7 +236,7 @@
                 <p class="text-[10px] font-black uppercase opacity-50 mb-1">Caixa Total Acumulado</p>
                 <p id="adm-caixa" class="text-3xl font-black text-green-400">R$ 0,00</p>
             </div>
-            <button onclick="window.fecharFinanceiro()" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-green-500/20">Finalizar e Pagar Semana ✅</button>
+            <button id="btnFecharFinanceiro" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-green-500/20">Finalizar e Pagar Semana ✅</button>
             <div class="text-left pt-2">
                 <p class="text-[10px] font-black uppercase opacity-40 mb-2">Histórico de Pagamentos:</p>
                 <ul id="listaFinanceira" class="text-[10px] space-y-1 h-32 overflow-y-auto pr-2 divide-y divide-white/5"></ul>
@@ -242,11 +244,10 @@
             
             <div class="bg-red-500/10 p-4 rounded-2xl mt-4 border border-red-500/20">
                 <p class="text-[10px] font-black text-red-400 uppercase opacity-80 mb-2">Zona de Perigo: Transferir Admin ⚠️</p>
-                <select id="selectNovoAdmin" class="glass-input text-[10px] w-full mb-2 bg-black">
-                    </select>
-                <button onclick="window.transferirAdmin(event)" class="ios-btn w-full bg-red-600/20 text-red-400 py-3 rounded-xl font-black text-[9px] uppercase border border-red-500/30">Passar a Coroa 👑</button>
+                <select id="selectNovoAdmin" class="glass-input text-[10px] w-full mb-2 bg-black"></select>
+                <button id="btnTransferirAdmin" class="ios-btn w-full bg-red-600/20 text-red-400 py-3 rounded-xl font-black text-[9px] uppercase border border-red-500/30">Passar a Coroa 👑</button>
             </div>
-            <button onclick="window.fecharAdmin()" class="ios-btn w-full bg-white/10 py-5 rounded-2xl font-black uppercase text-xs mt-2">Sair</button>
+            <button id="btnFecharAdmin" class="ios-btn w-full bg-white/10 py-5 rounded-2xl font-black uppercase text-xs mt-2">Sair</button>
         </div>
     </div>
 
@@ -254,8 +255,8 @@
         <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm text-center space-y-4">
             <h2 class="text-xl font-black text-blue-400 uppercase tracking-widest mb-4">Criar Nova Liga</h2>
             <input type="text" id="inputNomeLiga" class="glass-input text-center text-sm font-bold" placeholder="Nome do Grupo (Ex: Vôlei Terça)">
-            <button onclick="window.confirmarCriarLiga()" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Criar e Gerar Código</button>
-            <button onclick="document.getElementById('modal-nova-liga').classList.add('hidden')" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs mt-2">Cancelar</button>
+            <button id="btnConfirmarCriarLiga" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Criar e Gerar Código</button>
+            <button id="btnCancelarCriarLiga" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs mt-2">Cancelar</button>
         </div>
     </div>
 
@@ -264,8 +265,24 @@
             <h2 class="text-xl font-black text-orange-400 uppercase tracking-widest mb-4">Entrar na Liga</h2>
             <p class="text-[10px] opacity-50 mb-4">Peça o código de 6 letras para o Admin do seu grupo.</p>
             <input type="text" id="inputCodigoLiga" class="glass-input text-center text-2xl font-black uppercase tracking-[0.5em]" placeholder="XXXXXX" maxlength="6">
-            <button onclick="window.confirmarEntrarCodigo()" class="ios-btn w-full bg-orange-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Entrar Agora</button>
-            <button onclick="document.getElementById('modal-codigo-liga').classList.add('hidden')" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs mt-2">Cancelar</button>
+            <button id="btnConfirmarEntrarCodigo" class="ios-btn w-full bg-orange-600 py-4 rounded-2xl font-black uppercase text-xs mt-4">Entrar Agora</button>
+            <button id="btnCancelarEntrarCodigo" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs mt-2">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal PIX -->
+    <div id="modal-pix" class="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-black/95 hidden animate-in">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm text-center space-y-4">
+            <h2 class="text-xl font-black text-green-400 uppercase tracking-widest mb-4">💰 Pagamentos PIX</h2>
+            <div class="bg-white/5 p-4 rounded-2xl text-left">
+                <p class="text-[10px] font-black uppercase opacity-50 mb-3">Valor por jogador esta semana:</p>
+                <p id="pixValorPorJogador" class="text-3xl font-black text-green-400 text-center">R$ 0,00</p>
+            </div>
+            <div class="bg-white/5 p-4 rounded-2xl text-left">
+                <p class="text-[10px] font-black uppercase opacity-50 mb-3">Situação dos pagamentos:</p>
+                <div id="pixListaPagamentos" class="space-y-2 max-h-48 overflow-y-auto"></div>
+            </div>
+            <button id="btnFecharPix" class="ios-btn w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs mt-2">Fechar</button>
         </div>
     </div>
 
@@ -288,16 +305,21 @@
         const auth = getAuth(app);
         const googleProvider = new GoogleAuthProvider();
 
+        // --- STATE ---
         let colJogadores, colHistorico, colFinanceiro, placarRef, configRef, sorteioRef;
         let ligaAtualId = null;
         let isLigaAdmin = false;
         let codigoLigaAtual = "";
-
-        let userAtual = null, perfilAtual = null, jogadoresLocal = [], unsubscribes = [], valorQuadraAtual = 350, caixaTotalLocal = 0;
+        let userAtual = null, perfilAtual = null, jogadoresLocal = [], unsubscribes = [];
+        let valorQuadraAtual = 350, caixaTotalLocal = 0;
         let timesSorteadosGlobal = [], filaFilaGlobal = [], jogadorTroca = null;
+        // FIX: Cache local do placar para evitar getDoc() a cada clique
+        let placarLocal = { pontosA: 0, pontosB: 0, nomeA: "TIME A", nomeB: "TIME B" };
+        // FIX: Timer para fallback do loading de sorteio
+        let sorteioLoadingTimer = null;
 
-        // --- UI TOAST E MODAL ---
-        window.showToast = (msg, type = 'success') => {
+        // --- UI TOAST ---
+        const showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const color = type === 'success' ? 'bg-green-500' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
@@ -307,13 +329,13 @@
             container.appendChild(toast);
             requestAnimationFrame(() => toast.classList.add('toast-active', 'translate-y-0', 'opacity-100'));
             setTimeout(() => {
-                toast.classList.remove('toast-active', 'translate-y-0', 'opacity-100');
+                toast.classList.remove('toast-active');
                 toast.classList.add('translate-y-[-150%]', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         };
 
-        window.showConfirm = (msg, onConfirmCallback) => {
+        const showConfirm = (msg, onConfirmCallback) => {
             document.getElementById('confirm-message').innerText = msg;
             const modal = document.getElementById('confirm-modal');
             modal.classList.remove('hidden');
@@ -328,23 +350,48 @@
         };
 
         const sons = { sorteio: new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3') };
-        window.tocarSom = (nomeSom) => { try { sons[nomeSom].currentTime = 0; sons[nomeSom].play().catch(e => {}); } catch(e) {} };
+        const tocarSom = (nomeSom) => { try { sons[nomeSom].currentTime = 0; sons[nomeSom].play().catch(() => {}); } catch(e) {} };
+
+        // --- ABA ---
+        const mudarAba = (aba) => {
+            document.querySelectorAll('.aba-content').forEach(a => a.classList.add('hidden'));
+            document.getElementById('aba-' + aba).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.add('opacity-40'); b.classList.remove('active-tab'); });
+            document.getElementById('btn-tab-' + aba).classList.remove('opacity-40');
+            document.getElementById('btn-tab-' + aba).classList.add('active-tab');
+        };
 
         // --- AUTH ---
-        document.getElementById('google-login-btn').onclick = async () => { try { await signInWithPopup(auth, googleProvider); } catch (err) {} };
-        document.getElementById('email-login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value).catch(err => showToast("Acesso inválido", "error")); };
-        document.getElementById('register-btn').onclick = () => { createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value).catch(err => showToast("Erro: " + err.message, "error")); };
-        window.sair = () => signOut(auth);
+        document.getElementById('google-login-btn').onclick = async () => {
+            try { await signInWithPopup(auth, googleProvider); } catch (err) { showToast("Erro no login Google", "error"); }
+        };
+        document.getElementById('email-login-btn').onclick = () => {
+            signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value)
+                .catch(() => showToast("E-mail ou senha inválidos", "error"));
+        };
+        document.getElementById('register-btn').onclick = () => {
+            createUserWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passInput').value)
+                .catch(err => showToast("Erro: " + err.message, "error"));
+        };
+
+        const sair = () => signOut(auth);
+        document.getElementById('btn-sair-ligas').onclick = sair;
+        document.getElementById('btnSairConta').onclick = sair;
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                userAtual = user; document.getElementById('auth-screen').classList.add('hidden');
+                userAtual = user;
+                document.getElementById('auth-screen').classList.add('hidden');
                 await carregarPerfil();
-                document.getElementById('league-screen').classList.remove('hidden'); carregarLigasDisponiveis();
+                document.getElementById('league-screen').classList.remove('hidden');
+                carregarLigasDisponiveis();
             } else {
-                userAtual = null; ligaAtualId = null; document.getElementById('auth-screen').classList.remove('hidden'); 
-                document.getElementById('league-screen').classList.add('hidden'); document.getElementById('main-app').classList.add('hidden');
+                userAtual = null; ligaAtualId = null;
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('league-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.add('hidden');
                 unsubscribes.forEach(u => u());
+                unsubscribes = [];
             }
         });
 
@@ -355,59 +402,106 @@
                 document.getElementById('perfilNomeBadge').innerText = perfilAtual.nome;
                 document.getElementById('perfilFotoBadge').src = perfilAtual.fotoUrl || userAtual.photoURL || "https://via.placeholder.com/150";
                 document.getElementById('perfilNivelBadge').innerText = "NÍVEL " + (perfilAtual.nivel || 3);
-            } else { window.editarPerfil(); }
+            } else {
+                editarPerfil();
+            }
         }
 
-        window.editarPerfil = () => {
-            if (perfilAtual) { document.getElementById('perfilNome').value = perfilAtual.nome || ""; document.getElementById('perfilFotoUrl').value = perfilAtual.fotoUrl || ""; document.getElementById('perfilNivel').value = perfilAtual.nivel || 3; }
+        const editarPerfil = () => {
+            if (perfilAtual) {
+                document.getElementById('perfilNome').value = perfilAtual.nome || "";
+                document.getElementById('perfilFotoUrl').value = perfilAtual.fotoUrl || "";
+                document.getElementById('perfilNivel').value = perfilAtual.nivel || 3;
+            }
             document.getElementById('perfil-edicao').classList.toggle('hidden');
         };
 
-        window.salvarPerfil = async (event) => {
+        document.getElementById('btnEditarPerfil').onclick = editarPerfil;
+        document.getElementById('btnSalvarPerfil').onclick = async () => {
             const n = document.getElementById('perfilNome').value;
-            if(!n) return showToast("Insira um nome!", "error");
+            if (!n) return showToast("Insira um nome!", "error");
             try {
-                await setDoc(doc(db, "usuarios", userAtual.uid), { nome: n.toUpperCase(), fotoUrl: document.getElementById('perfilFotoUrl').value, nivel: parseInt(document.getElementById('perfilNivel').value), uid: userAtual.uid });
-                await carregarPerfil(); document.getElementById('perfil-edicao').classList.add('hidden'); showToast("Perfil salvo", "success");
-            } catch(e) { showToast("Erro: " + e.message, "error"); }
+                await setDoc(doc(db, "usuarios", userAtual.uid), {
+                    nome: n.toUpperCase(),
+                    fotoUrl: document.getElementById('perfilFotoUrl').value,
+                    nivel: parseInt(document.getElementById('perfilNivel').value),
+                    uid: userAtual.uid
+                });
+                await carregarPerfil();
+                document.getElementById('perfil-edicao').classList.add('hidden');
+                showToast("Perfil salvo", "success");
+            } catch (e) { showToast("Erro: " + e.message, "error"); }
         };
+
+        // --- TABS ---
+        ['placar', 'lista', 'sorteio', 'ranking', 'perfil'].forEach(aba => {
+            document.getElementById('btn-tab-' + aba).onclick = () => mudarAba(aba);
+        });
 
         // --- LIGAS ---
         function carregarLigasDisponiveis() {
-            onSnapshot(query(collection(db, "ligas"), where("membros", "array-contains", userAtual.uid)), snap => {
-                const lista = document.getElementById('lista-ligas-disponiveis'); lista.innerHTML = '';
-                if(snap.empty) return lista.innerHTML = '<div class="text-center opacity-40 text-xs mt-10">Você não participa de ligas.</div>';
+            const unsub = onSnapshot(query(collection(db, "ligas"), where("membros", "array-contains", userAtual.uid)), snap => {
+                const lista = document.getElementById('lista-ligas-disponiveis');
+                lista.innerHTML = '';
+                if (snap.empty) {
+                    lista.innerHTML = '<div class="text-center opacity-40 text-xs mt-10">Você não participa de ligas.</div>';
+                    return;
+                }
                 snap.forEach(d => {
-                    const l = d.data(); const adminTag = l.adminUid === userAtual.uid ? '<span class="text-[8px] bg-orange-500 text-white px-2 py-1 rounded-full font-black">👑 ADMIN</span>' : '';
-                    lista.innerHTML += `<div onclick="window.entrarLiga('${d.id}', '${l.nome}', '${l.adminUid}', '${l.codigo}')" class="glass-card p-5 rounded-[1.5rem] flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors animate-in"><span class="font-bold tracking-wide">${l.nome}</span>${adminTag}</div>`;
+                    const l = d.data();
+                    const adminTag = l.adminUid === userAtual.uid ? '<span class="text-[8px] bg-orange-500 text-white px-2 py-1 rounded-full font-black">👑 ADMIN</span>' : '';
+                    const el = document.createElement('div');
+                    el.className = 'glass-card p-5 rounded-[1.5rem] flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors animate-in';
+                    el.innerHTML = `<span class="font-bold tracking-wide">${l.nome}</span>${adminTag}`;
+                    el.onclick = () => entrarLiga(d.id, l.nome, l.adminUid, l.codigo);
+                    lista.appendChild(el);
                 });
             });
+            unsubscribes.push(unsub);
         }
 
-        window.abrirModalCriarLiga = () => { document.getElementById('inputNomeLiga').value = ''; document.getElementById('modal-nova-liga').classList.remove('hidden'); };
-        window.confirmarCriarLiga = async () => {
+        document.getElementById('btn-criar-liga').onclick = () => {
+            document.getElementById('inputNomeLiga').value = '';
+            document.getElementById('modal-nova-liga').classList.remove('hidden');
+        };
+        document.getElementById('btnCancelarCriarLiga').onclick = () => document.getElementById('modal-nova-liga').classList.add('hidden');
+        document.getElementById('btnConfirmarCriarLiga').onclick = async () => {
             const nomeLiga = document.getElementById('inputNomeLiga').value;
-            if(!nomeLiga) return showToast("Digite um nome!", "error");
+            if (!nomeLiga) return showToast("Digite um nome!", "error");
             document.getElementById('modal-nova-liga').classList.add('hidden');
             const codigoUnico = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const docRef = await addDoc(collection(db, "ligas"), { nome: nomeLiga.toUpperCase(), adminUid: userAtual.uid, criadoEm: Date.now(), codigo: codigoUnico, membros: [userAtual.uid] });
+            const docRef = await addDoc(collection(db, "ligas"), {
+                nome: nomeLiga.toUpperCase(), adminUid: userAtual.uid,
+                criadoEm: Date.now(), codigo: codigoUnico, membros: [userAtual.uid]
+            });
             await setDoc(doc(db, `ligas/${docRef.id}/sistema/configuracao`), { valorQuadra: 350 });
             await setDoc(doc(db, `ligas/${docRef.id}/sistema/match_atual`), { pontosA: 0, pontosB: 0 });
             showToast(`Liga criada! Código: ${codigoUnico}`, "success");
         };
 
-        window.abrirModalEntrarLiga = () => { document.getElementById('inputCodigoLiga').value = ''; document.getElementById('modal-codigo-liga').classList.remove('hidden'); };
-        window.confirmarEntrarCodigo = async () => {
+        document.getElementById('btn-entrar-liga').onclick = () => {
+            document.getElementById('inputCodigoLiga').value = '';
+            document.getElementById('modal-codigo-liga').classList.remove('hidden');
+        };
+        document.getElementById('btnCancelarEntrarCodigo').onclick = () => document.getElementById('modal-codigo-liga').classList.add('hidden');
+        document.getElementById('btnConfirmarEntrarCodigo').onclick = async () => {
             const codigoInput = document.getElementById('inputCodigoLiga').value;
             const querySnapshot = await getDocs(query(collection(db, "ligas"), where("codigo", "==", codigoInput.toUpperCase())));
-            if(querySnapshot.empty) return showToast("Código incorreto.", "error");
+            if (querySnapshot.empty) return showToast("Código incorreto.", "error");
             document.getElementById('modal-codigo-liga').classList.add('hidden');
             await updateDoc(doc(db, "ligas", querySnapshot.docs[0].id), { membros: arrayUnion(userAtual.uid) });
             showToast("Você entrou na Liga!", "success");
         };
 
-        window.entrarLiga = (id, nome, adminUid, codigo) => {
-            ligaAtualId = id; isLigaAdmin = (userAtual.uid === adminUid); codigoLigaAtual = codigo || "ANTIGO";
+        function entrarLiga(id, nome, adminUid, codigo) {
+            // FIX: Limpar escutas antigas antes de iniciar novas
+            unsubscribes.forEach(u => u());
+            unsubscribes = [];
+
+            ligaAtualId = id;
+            isLigaAdmin = (userAtual.uid === adminUid);
+            codigoLigaAtual = codigo || "ANTIGO";
+
             document.getElementById('nome-liga-header').innerText = nome;
             document.getElementById('codigo-texto').innerText = codigoLigaAtual;
             document.getElementById('btnAdmin').classList.toggle('hidden', !isLigaAdmin);
@@ -425,39 +519,101 @@
             document.getElementById('league-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             iniciarEscutas();
+        }
+
+        const voltarLigas = () => {
+            unsubscribes.forEach(u => u());
+            unsubscribes = [];
+            ligaAtualId = null;
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('league-screen').classList.remove('hidden');
+            carregarLigasDisponiveis();
         };
 
-        window.voltarLigas = () => { unsubscribes.forEach(u => u()); unsubscribes = []; ligaAtualId = null; document.getElementById('main-app').classList.add('hidden'); document.getElementById('league-screen').classList.remove('hidden'); };
-        window.copiarCodigo = () => { navigator.clipboard.writeText(codigoLigaAtual); showToast(`Código copiado!`, "success"); };
+        document.getElementById('btnVoltarLigas').onclick = voltarLigas;
+        document.getElementById('badge-codigo').onclick = () => {
+            navigator.clipboard.writeText(codigoLigaAtual);
+            showToast(`Código copiado!`, "success");
+        };
+
+        // --- PIX MODAL (FIX: função implementada) ---
+        document.getElementById('btnPix').onclick = () => {
+            const total = jogadoresLocal.length > 0 ? valorQuadraAtual / jogadoresLocal.length : 0;
+            document.getElementById('pixValorPorJogador').innerText = `R$ ${total.toFixed(2)}`;
+            const lista = document.getElementById('pixListaPagamentos');
+            lista.innerHTML = '';
+            jogadoresLocal.forEach(j => {
+                const color = j.pago ? 'text-green-400' : 'text-red-400';
+                const status = j.pago ? '✅ Pago' : '⏳ Pendente';
+                lista.innerHTML += `<div class="flex justify-between items-center py-2 border-b border-white/5"><span class="text-[11px] font-bold">${j.nome}</span><span class="text-[10px] font-black ${color}">${status}</span></div>`;
+            });
+            document.getElementById('modal-pix').classList.remove('hidden');
+        };
+        document.getElementById('btnFecharPix').onclick = () => document.getElementById('modal-pix').classList.add('hidden');
 
         // --- ESCUTAS DA LIGA ---
         function iniciarEscutas() {
-            unsubscribes.push(onSnapshot(configRef, s => { if(s.exists()){ valorQuadraAtual = s.data().valorQuadra || 350; document.getElementById('valorQuadraSemana').value = valorQuadraAtual; } }));
+            unsubscribes.push(onSnapshot(configRef, s => {
+                if (s.exists()) {
+                    valorQuadraAtual = s.data().valorQuadra || 350;
+                    document.getElementById('valorQuadraSemana').value = valorQuadraAtual;
+                }
+            }));
 
             unsubscribes.push(onSnapshot(query(colJogadores, orderBy("nome")), snap => {
-                const lista = document.getElementById('listaJogadores'); lista.innerHTML = ''; let pagos = 0;
-                jogadoresLocal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                const lista = document.getElementById('listaJogadores');
+                lista.innerHTML = '';
+                let pagos = 0;
+                jogadoresLocal = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
                 jogadoresLocal.forEach(j => {
-                    if(j.pago) pagos++;
-                    const btnPix = isLigaAdmin ? `<button onclick="window.togglePix('${j.id}', ${j.pago})" class="px-4 py-2 rounded-xl ${j.pago ? 'bg-green-600' : 'bg-red-600'} text-[9px] font-black">PIX</button>` : `<span class="text-[9px] font-bold ${j.pago ? 'text-green-500' : 'text-red-500'}">${j.pago ? 'OK' : 'PENDENTE'}</span>`;
-                    const btnDel = (isLigaAdmin || userAtual.uid === j.uid) ? `<button onclick="window.deletar('${j.id}')" class="opacity-20 px-2"><i class="fas fa-trash"></i></button>` : '';
-                    const starHtml = isLigaAdmin ? `<div class="text-[9px] opacity-60 mt-1 cursor-pointer hover:text-blue-400" onclick="window.mudarNivel('${j.id}', ${j.nivel || 2})">${"★".repeat(j.nivel||2)} <i class="fas fa-pen text-[8px] ml-1 opacity-50"></i></div>` : `<div class="text-[9px] opacity-40 mt-1">${"★".repeat(j.nivel||2)}</div>`;
+                    if (j.pago) pagos++;
+                    const btnPix = isLigaAdmin
+                        ? `<button data-id="${j.id}" data-pago="${j.pago}" class="btn-toggle-pix px-4 py-2 rounded-xl ${j.pago ? 'bg-green-600' : 'bg-red-600'} text-[9px] font-black">PIX</button>`
+                        : `<span class="text-[9px] font-bold ${j.pago ? 'text-green-500' : 'text-red-500'}">${j.pago ? 'OK' : 'PENDENTE'}</span>`;
+                    const btnDel = (isLigaAdmin || userAtual.uid === j.uid)
+                        ? `<button data-id="${j.id}" class="btn-deletar opacity-20 px-2"><i class="fas fa-trash"></i></button>` : '';
+                    const starHtml = isLigaAdmin
+                        ? `<div data-id="${j.id}" data-nivel="${j.nivel || 2}" class="btn-mudar-nivel text-[9px] opacity-60 mt-1 cursor-pointer hover:text-blue-400">${"★".repeat(j.nivel || 2)} <i class="fas fa-pen text-[8px] ml-1 opacity-50"></i></div>`
+                        : `<div class="text-[9px] opacity-40 mt-1">${"★".repeat(j.nivel || 2)}</div>`;
                     lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm tracking-wide">${j.nome}</div>${starHtml}</div><div class="flex items-center gap-3">${btnPix}${btnDel}</div></li>`;
                 });
-                const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual/jogadoresLocal.length : 0;
+
+                // Event delegation para botões da lista
+                lista.querySelectorAll('.btn-toggle-pix').forEach(btn => {
+                    btn.onclick = () => updateDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, btn.dataset.id), { pago: btn.dataset.pago !== 'true' });
+                });
+                lista.querySelectorAll('.btn-deletar').forEach(btn => {
+                    btn.onclick = () => showConfirm("Remover jogador?", () => deleteDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, btn.dataset.id)));
+                });
+                lista.querySelectorAll('.btn-mudar-nivel').forEach(btn => {
+                    btn.onclick = () => {
+                        const n = parseInt(btn.dataset.nivel);
+                        updateDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, btn.dataset.id), { nivel: n >= 5 ? 1 : n + 1 });
+                    };
+                });
+
+                const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual / jogadoresLocal.length : 0;
                 document.getElementById('vpp').innerText = "R$ " + (pagos * vpp).toFixed(2);
-                document.getElementById('barra').style.width = ((pagos/jogadoresLocal.length)*100) + "%";
+                document.getElementById('barra').style.width = ((pagos / jogadoresLocal.length) * 100) + "%";
                 document.getElementById('infoFin').innerText = `${pagos}/${jogadoresLocal.length} Pagos`;
             }));
 
-            // Escuta Sincronizada do Sorteio
+            // FIX: Escuta do sorteio com proteção contra loading infinito
             unsubscribes.push(onSnapshot(sorteioRef, s => {
-                if(s.exists()){
+                if (s.exists()) {
                     const d = s.data();
-                    if(d.isRolling) {
-                        window.tocarSom('sorteio');
+                    if (d.isRolling) {
+                        tocarSom('sorteio');
                         document.getElementById('shufflingContainer').classList.remove('hidden');
+                        // FIX: Fallback de 10s caso o Firebase não responda com isRolling=false
+                        clearTimeout(sorteioLoadingTimer);
+                        sorteioLoadingTimer = setTimeout(() => {
+                            document.getElementById('shufflingContainer').classList.add('hidden');
+                            showToast("Tempo esgotado. Tente novamente.", "error");
+                        }, 10000);
                     } else {
+                        clearTimeout(sorteioLoadingTimer);
                         document.getElementById('shufflingContainer').classList.add('hidden');
                         timesSorteadosGlobal = d.times || [];
                         filaFilaGlobal = d.fila || [];
@@ -471,65 +627,168 @@
             }));
 
             unsubscribes.push(onSnapshot(placarRef, s => {
-                if(s.exists()){
+                if (s.exists()) {
                     const d = s.data();
-                    document.getElementById('pontosA').innerText = d.pontosA || 0; document.getElementById('pontosB').innerText = d.pontosB || 0;
-                    document.getElementById('nomeA').value = d.nomeA || "TIME A"; document.getElementById('nomeB').value = d.nomeB || "TIME B";
+                    // FIX: Atualiza cache local
+                    placarLocal = { pontosA: d.pontosA || 0, pontosB: d.pontosB || 0, nomeA: d.nomeA || "TIME A", nomeB: d.nomeB || "TIME B" };
+                    document.getElementById('pontosA').innerText = placarLocal.pontosA;
+                    document.getElementById('pontosB').innerText = placarLocal.pontosB;
+                    document.getElementById('nomeA').value = placarLocal.nomeA;
+                    document.getElementById('nomeB').value = placarLocal.nomeB;
+
                     const nextMatchCard = document.getElementById('next-match-card'), nextInfo = document.getElementById('next-match-info');
                     let htmlProximos = "";
-                    if (d.timesProximos && d.timesProximos.length > 0) htmlProximos += d.timesProximos.map(t => `<div class="w-full bg-white/5 p-3 rounded-xl mb-2"><span class="text-[10px] font-black text-blue-400 block mb-1 uppercase tracking-widest">${t.nome}</span><span class="text-[11px] leading-relaxed opacity-90">${t.membros.join(', ')}</span></div>`).join('');
-                    if (d.reservas && d.reservas.length > 0) htmlProximos += `<div class="w-full mt-4 pt-4 border-t border-white/10"><span class="text-[10px] font-black opacity-40 uppercase tracking-widest block mb-2">Fila de Reservas:</span><span class="text-[11px] leading-relaxed opacity-70">${d.reservas.join(', ')}</span></div>`;
-                    if (htmlProximos !== "") { nextMatchCard.classList.remove('hidden'); nextInfo.innerHTML = htmlProximos; } else { nextMatchCard.classList.add('hidden'); }
+                    if (d.timesProximos && d.timesProximos.length > 0)
+                        htmlProximos += d.timesProximos.map(t => `<div class="w-full bg-white/5 p-3 rounded-xl mb-2"><span class="text-[10px] font-black text-blue-400 block mb-1 uppercase tracking-widest">${t.nome}</span><span class="text-[11px] leading-relaxed opacity-90">${t.membros.join(', ')}</span></div>`).join('');
+                    if (d.reservas && d.reservas.length > 0)
+                        htmlProximos += `<div class="w-full mt-4 pt-4 border-t border-white/10"><span class="text-[10px] font-black opacity-40 uppercase tracking-widest block mb-2">Fila de Reservas:</span><span class="text-[11px] leading-relaxed opacity-70">${d.reservas.join(', ')}</span></div>`;
+                    if (htmlProximos) { nextMatchCard.classList.remove('hidden'); nextInfo.innerHTML = htmlProximos; }
+                    else nextMatchCard.classList.add('hidden');
                 }
+            }));
+
+            // FIX: Escuta do financeiro_fechado (listaFinanceira agora é populada)
+            unsubscribes.push(onSnapshot(query(colFinanceiro, orderBy("data", "desc")), snap => {
+                const listaFin = document.getElementById('listaFinanceira');
+                listaFin.innerHTML = '';
+                snap.forEach(d => {
+                    const p = d.data();
+                    listaFin.innerHTML += `<li class="py-2 flex justify-between"><span>${p.dataString || "—"}</span><span class="font-black text-green-400">R$ ${(p.valor || 0).toFixed(2)}</span></li>`;
+                });
             }));
 
             unsubscribes.push(onSnapshot(query(colHistorico, orderBy("criadoEm", "desc")), snap => {
                 const histDiv = document.getElementById('listaHistorico'), rankUl = document.getElementById('listaRanking');
-                histDiv.innerHTML = ''; rankUl.innerHTML = ''; let ranking = {}, acumulado = 0;
+                histDiv.innerHTML = ''; rankUl.innerHTML = '';
+                let ranking = {}, acumulado = 0;
+
                 snap.forEach(d => {
                     const p = d.data(); acumulado += (p.arrecadado || 0);
-                    let tHtml = p.times.map(t => { t.membros.forEach(m => { if(!ranking[m]) ranking[m]=0; ranking[m] += (t.vitorias || 0); }); return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-[11px] leading-relaxed w-2/3 tracking-wide">${t.membros.join(', ')}</div><div class="flex items-center gap-3"><span class="font-black text-blue-500">${t.vitorias || 0} vit</span></div></div>`; }).join('');
-                    const btnDelHist = isLigaAdmin ? `<button onclick="window.delHist('${d.id}')" class="admin-delete-btn ml-2"><i class="fas fa-trash text-lg"></i></button>` : '';
-                    histDiv.innerHTML += `<div class="glass-card p-6 rounded-[2rem] mb-4"><div class="flex justify-between items-center mb-3"><span class="text-[10px] opacity-30">${p.data}</span>${btnDelHist}</div>${tHtml}</div>`;
+                    let tHtml = p.times.map(t => {
+                        t.membros.forEach(m => { if (!ranking[m]) ranking[m] = 0; ranking[m] += (t.vitorias || 0); });
+                        return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><div class="text-[11px] leading-relaxed w-2/3 tracking-wide">${t.membros.join(', ')}</div><span class="font-black text-blue-500">${t.vitorias || 0} vit</span></div>`;
+                    }).join('');
+                    const btnDelHist = isLigaAdmin ? `<button data-id="${d.id}" class="btn-del-hist admin-delete-btn ml-2"><i class="fas fa-trash text-lg"></i></button>` : '';
+                    const el = document.createElement('div');
+                    el.className = 'glass-card p-6 rounded-[2rem] mb-4';
+                    el.innerHTML = `<div class="flex justify-between items-center mb-3"><span class="text-[10px] opacity-30">${p.data}</span>${btnDelHist}</div>${tHtml}`;
+                    histDiv.appendChild(el);
+                    if (isLigaAdmin) el.querySelector('.btn-del-hist')?.addEventListener('click', () => showConfirm("Apagar histórico?", () => deleteDoc(doc(db, `ligas/${ligaAtualId}/historico`, d.id))));
                 });
+
                 caixaTotalLocal = acumulado;
-                Object.entries(ranking).sort((a,b)=>b[1]-a[1]).forEach(([n, v], i) => { if(v > 0) rankUl.innerHTML += `<li class="flex justify-between p-4 text-xs"><span>${i+1}º ${n}</span><span class="font-bold">${v} vit</span></li>`; });
+                Object.entries(ranking).sort((a, b) => b[1] - a[1]).forEach(([n, v], i) => {
+                    if (v > 0) rankUl.innerHTML += `<li class="flex justify-between p-4 text-xs"><span>${i + 1}º ${n}</span><span class="font-bold">${v} vit</span></li>`;
+                });
             }));
         }
 
-        // --- FUNÇÕES DE LISTA E PLACAR ---
-        window.entrarNaLista = async () => { if(!perfilAtual) return; await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false }); showToast("Adicionado", "success"); };
-        window.adicionarConvidado = async () => { const i = document.getElementById('nomeConvidado'); if(i.value) await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: i.value.toUpperCase()+" (C)", nivel: parseInt(document.getElementById('nivelConvidado').value), pago: false }); i.value=""; };
-        window.togglePix = async (id, s) => await updateDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, id), {pago: !s});
-        window.mudarNivel = async (id, nivel) => await updateDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, id), { nivel: nivel >= 5 ? 1 : nivel + 1 });
-        window.deletar = async (id) => { showConfirm("Remover jogador?", async () => await deleteDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, id))); };
-        window.limparListaSemana = async () => { showConfirm("Zerar lista da semana?", async () => { for(let j of jogadoresLocal) await deleteDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, j.id)); }); };
-        
-        window.alterarPlacar = async (t, v) => { if(isLigaAdmin){ const d = (await getDoc(placarRef)).data(); await updateDoc(placarRef, { ['pontos'+t]: Math.max(0, (d['pontos'+t] || 0) + v) }); } };
-        window.zerarPlacar = async () => await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
+        // --- PLACAR (FIX: usa cache local, sem getDoc por clique) ---
+        document.getElementById('pontosA').onclick = () => { if (isLigaAdmin) alterarPlacar('A', 1); };
+        document.getElementById('pontosB').onclick = () => { if (isLigaAdmin) alterarPlacar('B', 1); };
+        document.getElementById('btnMenosA').onclick = () => { if (isLigaAdmin) alterarPlacar('A', -1); };
+        document.getElementById('btnMenosB').onclick = () => { if (isLigaAdmin) alterarPlacar('B', -1); };
+
+        const alterarPlacar = async (t, v) => {
+            if (!isLigaAdmin) return;
+            const novoValor = Math.max(0, placarLocal['pontos' + t] + v);
+            placarLocal['pontos' + t] = novoValor; // atualiza cache imediatamente
+            await updateDoc(placarRef, { ['pontos' + t]: novoValor });
+        };
+
+        document.getElementById('btnZerarPlacar').onclick = async () => {
+            placarLocal.pontosA = 0; placarLocal.pontosB = 0;
+            await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
+        };
+
+        // FIX: finalizarSet implementado
+        document.getElementById('btnFinalizarSet').onclick = async () => {
+            if (!isLigaAdmin) return;
+            if (placarLocal.pontosA === 0 && placarLocal.pontosB === 0) return showToast("Placar zerado, nada para salvar.", "error");
+
+            showConfirm(`Finalizar: ${placarLocal.nomeA} ${placarLocal.pontosA} x ${placarLocal.pontosB} ${placarLocal.nomeB}?`, async () => {
+                const vencedor = placarLocal.pontosA > placarLocal.pontosB ? placarLocal.nomeA : placarLocal.nomeB;
+                const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual / jogadoresLocal.length : 0;
+                const pagos = jogadoresLocal.filter(j => j.pago).length;
+                const arrecadado = pagos * vpp;
+
+                // Monta times com vitorias para histórico
+                const timesParaHistorico = [
+                    { nome: placarLocal.nomeA, membros: (await getDoc(placarRef)).data().membrosA || [], vitorias: placarLocal.pontosA > placarLocal.pontosB ? 1 : 0 },
+                    { nome: placarLocal.nomeB, membros: (await getDoc(placarRef)).data().membrosB || [], vitorias: placarLocal.pontosB > placarLocal.pontosA ? 1 : 0 }
+                ];
+
+                await addDoc(colHistorico, {
+                    times: timesParaHistorico,
+                    placar: `${placarLocal.pontosA} x ${placarLocal.pontosB}`,
+                    vencedor,
+                    arrecadado,
+                    data: new Date().toLocaleDateString('pt-BR'),
+                    criadoEm: Date.now()
+                });
+
+                await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
+                placarLocal.pontosA = 0; placarLocal.pontosB = 0;
+                showToast(`Set salvo! Vencedor: ${vencedor} 🏆`, "success");
+                mudarAba('ranking');
+            });
+        };
+
+        // --- LISTA ---
+        // FIX: Proteção contra duplicatas no entrarNaLista
+        document.getElementById('btnEntrarLista').onclick = async () => {
+            if (!perfilAtual) return showToast("Configure seu perfil primeiro", "error");
+            const jaEstaNaLista = jogadoresLocal.some(j => j.uid === userAtual.uid);
+            if (jaEstaNaLista) return showToast("Você já está na lista!", "info");
+            await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false });
+            showToast("Adicionado à lista!", "success");
+        };
+
+        document.getElementById('btnAdicionarConvidado').onclick = async () => {
+            const i = document.getElementById('nomeConvidado');
+            if (!i.value.trim()) return showToast("Digite o nome do convidado", "error");
+            await addDoc(colJogadores, { uid: "c_" + Date.now(), nome: i.value.toUpperCase().trim() + " (C)", nivel: parseInt(document.getElementById('nivelConvidado').value), pago: false });
+            i.value = "";
+            showToast("Convidado adicionado!", "success");
+        };
+
+        document.getElementById('btnLimparSemana').onclick = () => {
+            showConfirm("Zerar lista da semana? Esta ação não pode ser desfeita.", async () => {
+                for (let j of jogadoresLocal) await deleteDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, j.id));
+                showToast("Lista zerada!", "success");
+            });
+        };
 
         // --- SORTEIO SINCRONIZADO ---
-        window.animarESortear = async () => {
-            if(!isLigaAdmin) return;
+        document.getElementById('btnCancelarLoading').onclick = () => {
+            clearTimeout(sorteioLoadingTimer);
+            document.getElementById('shufflingContainer').classList.add('hidden');
+        };
+
+        document.getElementById('btnSortear').onclick = async () => {
+            if (!isLigaAdmin) return;
             const pagos = jogadoresLocal.filter(j => j.pago);
-            if(pagos.length < 2) return showToast("Mínimo 2 jogadores com PIX", "error");
-            
-            // Avisa todo mundo via Firebase que os dados estão rolando
+            if (pagos.length < 2) return showToast("Mínimo 2 jogadores com PIX confirmado", "error");
+
+            // FIX: Define isRolling=true com timestamp para outros usuários exibirem a animação
             await setDoc(sorteioRef, { isRolling: true, timestamp: Date.now() });
 
-            // Após 2s, processa localmente e salva no Firebase para todo mundo ver os times
             setTimeout(async () => {
-                const q = parseInt(document.getElementById('qtdPorTime').value), n = Math.floor(pagos.length / q);
-                const ord = [...pagos].sort((a,b) => (b.nivel||2) - (a.nivel||2));
-                const times = Array.from({length: n}, (_, i) => ({ nome: "TIME " + (i+1), membros: [], nivelTotal: 0, vitorias: 0 }));
-                
+                const q = parseInt(document.getElementById('qtdPorTime').value);
+                const n = Math.floor(pagos.length / q);
+                if (n < 1) {
+                    await setDoc(sorteioRef, { isRolling: false, times: [], fila: pagos.map(j => j.nome), timestamp: Date.now() });
+                    return showToast("Jogadores insuficientes para o tamanho de time.", "error");
+                }
+                const ord = [...pagos].sort((a, b) => (b.nivel || 2) - (a.nivel || 2));
+                const times = Array.from({ length: n }, (_, i) => ({ nome: "TIME " + (i + 1), membros: [], nivelTotal: 0, vitorias: 0 }));
                 ord.slice(0, n * q).forEach(j => {
-                    times.sort((a,b) => a.membros.length !== b.membros.length ? a.membros.length - b.membros.length : a.nivelTotal - b.nivelTotal);
-                    times[0].membros.push(j.nome); times[0].nivelTotal += (j.nivel||2);
+                    times.sort((a, b) => a.membros.length !== b.membros.length ? a.membros.length - b.membros.length : a.nivelTotal - b.nivelTotal);
+                    times[0].membros.push(j.nome); times[0].nivelTotal += (j.nivel || 2);
                 });
-                
                 const proximos = ord.slice(n * q).map(j => j.nome);
-                await setDoc(sorteioRef, { isRolling: false, times: times, fila: proximos, timestamp: Date.now() });
+                // FIX: Define isRolling=false para desbloquear todos os usuários
+                await setDoc(sorteioRef, { isRolling: false, times, fila: proximos, timestamp: Date.now() });
             }, 2000);
         };
 
@@ -541,58 +800,102 @@
                 document.getElementById('dica-troca').classList.add('hidden');
                 return;
             }
-
             res.innerHTML = timesSorteadosGlobal.map((t, i) => `
                 <div class="glass-card p-5 rounded-3xl mb-3 animate-in">
                     <div class="text-[10px] text-blue-400 font-black mb-2 uppercase tracking-widest">${t.nome}</div>
                     <div class="text-[11px] leading-relaxed">${t.membros.map((m, j) => {
-                        const clickAttr = isLigaAdmin ? `onclick="window.trocar(${i},${j})"` : '';
-                        const activeClass = (jogadorTroca && jogadorTroca.t===i && jogadorTroca.j===j) ? 'bg-blue-600 px-2 py-1 rounded text-white font-bold' : (isLigaAdmin ? 'hover:text-blue-300' : '');
-                        return `<span ${clickAttr} class="cursor-pointer transition-colors ${activeClass}">${m}</span>`;
+                        const clickAttr = isLigaAdmin ? `data-t="${i}" data-j="${j}"` : '';
+                        const activeClass = (jogadorTroca && jogadorTroca.t === i && jogadorTroca.j === j) ? 'bg-blue-600 px-2 py-1 rounded text-white font-bold' : (isLigaAdmin ? 'hover:text-blue-300' : '');
+                        return `<span ${clickAttr} class="btn-troca cursor-pointer transition-colors ${activeClass}">${m}</span>`;
                     }).join(', ')}</div>
                 </div>`).join('');
-            
-            if(filaFilaGlobal.length > 0) res.innerHTML += `<div class="p-4 border border-dashed border-white/20 rounded-3xl text-[10px] opacity-60 tracking-wider">FILA: ${filaFilaGlobal.join(', ')}</div>`;
-            
+
+            if (filaFilaGlobal.length > 0)
+                res.innerHTML += `<div class="p-4 border border-dashed border-white/20 rounded-3xl text-[10px] opacity-60 tracking-wider">FILA: ${filaFilaGlobal.join(', ')}</div>`;
+
             if (isLigaAdmin) {
-                document.getElementById('dica-troca').classList.remove('hidden'); 
+                document.getElementById('dica-troca').classList.remove('hidden');
                 document.getElementById('btnAtivarMatch').classList.remove('hidden');
+                res.querySelectorAll('.btn-troca').forEach(btn => {
+                    btn.onclick = () => trocar(parseInt(btn.dataset.t), parseInt(btn.dataset.j));
+                });
             } else {
-                document.getElementById('dica-troca').classList.add('hidden'); 
+                document.getElementById('dica-troca').classList.add('hidden');
                 document.getElementById('btnAtivarMatch').classList.add('hidden');
             }
         }
 
-        window.trocar = async (t, j) => {
-            if(!isLigaAdmin) return;
-            if(!jogadorTroca) { 
-                jogadorTroca = {t, j}; renderSorteio(); 
+        const trocar = async (t, j) => {
+            if (!isLigaAdmin) return;
+            if (!jogadorTroca) {
+                jogadorTroca = { t, j }; renderSorteio();
             } else {
-                const j1 = timesSorteadosGlobal[jogadorTroca.t].membros[jogadorTroca.j], j2 = timesSorteadosGlobal[t].membros[j];
-                timesSorteadosGlobal[jogadorTroca.t].membros[jogadorTroca.j] = j2; timesSorteadosGlobal[t].membros[j] = j1;
+                const j1 = timesSorteadosGlobal[jogadorTroca.t].membros[jogadorTroca.j];
+                const j2 = timesSorteadosGlobal[t].membros[j];
+                timesSorteadosGlobal[jogadorTroca.t].membros[jogadorTroca.j] = j2;
+                timesSorteadosGlobal[t].membros[j] = j1;
                 jogadorTroca = null;
                 await setDoc(sorteioRef, { isRolling: false, times: timesSorteadosGlobal, fila: filaFilaGlobal, timestamp: Date.now() });
             }
         };
 
-        window.ativarMatchSorteada = async () => {
-            if(!timesSorteadosGlobal[0]) return;
+        document.getElementById('btnAtivarMatch').onclick = async () => {
+            if (!timesSorteadosGlobal[0]) return;
             const matchData = {
-                nomeA: timesSorteadosGlobal[0].nome, nomeB: timesSorteadosGlobal[1] ? timesSorteadosGlobal[1].nome : "TIME 2",
-                pontosA: 0, pontosB: 0, membrosA: timesSorteadosGlobal[0].membros, membrosB: timesSorteadosGlobal[1] ? timesSorteadosGlobal[1].membros : [],
-                timesProximos: timesSorteadosGlobal.slice(2), reservas: filaFilaGlobal
+                nomeA: timesSorteadosGlobal[0].nome,
+                nomeB: timesSorteadosGlobal[1] ? timesSorteadosGlobal[1].nome : "TIME 2",
+                pontosA: 0, pontosB: 0,
+                membrosA: timesSorteadosGlobal[0].membros,
+                membrosB: timesSorteadosGlobal[1] ? timesSorteadosGlobal[1].membros : [],
+                timesProximos: timesSorteadosGlobal.slice(2),
+                reservas: filaFilaGlobal
             };
             await setDoc(placarRef, matchData);
-            showToast("Partida Ativada no Placar!", "success"); window.mudarAba('placar');
+            showToast("Partida Ativada no Placar!", "success");
+            mudarAba('placar');
         };
 
-        // --- ADMIN PANELS ---
-        window.abrirAdmin = () => { document.getElementById('adm-caixa').innerText = `R$ ${caixaTotalLocal.toFixed(2)}`; document.getElementById('admin-modal').classList.remove('hidden'); };
-        window.fecharAdmin = () => document.getElementById('admin-modal').classList.add('hidden');
-        window.delHist = async (id) => { showConfirm("Apagar histórico?", async () => await deleteDoc(doc(db, `ligas/${ligaAtualId}/historico`, id))); };
-        window.fecharFinanceiro = async () => { const v = parseFloat(document.getElementById('vpp').innerText.replace("R$ ", "")); showConfirm(`Fechar a semana?`, async () => await addDoc(colFinanceiro, { valor: v, data: Date.now(), dataString: new Date().toLocaleDateString() })); };
+        // --- ADMIN PANEL ---
+        document.getElementById('btnAdmin').onclick = () => {
+            document.getElementById('adm-caixa').innerText = `R$ ${caixaTotalLocal.toFixed(2)}`;
+            // FIX: Popula o select de transferência de admin com membros da liga
+            const selectAdmin = document.getElementById('selectNovoAdmin');
+            selectAdmin.innerHTML = '';
+            jogadoresLocal.forEach(j => {
+                if (j.uid && j.uid !== userAtual.uid && !j.uid.startsWith('c_')) {
+                    const opt = document.createElement('option');
+                    opt.value = j.uid; opt.text = j.nome;
+                    selectAdmin.appendChild(opt);
+                }
+            });
+            if (selectAdmin.options.length === 0) selectAdmin.innerHTML = '<option>Nenhum membro disponível</option>';
+            document.getElementById('admin-modal').classList.remove('hidden');
+        };
+        document.getElementById('btnFecharAdmin').onclick = () => document.getElementById('admin-modal').classList.add('hidden');
 
-        window.mudarAba = (aba) => { document.querySelectorAll('.aba-content').forEach(a => a.classList.add('hidden')); document.getElementById('aba-'+aba).classList.remove('hidden'); document.querySelectorAll('.tab-btn').forEach(b => { b.classList.add('opacity-40'); b.classList.remove('active-tab'); }); document.getElementById('btn-tab-'+aba).classList.remove('opacity-40'); document.getElementById('btn-tab-'+aba).classList.add('active-tab'); };
+        document.getElementById('btnFecharFinanceiro').onclick = () => {
+            const pagos = jogadoresLocal.filter(j => j.pago).length;
+            const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual / jogadoresLocal.length : 0;
+            const total = pagos * vpp;
+            showConfirm(`Fechar semana com R$ ${total.toFixed(2)} arrecadados?`, async () => {
+                await addDoc(colFinanceiro, { valor: total, data: Date.now(), dataString: new Date().toLocaleDateString('pt-BR') });
+                document.getElementById('admin-modal').classList.add('hidden');
+                showToast("Semana encerrada!", "success");
+            });
+        };
+
+        // FIX: Transferir admin implementado
+        document.getElementById('btnTransferirAdmin').onclick = async () => {
+            const novoUid = document.getElementById('selectNovoAdmin').value;
+            if (!novoUid || novoUid === userAtual.uid) return showToast("Selecione um membro válido", "error");
+            const novoNome = document.getElementById('selectNovoAdmin').options[document.getElementById('selectNovoAdmin').selectedIndex]?.text || "novo admin";
+            showConfirm(`Transferir a administração para ${novoNome}? Você perderá os poderes de admin.`, async () => {
+                await updateDoc(doc(db, "ligas", ligaAtualId), { adminUid: novoUid });
+                document.getElementById('admin-modal').classList.add('hidden');
+                showToast("Admin transferido!", "success");
+                voltarLigas();
+            });
+        };
     </script>
 </body>
 </html>
