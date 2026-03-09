@@ -787,13 +787,13 @@ const excluirLiga = (ligaId, nomeLiga) => {
                 // Deleta subcoleções conhecidas
                 const subcols = ['jogadores', 'historico', 'financeiro_fechado'];
                 for (const sub of subcols) {
-                    const snap = await getDocs(collection(db, \`ligas/\${ligaId}/\${sub}\`));
+                    const snap = await getDocs(collection(db, `ligas/${ligaId}/${sub}`));
                     for (const d of snap.docs) await deleteDoc(d.ref);
                 }
                 // Deleta docs do sistema
                 const sistemaDocs = ['configuracao', 'match_atual', 'sorteio_atual'];
                 for (const sd of sistemaDocs) {
-                    try { await deleteDoc(doc(db, \`ligas/\${ligaId}/sistema/\${sd}\`)); } catch(e) {}
+                    try { await deleteDoc(doc(db, `ligas/${ligaId}/sistema/${sd}`)); } catch(e) {}
                 }
                 // Deleta o documento da liga
                 await deleteDoc(doc(db, "ligas", ligaId));
