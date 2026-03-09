@@ -648,11 +648,41 @@ function carregarLigasDisponiveis() {
                         </button>
                         ${l.adminUid === userAtual.uid ? `<button data-del="${d.id}" data-nome="${l.nome}" class="btn-del-liga w-9 h-9 rounded-xl bg-red-600/20 text-red-400 flex items-center justify-center text-sm flex-shrink-0"><i class="fas fa-trash"></i></button>` : ''}
                     </div>`;
-                el.querySelector('[data-enter]').onclick = () => entrarLiga(d.id, l.nome, l.adminUid, l.codigo);
-                el.querySelector('.btn-whats').onclick = (e) => { e.stopPropagation(); compartilharLiga(l.codigo, l.nome); };
-                if (el.querySelector('.btn-del-liga')) {
-                    el.querySelector('.btn-del-liga').onclick = (e) => { e.stopPropagation(); excluirLiga(d.id, l.nome); };
+                // Captura os valores em closure para evitar problemas de escopo
+                const _id = d.id, _nome = l.nome, _adminUid = l.adminUid, _codigo = l.codigo;
+
+                el.querySelector('[data-enter]').onclick = () => entrarLiga(_id, _nome, _adminUid, _codigo);
+
+                el.querySelector('.btn-whats').onclick = (e) => {
+                    e.stopPropagation();
+                    const msg = `🏐 *Vôlei de Cria* — você foi convidado para a liga *${_nome}*!%0A%0AClique para entrar:%0Ahttps://www.voleidecria.online?liga=${_codigo}%0A%0AOu use o código: *${_codigo}*`;
+                    window.open('https://wa.me/?text=' + msg, '_blank');
+                };
+
+                const btnDel = el.querySelector('.btn-del-liga');
+                if (btnDel) {
+                    btnDel.onclick = (e) => {
+                        e.stopPropagation();
+                        showConfirm(
+                            'Excluir a liga "' + _nome + '" permanentemente? Todos os dados serão apagados.',
+                            async () => {
+                                try {
+                                    const subcols = ['jogadores', 'historico', 'financeiro_fechado'];
+                                    for (const sub of subcols) {
+                                        const snap2 = await getDocs(collection(db, 'ligas/' + _id + '/' + sub));
+                                        for (const dd of snap2.docs) await deleteDoc(dd.ref);
+                                    }
+                                    for (const sd of ['configuracao', 'match_atual', 'sorteio_atual']) {
+                                        try { await deleteDoc(doc(db, 'ligas/' + _id + '/sistema/' + sd)); } catch(e) {}
+                                    }
+                                    await deleteDoc(doc(db, 'ligas', _id));
+                                    showToast('Liga excluída!', 'success');
+                                } catch(e) { showToast('Erro: ' + e.message, 'error'); }
+                            }
+                        );
+                    };
                 }
+
                 lista.appendChild(el);
             });
         },
