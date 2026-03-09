@@ -131,6 +131,7 @@
             <div id="match-card" class="glass-card rounded-[2.5rem] p-8 relative overflow-hidden">
                 <div class="absolute top-4 left-0 w-full text-center">
                     <span id="badge-match-status" class="badge-live">LIVE MATCH</span>
+                    <span id="badge-sequencia" class="hidden ml-2 text-[8px] font-black text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full align-middle">🔥 0x</span>
                 </div>
                 <div class="flex justify-around items-center pt-4">
                     <div class="text-center w-2/5">
@@ -422,6 +423,8 @@ let placarLocal = { pontosA: 0, pontosB: 0, nomeA: "TIME A", nomeB: "TIME B", me
 let sorteioLoadingTimer = null;
 // FIX #12: controle de sets
 let setsLocal = { a: 0, b: 0 };
+// Controle de rotação de times
+let vitoriasSeguidasVencedor = 0;
 // FIX #5: paginação do histórico
 const HIST_PAGE = 10;
 let historicoLastDoc = null, historicoTodos = [];
@@ -876,8 +879,22 @@ function iniciarEscutas() {
             nomeA: d.nomeA || "TIME A", nomeB: d.nomeB || "TIME B",
             membrosA: d.membrosA || [], membrosB: d.membrosB || [],
             timesProximos: d.timesProximos || [], reservas: d.reservas || [],
-            setsA: d.setsA || 0, setsB: d.setsB || 0
+            setsA: d.setsA || 0, setsB: d.setsB || 0,
+            vitoriasSeguidasVencedor: d.vitoriasSeguidasVencedor || 0,
+            nomeVencedorAtual: d.nomeVencedorAtual || ""
         };
+        vitoriasSeguidasVencedor = placarLocal.vitoriasSeguidasVencedor;
+
+        // Atualiza badge de sequência no placar
+        const badgeSeq = $('badge-sequencia');
+        if (vitoriasSeguidasVencedor >= 2 && placarLocal.nomeVencedorAtual) {
+            badgeSeq.classList.remove('hidden');
+            badgeSeq.innerText = vitoriasSeguidasVencedor === 2
+                ? `🔥 ${placarLocal.nomeVencedorAtual} 2x seguidas`
+                : `🔥 ${placarLocal.nomeVencedorAtual} ${vitoriasSeguidasVencedor}x SEQUÊNCIA!`;
+        } else {
+            badgeSeq.classList.add('hidden');
+        }
         $('pontosA').innerText = placarLocal.pontosA;
         $('pontosB').innerText = placarLocal.pontosB;
         // FIX #7: só atualiza valores se admin (não-admin tem readonly)
@@ -993,22 +1010,32 @@ $('btnZerarPlacar').onclick = async () => {
     await updateDoc(placarRef, { pontosA: 0, pontosB: 0 });
 };
 
-// FIX #12: finalizarSet salva set, incrementa placar de sets e zera pontos
+// ── FINALIZAR SET COM ROTAÇÃO DE TIMES ──────────────────────────────────────
 $('btnFinalizarSet').onclick = async () => {
     if (!isLigaAdmin) return;
     if (placarLocal.pontosA === 0 && placarLocal.pontosB === 0) return showToast("Placar zerado, nada para salvar.", "error");
 
-    showConfirm(`Finalizar set: ${placarLocal.nomeA} ${placarLocal.pontosA} × ${placarLocal.pontosB} ${placarLocal.nomeB}?`, async () => {
+    showConfirm(`Finalizar: ${placarLocal.nomeA} ${placarLocal.pontosA} × ${placarLocal.pontosB} ${placarLocal.nomeB}?`, async () => {
         const btn = $('btnFinalizarSet'); setLoading(btn, true);
         try {
-            const vencedorDoSet = placarLocal.pontosA > placarLocal.pontosB ? placarLocal.nomeA : placarLocal.nomeB;
-            const novoSetsA = setsLocal.a + (placarLocal.pontosA > placarLocal.pontosB ? 1 : 0);
-            const novoSetsB = setsLocal.b + (placarLocal.pontosB > placarLocal.pontosA ? 1 : 0);
+            const fezPontoA   = placarLocal.pontosA > placarLocal.pontosB;
+            const nomeVencedor = fezPontoA ? placarLocal.nomeA : placarLocal.nomeB;
+            const nomePerdedor = fezPontoA ? placarLocal.nomeB : placarLocal.nomeA;
+            const membrosVenc  = fezPontoA ? placarLocal.membrosA : placarLocal.membrosB;
+            const membrosPerd  = fezPontoA ? placarLocal.membrosB : placarLocal.membrosA;
+            const resumoVenc   = fezPontoA ? (placarLocal.resumoA || '') : (placarLocal.resumoB || '');
+            const resumoPerd   = fezPontoA ? (placarLocal.resumoB || '') : (placarLocal.resumoA || '');
 
-            // FIX #3: usa placarLocal sem getDoc extra
+            // ── Atualiza sequência de vitórias ─────────────────────────────
+            // Se o mesmo time venceu de novo, incrementa; senão reseta para 1
+            const mesmovencedor = placarLocal.nomeVencedorAtual === nomeVencedor;
+            const novaSequencia = mesmovencedor ? vitoriasSeguidasVencedor + 1 : 1;
+            const ativouRegra3x = novaSequencia >= 3;
+
+            // ── Salva no histórico ─────────────────────────────────────────
             const timesParaHistorico = [
-                { nome: placarLocal.nomeA, membros: placarLocal.membrosA, vitorias: placarLocal.pontosA > placarLocal.pontosB ? 1 : 0 },
-                { nome: placarLocal.nomeB, membros: placarLocal.membrosB, vitorias: placarLocal.pontosB > placarLocal.pontosA ? 1 : 0 }
+                { nome: placarLocal.nomeA, membros: placarLocal.membrosA, vitorias: fezPontoA ? 1 : 0 },
+                { nome: placarLocal.nomeB, membros: placarLocal.membrosB, vitorias: fezPontoA ? 0 : 1 }
             ];
             const vppCalc = jogadoresLocal.length > 0 ? valorQuadraAtual / jogadoresLocal.length : 0;
             const pagosCount = jogadoresLocal.filter(j => j.pago).length;
@@ -1016,19 +1043,91 @@ $('btnFinalizarSet').onclick = async () => {
             await addDoc(colHistorico, {
                 times: timesParaHistorico,
                 placar: `${placarLocal.pontosA} × ${placarLocal.pontosB}`,
-                vencedor: vencedorDoSet,
+                vencedor: nomeVencedor,
                 arrecadado: pagosCount * vppCalc,
                 data: new Date().toLocaleDateString('pt-BR'),
                 criadoEm: Date.now()
             });
 
-            // FIX #12: atualiza sets no placarRef
-            await updateDoc(placarRef, { pontosA: 0, pontosB: 0, setsA: novoSetsA, setsB: novoSetsB });
+            // ── Monta nova fila ────────────────────────────────────────────
+            // Copia fila e times próximos atuais
+            let novaFila    = [...(placarLocal.reservas || [])];
+            let proximosTimes = [...(placarLocal.timesProximos || [])];
+
+            // Time perdedor sempre vai pro final da fila
+            proximosTimes.push({ nome: nomePerdedor, membros: membrosPerd, resumo: resumoPerd });
+
+            let novoTimeA, novoTimeB, novaSequenciaFinal, novoNomeVencedor;
+
+            if (ativouRegra3x) {
+                // ── Regra 3 vitórias seguidas: ambos saem, entram 2 novos ──
+                // Vencedor também vai pro final da fila
+                proximosTimes.push({ nome: nomeVencedor, membros: membrosVenc, resumo: resumoVenc });
+
+                if (proximosTimes.length >= 2) {
+                    novoTimeA = proximosTimes.shift();
+                    novoTimeB = proximosTimes.shift();
+                } else if (proximosTimes.length === 1) {
+                    novoTimeA = proximosTimes.shift();
+                    novoTimeB = { nome: nomeVencedor, membros: membrosVenc, resumo: resumoVenc };
+                    // Remove o vencedor que acabamos de usar da fila (já foi usado)
+                    proximosTimes = proximosTimes.filter(t => t.nome !== nomeVencedor);
+                } else {
+                    // Sem times na fila — mantém os mesmos
+                    novoTimeA = { nome: placarLocal.nomeA, membros: placarLocal.membrosA };
+                    novoTimeB = { nome: placarLocal.nomeB, membros: placarLocal.membrosB };
+                }
+                novaSequenciaFinal = 0;
+                novoNomeVencedor = "";
+                showToast(`🔥 ${nomeVencedor} venceu 3x seguidas! Dois times novos entram!`, "success");
+
+            } else {
+                // ── Regra normal: perdedor sai, vencedor fica, entra próximo ──
+                if (proximosTimes.length >= 1) {
+                    const entrante = proximosTimes.shift();
+                    // Vencedor mantém posição (A ou B), entrante ocupa o lado do perdedor
+                    if (fezPontoA) {
+                        novoTimeA = { nome: placarLocal.nomeA, membros: placarLocal.membrosA, resumo: placarLocal.resumoA || '' };
+                        novoTimeB = entrante;
+                    } else {
+                        novoTimeA = entrante;
+                        novoTimeB = { nome: placarLocal.nomeB, membros: placarLocal.membrosB, resumo: placarLocal.resumoB || '' };
+                    }
+                } else {
+                    // Sem próximos — mantém os dois times
+                    novoTimeA = { nome: placarLocal.nomeA, membros: placarLocal.membrosA };
+                    novoTimeB = { nome: placarLocal.nomeB, membros: placarLocal.membrosB };
+                    showToast(`${nomeVencedor} venceu! Sem times na fila. 🏆`, "success");
+                }
+                novaSequenciaFinal = novaSequencia;
+                novoNomeVencedor = nomeVencedor;
+                if (novaSequencia === 2) showToast(`${nomeVencedor} venceu! ${nomeVencedor} está em sequência (2/3) 🔥`, "success");
+                else showToast(`${nomeVencedor} venceu! ${nomePerdedor} vai pra fila. 🏆`, "success");
+            }
+
+            // ── Atualiza placarRef com novos times e fila ─────────────────
+            const novoSetsA = setsLocal.a + (fezPontoA ? 1 : 0);
+            const novoSetsB = setsLocal.b + (fezPontoA ? 0 : 1);
+
+            await updateDoc(placarRef, {
+                pontosA: 0, pontosB: 0,
+                setsA: novoSetsA, setsB: novoSetsB,
+                nomeA: novoTimeA.nome,
+                nomeB: novoTimeB.nome,
+                membrosA: novoTimeA.membros,
+                membrosB: novoTimeB.membros,
+                resumoA: novoTimeA.resumo || '',
+                resumoB: novoTimeB.resumo || '',
+                timesProximos: proximosTimes,
+                reservas: novaFila,
+                vitoriasSeguidasVencedor: novaSequenciaFinal,
+                nomeVencedorAtual: novoNomeVencedor
+            });
+
             placarLocal.pontosA = 0; placarLocal.pontosB = 0;
             setsLocal = { a: novoSetsA, b: novoSetsB };
+            vitoriasSeguidasVencedor = novaSequenciaFinal;
 
-            showToast(`Set salvo! Vencedor: ${vencedorDoSet} 🏆`, "success");
-            mudarAba('ranking');
             carregarHistoricoPage(true);
         } catch(e) { showToast("Erro ao salvar: " + e.message, "error"); }
         setLoading(btn, false);
@@ -1221,15 +1320,21 @@ const trocar = async (t, j) => {
 
 $('btnAtivarMatch').onclick = async () => {
     if (!timesSorteadosGlobal[0]) return;
+    // Ao ativar partida nova, zera sequência de vitórias
     await setDoc(placarRef, {
         nomeA: timesSorteadosGlobal[0].nome,
         nomeB: timesSorteadosGlobal[1]?.nome || "TIME 2",
         pontosA: 0, pontosB: 0, setsA: 0, setsB: 0,
         membrosA: timesSorteadosGlobal[0].membros,
         membrosB: timesSorteadosGlobal[1]?.membros || [],
-        timesProximos: timesSorteadosGlobal.slice(2),
-        reservas: filaFilaGlobal
+        resumoA: timesSorteadosGlobal[0].resumo || '',
+        resumoB: timesSorteadosGlobal[1]?.resumo || '',
+        timesProximos: timesSorteadosGlobal.slice(2).map(t => ({ nome: t.nome, membros: t.membros, resumo: t.resumo || '' })),
+        reservas: filaFilaGlobal,
+        vitoriasSeguidasVencedor: 0,
+        nomeVencedorAtual: ""
     });
+    vitoriasSeguidasVencedor = 0;
     showToast("Partida Ativada no Placar!", "success");
     mudarAba('placar');
 };
