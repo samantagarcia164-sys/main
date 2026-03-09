@@ -41,6 +41,16 @@
         @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
         /* Semana encerrada overlay */
         .semana-encerrada-overlay { pointer-events: none; opacity: 0.35; }
+        .badge-conquista { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:999px; font-size:9px; font-weight:900; letter-spacing:.05em; }
+        .badge-ouro  { background:rgba(251,191,36,.15); color:#fbbf24; }
+        .badge-prata { background:rgba(148,163,184,.15); color:#94a3b8; }
+        .badge-fogo  { background:rgba(239,68,68,.15); color:#ef4444; }
+        .badge-mvp   { background:rgba(168,85,247,.15); color:#a855f7; }
+        .rank-card { cursor:pointer; }
+        .rank-card:hover { background:rgba(255,255,255,.05); }
+        .rank-details { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+        .rank-details.open { max-height:500px; }
+        .mvp-banner { background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(236,72,153,.2)); border:1px solid rgba(168,85,247,.3); border-radius:1.5rem; padding:1rem 1.25rem; margin-bottom:1rem; display:flex; align-items:center; gap:.75rem; }
         .banner-encerrada { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 1rem; padding: 0.6rem 1rem; text-align: center; font-size: 10px; font-weight: 900; color: #f87171; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
         /* Stats badge */
         .stat-badge { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 12px; padding: 2px 8px; font-size: 9px; font-weight: 900; color: #60a5fa; }
@@ -218,7 +228,15 @@
 
         <!-- ABA RANKING -->
         <div id="aba-ranking" class="aba-content hidden space-y-6">
-            <!-- FIX #11: Stats individuais -->
+            <!-- MVP Banner -->
+            <div id="mvp-banner" class="mvp-banner hidden">
+                <span class="text-3xl">⭐</span>
+                <div>
+                    <div class="text-[9px] font-black uppercase opacity-60 tracking-widest text-purple-300">MVP da Semana</div>
+                    <div id="mvp-nome" class="font-black text-white text-base tracking-wide"></div>
+                    <div id="mvp-stats" class="text-[9px] opacity-60 mt-0.5"></div>
+                </div>
+            </div>
             <div class="space-y-4">
                 <h2 class="text-center text-[10px] font-black opacity-40 uppercase tracking-widest">🏆 Reis da Quadra</h2>
                 <ul id="listaRanking" class="glass-card rounded-3xl p-2 divide-y divide-white/5"></ul>
@@ -1005,19 +1023,145 @@ async function carregarHistoricoPage(reset = false) {
         if (isLigaAdmin) el.querySelector('.btn-del-hist')?.addEventListener('click', () => showConfirm("Apagar histórico?", () => deleteDoc(doc(db, `ligas/${ligaAtualId}/historico`, d.id))));
     });
 
-    rankUl.innerHTML = '';
-    Object.entries(ranking).sort((a,b) => b[1].v - a[1].v).forEach(([n,s], i) => {
-        if (s.v > 0) {
-            const apr = s.p > 0 ? Math.round((s.v/s.p)*100) : 0;
-            rankUl.innerHTML += `<li class="flex justify-between p-4 text-xs items-center">
-                <span>${i+1}º ${n}</span>
-                <div class="flex gap-2">
-                    <span class="stat-badge">${s.v} vit</span>
-                    <span class="stat-badge">${apr}%</span>
-                </div>
-            </li>`;
+    // ── Build full stats per player ─────────────────────────────────────
+    // ranking[nome] = { v, p, seq3x, vitSemana, jogouSemana, parceiros:{nome:wins} }
+    const agora = Date.now();
+    const seteDias = 7 * 24 * 60 * 60 * 1000;
+    const historicoCompleto = [...historicoTodos]; // já acumulado
+
+    // Re-build ranking from scratch using full history
+    let rankingFull = {};
+    historicoCompleto.forEach(p => {
+        const daSemana = (agora - (p.criadoEm || 0)) < seteDias;
+        (p.times || []).forEach(t => {
+            (t.membros || []).forEach(m => {
+                if (!rankingFull[m]) rankingFull[m] = { v:0, p:0, seq3x:0, vitSemana:0, jogouSemana:false, parceiros:{}, derrotas:0 };
+                const ganhou = (t.vitorias || 0) > 0;
+                rankingFull[m].p++;
+                if (ganhou) { rankingFull[m].v++; if (daSemana) rankingFull[m].vitSemana++; }
+                else rankingFull[m].derrotas++;
+                if (daSemana) rankingFull[m].jogouSemana = true;
+                // parceiros
+                (t.membros || []).forEach(m2 => {
+                    if (m2 !== m) {
+                        if (!rankingFull[m].parceiros[m2]) rankingFull[m].parceiros[m2] = { v:0, p:0 };
+                        rankingFull[m].parceiros[m2].p++;
+                        if (ganhou) rankingFull[m].parceiros[m2].v++;
+                    }
+                });
+            });
+        });
+        // seq3x tracking via vencedor do historico
+        if (p.seq3x) {
+            if (rankingFull[p.vencedor]) rankingFull[p.vencedor].seq3x++;
         }
     });
+
+    // ── MVP: quem teve mais vitórias na semana ────────────────────────────
+    let mvpNome = '', mvpVits = 0;
+    Object.entries(rankingFull).forEach(([n, s]) => {
+        if (s.vitSemana > mvpVits) { mvpVits = s.vitSemana; mvpNome = n; }
+    });
+    const mvpBanner = $('mvp-banner');
+    if (mvpNome && mvpVits > 0) {
+        mvpBanner.classList.remove('hidden');
+        $('mvp-nome').innerText = mvpNome;
+        $('mvp-stats').innerText = `${mvpVits} vitórias esta semana · ${rankingFull[mvpNome].p} partidas no total`;
+    } else {
+        mvpBanner.classList.add('hidden');
+    }
+
+    // ── Badges por jogador ────────────────────────────────────────────────
+    const calcBadges = (nome, s) => {
+        const badges = [];
+        if (s.v >= 1)  badges.push('<span class="badge-conquista badge-ouro">🎯 Primeiro Ponto</span>');
+        if (s.v >= 10) badges.push('<span class="badge-conquista badge-ouro">🏆 10 Vitórias</span>');
+        if (s.v >= 25) badges.push('<span class="badge-conquista badge-ouro">🥇 25 Vitórias</span>');
+        if (s.seq3x >= 1) badges.push('<span class="badge-conquista badge-fogo">🔥 Dominador</span>');
+        if (mvpNome === nome && mvpVits > 0) badges.push('<span class="badge-conquista badge-mvp">⭐ MVP Semana</span>');
+        const apr = s.p > 0 ? Math.round((s.v/s.p)*100) : 0;
+        if (apr >= 70 && s.p >= 5) badges.push('<span class="badge-conquista badge-prata">💎 Consistente</span>');
+        return badges.join('');
+    };
+
+    // ── Melhor parceiro ────────────────────────────────────────────────────
+    const melhorParceiro = (parc) => {
+        let best = '', bestApr = 0, bestV = 0;
+        Object.entries(parc).forEach(([n, s]) => {
+            const a = s.p > 0 ? Math.round((s.v/s.p)*100) : 0;
+            if (s.p >= 2 && a > bestApr) { best = n; bestApr = a; bestV = s.v; }
+        });
+        return best ? `${best} (${bestApr}% juntos)` : '—';
+    };
+
+    // ── Render ranking ────────────────────────────────────────────────────
+    rankUl.innerHTML = '';
+    const sorted = Object.entries(rankingFull).filter(([,s]) => s.v > 0).sort((a,b) => b[1].v - a[1].v);
+    sorted.forEach(([n, s], i) => {
+        const apr = s.p > 0 ? Math.round((s.v/s.p)*100) : 0;
+        const medalha = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}º`;
+        const badges = calcBadges(n, s);
+        const parc = melhorParceiro(s.parceiros);
+        const isMvp = mvpNome === n && mvpVits > 0;
+
+        const li = document.createElement('li');
+        li.className = 'rank-card rounded-2xl transition-colors';
+        li.innerHTML = `
+            <div class="flex justify-between items-center p-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg w-7 text-center">${medalha}</span>
+                    <div>
+                        <div class="font-black text-sm tracking-wide flex items-center gap-1">
+                            ${n}${isMvp ? ' <span class="text-purple-400 text-xs">⭐</span>' : ''}
+                        </div>
+                        <div class="flex gap-1 mt-1 flex-wrap">${badges}</div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                    <div class="flex gap-2">
+                        <span class="stat-badge">${s.v} vit</span>
+                        <span class="stat-badge">${apr}%</span>
+                    </div>
+                    <span class="text-[8px] opacity-30 font-bold">▼ detalhes</span>
+                </div>
+            </div>
+            <div class="rank-details">
+                <div class="px-4 pb-4 space-y-3 border-t border-white/5 pt-3">
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-white/5 rounded-xl p-2">
+                            <div class="text-green-400 font-black text-base">${s.v}</div>
+                            <div class="text-[8px] opacity-40 font-bold uppercase">Vitórias</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-2">
+                            <div class="text-red-400 font-black text-base">${s.derrotas}</div>
+                            <div class="text-[8px] opacity-40 font-bold uppercase">Derrotas</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-2">
+                            <div class="text-blue-400 font-black text-base">${apr}%</div>
+                            <div class="text-[8px] opacity-40 font-bold uppercase">Aproveit.</div>
+                        </div>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-3 flex justify-between items-center">
+                        <span class="text-[9px] opacity-40 font-bold uppercase">Esta semana</span>
+                        <span class="font-black text-purple-400 text-sm">${s.vitSemana} vitórias</span>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-3 flex justify-between items-center">
+                        <span class="text-[9px] opacity-40 font-bold uppercase">Melhor parceiro</span>
+                        <span class="font-black text-yellow-400 text-[11px]">${parc}</span>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-3 flex justify-between items-center">
+                        <span class="text-[9px] opacity-40 font-bold uppercase">Total partidas</span>
+                        <span class="font-black text-sm">${s.p}</span>
+                    </div>
+                </div>
+            </div>`;
+
+        li.querySelector('.flex.justify-between.items-center.p-4').onclick = () => {
+            li.querySelector('.rank-details').classList.toggle('open');
+        };
+        rankUl.appendChild(li);
+    });
+
     atualizarStatsPerfilAtual();
 }
 $('btnCarregarMais').onclick = () => carregarHistoricoPage(false);
@@ -1076,7 +1220,8 @@ $('btnFinalizarSet').onclick = async () => {
                 vencedor: nomeVencedor,
                 arrecadado: pagosCount * vppCalc,
                 data: new Date().toLocaleDateString('pt-BR'),
-                criadoEm: Date.now()
+                criadoEm: Date.now(),
+                seq3x: ativouRegra3x   // flag para conquista Dominador
             });
 
             // ── Monta nova fila ────────────────────────────────────────────
