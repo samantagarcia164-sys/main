@@ -508,6 +508,7 @@ onAuthStateChanged(auth, async (user) => {
         $('league-screen').classList.add('hidden');
         $('main-app').classList.add('hidden');
         unsubscribes.forEach(u => u()); unsubscribes = [];
+        if (unsubLigas) { unsubLigas(); unsubLigas = null; }
     }
 });
 
@@ -573,22 +574,37 @@ $('btnSalvarPerfil').onclick = async () => {
 };
 
 // ── LIGAS ─────────────────────────────────────────────────────────────────────
+// Escuta separada — não entra em unsubscribes (que é zerado ao entrar/sair de liga)
+let unsubLigas = null;
+
 function carregarLigasDisponiveis() {
-    const unsub = onSnapshot(query(collection(db, "ligas"), where("membros", "array-contains", userAtual.uid)), snap => {
-        const lista = $('lista-ligas-disponiveis'); lista.innerHTML = '';
-        if (snap.empty) { lista.innerHTML = '<div class="text-center opacity-40 text-xs mt-10">Você não participa de ligas.</div>'; return; }
-        snap.forEach(d => {
-            const l = d.data();
-            const adminTag = l.adminUid === userAtual.uid ? '<span class="text-[8px] bg-orange-500 text-white px-2 py-1 rounded-full font-black">👑 ADMIN</span>' : '';
-            const encTag = l.semanaEncerrada ? '<span class="text-[8px] bg-gray-600 text-white px-2 py-1 rounded-full font-black ml-1">🔒</span>' : '';
-            const el = document.createElement('div');
-            el.className = 'glass-card p-5 rounded-[1.5rem] flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors animate-in';
-            el.innerHTML = `<span class="font-bold tracking-wide">${l.nome}</span><div class="flex gap-1">${adminTag}${encTag}</div>`;
-            el.onclick = () => entrarLiga(d.id, l.nome, l.adminUid, l.codigo);
-            lista.appendChild(el);
-        });
-    });
-    unsubscribes.push(unsub);
+    if (unsubLigas) { unsubLigas(); unsubLigas = null; }
+    const lista = $('lista-ligas-disponiveis');
+    lista.innerHTML = '<div class="text-center opacity-40 text-xs mt-10">Buscando suas ligas...</div>';
+    unsubLigas = onSnapshot(
+        query(collection(db, "ligas"), where("membros", "array-contains", userAtual.uid)),
+        snap => {
+            lista.innerHTML = '';
+            if (snap.empty) {
+                lista.innerHTML = '<div class="text-center opacity-40 text-xs mt-10">Você não participa de ligas ainda.<br><span class=\"opacity-60\">Crie uma ou use um código.</span></div>';
+                return;
+            }
+            snap.forEach(d => {
+                const l = d.data();
+                const adminTag = l.adminUid === userAtual.uid ? '<span class="text-[8px] bg-orange-500 text-white px-2 py-1 rounded-full font-black">👑 ADMIN</span>' : '';
+                const encTag = l.semanaEncerrada ? '<span class="text-[8px] bg-gray-600 text-white px-2 py-1 rounded-full font-black ml-1">🔒</span>' : '';
+                const el = document.createElement('div');
+                el.className = 'glass-card p-5 rounded-[1.5rem] flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors animate-in';
+                el.innerHTML = `<span class="font-bold tracking-wide">${l.nome}</span><div class="flex gap-1">${adminTag}${encTag}</div>`;
+                el.onclick = () => entrarLiga(d.id, l.nome, l.adminUid, l.codigo);
+                lista.appendChild(el);
+            });
+        },
+        err => {
+            lista.innerHTML = '<div class="text-center text-red-400 text-xs mt-10">Erro ao carregar ligas.</div>';
+            console.error("Erro ligas:", err);
+        }
+    );
 }
 
 $('btn-criar-liga').onclick = () => { $('inputNomeLiga').value = ''; $('modal-nova-liga').classList.remove('hidden'); };
