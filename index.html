@@ -182,6 +182,10 @@
                     <select id="nivelConvidado" class="glass-input w-20 text-center px-1 bg-black text-[10px] font-black">
                         <option value="1">⭐ 1</option><option value="2" selected>⭐ 2</option><option value="3">⭐ 3</option><option value="4">⭐ 4</option><option value="5">⭐ 5</option>
                     </select>
+                    <select id="generoConvidado" class="glass-input w-16 text-center px-1 bg-black text-[10px] font-black">
+                        <option value="M">♂ M</option>
+                        <option value="F">♀ F</option>
+                    </select>
                     <button id="btnAdicionarConvidado" class="ios-btn bg-white/20 px-6 rounded-2xl font-black">+</button>
                 </div>
             </div>
@@ -230,7 +234,10 @@
             <div class="glass-card rounded-[2.5rem] p-8 text-center flex flex-col items-center">
                 <img id="perfilFotoBadge" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full border-4 border-white/10 mb-4 object-cover">
                 <h2 id="perfilNomeBadge" class="text-2xl font-black uppercase">Atleta</h2>
-                <span id="perfilNivelBadge" class="px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[10px] font-black mt-2">NÍVEL 3</span>
+                <div class="flex gap-2 mt-2 flex-wrap justify-center">
+                    <span id="perfilNivelBadge" class="px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[10px] font-black">NÍVEL 3</span>
+                    <span id="perfilGeneroBadge" class="px-4 py-1 bg-purple-500/20 text-purple-400 rounded-full text-[10px] font-black">♂ MASC</span>
+                </div>
                 <!-- FIX #11: Mini stats no perfil -->
                 <div id="perfilStats" class="flex gap-3 mt-4 flex-wrap justify-center"></div>
                 <button id="btnEditarPerfil" class="ios-btn w-full mt-8 bg-white/10 py-4 rounded-2xl font-black uppercase text-xs">Editar Meus Dados</button>
@@ -242,6 +249,10 @@
                 <input type="text" id="perfilFotoUrl" class="glass-input text-sm" placeholder="Link da Foto (URL)">
                 <select id="perfilNivel" class="glass-input bg-black text-white text-sm">
                     <option value="1">1 - Iniciante</option><option value="2">2 - Básico</option><option value="3" selected>3 - Intermediário</option><option value="4">4 - Avançado</option><option value="5">5 - Profissional</option>
+                </select>
+                <select id="perfilGenero" class="glass-input bg-black text-white text-sm">
+                    <option value="M">♂ Masculino</option>
+                    <option value="F">♀ Feminino</option>
                 </select>
                 <button id="btnSalvarPerfil" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Salvar Alterações</button>
             </div>
@@ -520,6 +531,9 @@ async function carregarPerfil() {
         $('perfilNomeBadge').innerText = perfilAtual.nome;
         $('perfilFotoBadge').src = perfilAtual.fotoUrl || userAtual.photoURL || "https://via.placeholder.com/150";
         $('perfilNivelBadge').innerText = "NÍVEL " + (perfilAtual.nivel || 3);
+        const g = perfilAtual.genero || 'M';
+        $('perfilGeneroBadge').innerText = g === 'F' ? '♀ FEM' : '♂ MASC';
+        $('perfilGeneroBadge').className = `px-4 py-1 rounded-full text-[10px] font-black ${g === 'F' ? 'bg-pink-500/20 text-pink-400' : 'bg-blue-500/20 text-blue-400'}`;
     } else { editarPerfil(); }
 }
 
@@ -550,6 +564,7 @@ const editarPerfil = () => {
         $('perfilNome').value = perfilAtual.nome || "";
         $('perfilFotoUrl').value = perfilAtual.fotoUrl || "";
         $('perfilNivel').value = perfilAtual.nivel || 3;
+        $('perfilGenero').value = perfilAtual.genero || 'M';
     }
     $('perfil-edicao').classList.toggle('hidden');
 };
@@ -564,6 +579,7 @@ $('btnSalvarPerfil').onclick = async () => {
             nome: n.toUpperCase(),
             fotoUrl: $('perfilFotoUrl').value,
             nivel: parseInt($('perfilNivel').value),
+            genero: $('perfilGenero').value,
             uid: userAtual.uid
         });
         await carregarPerfil();
@@ -730,7 +746,8 @@ function iniciarEscutas() {
             const starHtml = isLigaAdmin
                 ? `<div data-id="${j.id}" data-nivel="${j.nivel||2}" class="btn-mudar-nivel text-[9px] opacity-60 mt-1 cursor-pointer hover:text-blue-400">${"★".repeat(j.nivel||2)} <i class="fas fa-pen text-[8px] ml-1 opacity-50"></i></div>`
                 : `<div class="text-[9px] opacity-40 mt-1">${"★".repeat(j.nivel||2)}</div>`;
-            lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm tracking-wide">${j.nome}</div>${starHtml}</div><div class="flex items-center gap-3">${btnPix}${btnDel}</div></li>`;
+            const genIcon = j.genero === 'F' ? '<span class="text-[9px] text-pink-400 font-black">♀</span>' : '<span class="text-[9px] text-blue-400 font-black">♂</span>';
+            lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm tracking-wide flex items-center gap-2">${j.nome} ${genIcon}</div>${starHtml}</div><div class="flex items-center gap-3">${btnPix}${btnDel}</div></li>`;
         });
         lista.querySelectorAll('.btn-toggle-pix').forEach(btn => {
             btn.onclick = () => updateDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, btn.dataset.id), { pago: btn.dataset.pago !== 'true' });
@@ -950,7 +967,7 @@ $('btnEntrarLista').onclick = async () => {
     if (!perfilAtual) return showToast("Configure seu perfil primeiro", "error");
     if (jogadoresLocal.some(j => j.uid === userAtual.uid)) return showToast("Você já está na lista!", "info");
     const btn = $('btnEntrarLista'); setLoading(btn, true);
-    await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, pago: false });
+    await addDoc(colJogadores, { uid: userAtual.uid, nome: perfilAtual.nome, nivel: perfilAtual.nivel, genero: perfilAtual.genero || 'M', pago: false });
     showToast("Adicionado à lista!", "success");
     setLoading(btn, false);
 };
@@ -962,7 +979,7 @@ $('btnAdicionarConvidado').onclick = async () => {
     if (!nome) return showToast("Digite o nome do convidado", "error");
     // FIX #6: verifica duplicata de convidado por nome
     if (jogadoresLocal.some(j => j.nome === nome + " (C)" || j.nome === nome)) return showToast("Convidado já está na lista!", "info");
-    await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: nome+" (C)", nivel: parseInt($('nivelConvidado').value), pago: false });
+    await addDoc(colJogadores, { uid: "c_"+Date.now(), nome: nome+" (C)", nivel: parseInt($('nivelConvidado').value), genero: $('generoConvidado').value, pago: false });
     i.value = "";
     showToast("Convidado adicionado!", "success");
 };
@@ -1016,14 +1033,73 @@ $('btnSortear').onclick = async () => {
 
     setTimeout(async () => {
         const n = Math.floor(pagos.length / qtd);
-        const ord = [...pagos].sort((a,b) => (b.nivel||2)-(a.nivel||2));
-        const times = Array.from({length:n}, (_,i) => ({ nome:"TIME "+(i+1), membros:[], nivelTotal:0, vitorias:0 }));
-        ord.slice(0, n*qtd).forEach(j => {
-            times.sort((a,b) => a.membros.length !== b.membros.length ? a.membros.length-b.membros.length : a.nivelTotal-b.nivelTotal);
-            times[0].membros.push(j.nome); times[0].nivelTotal += (j.nivel||2);
+        if (n < 1) {
+            await setDoc(sorteioRef, { isRolling: false, times: [], fila: pagos.map(j=>j.nome), timestamp: Date.now() });
+            return;
+        }
+
+        // ── ALGORITMO BALANCEADO: nível + gênero ──────────────────────────────
+        const jogParaSortear = pagos.slice(0, n * qtd);
+        const fila           = pagos.slice(n * qtd).map(j => j.nome);
+
+        const homens  = jogParaSortear.filter(j => (j.genero || 'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
+        const mulheres = jogParaSortear.filter(j => j.genero === 'F').sort((a,b) => (b.nivel||2)-(a.nivel||2));
+
+        // Quantos de cada gênero por time (tenta equilibrar)
+        const totalH = homens.length, totalM = mulheres.length;
+        const hPorTime = Math.floor(totalH / n);
+        const mPorTime = Math.floor(totalM / n);
+
+        // Sobras: jogadores que não cabem exatamente
+        const hSobra = homens.slice(hPorTime * n);
+        const mSobra = mulheres.slice(mPorTime * n);
+        const sobras = [...hSobra, ...mSobra].sort((a,b) => (b.nivel||2)-(a.nivel||2));
+
+        // Inicializa times
+        const times = Array.from({length: n}, (_, i) => ({
+            nome: "TIME " + (i + 1),
+            membros: [],
+            nivelTotal: 0,
+            vitorias: 0,
+            homens: 0,
+            mulheres: 0
+        }));
+
+        // Distribui homens em snake draft (1→n→1→n) para equilibrar nível
+        // Cobra: os mais fortes vão alternando entre times
+        const distribuirEmSnake = (jogadores, times, campo) => {
+            let dir = 1, idx = 0;
+            jogadores.forEach((j, pos) => {
+                // snake: 0,1,2,3,3,2,1,0,0,1...
+                times[idx].membros.push(j.nome);
+                times[idx].nivelTotal += (j.nivel || 2);
+                times[idx][campo]++;
+                if (dir === 1) { if (idx === times.length - 1) { dir = -1; } else { idx++; } }
+                else           { if (idx === 0)                { dir =  1; } else { idx--; } }
+            });
+        };
+
+        distribuirEmSnake(homens.slice(0, hPorTime * n), times, 'homens');
+        distribuirEmSnake(mulheres.slice(0, mPorTime * n), times, 'mulheres');
+
+        // Distribui sobras pelo time com menor nivelTotal
+        sobras.forEach(j => {
+            times.sort((a,b) => a.nivelTotal - b.nivelTotal);
+            times[0].membros.push(j.nome);
+            times[0].nivelTotal += (j.nivel || 2);
+            if ((j.genero || 'M') === 'F') times[0].mulheres++; else times[0].homens++;
         });
-        const proximos = ord.slice(n*qtd).map(j => j.nome);
-        await setDoc(sorteioRef, { isRolling: false, times, fila: proximos, timestamp: Date.now() });
+
+        // Remove campos auxiliares antes de salvar
+        const timesParaSalvar = times.map(t => ({
+            nome: t.nome,
+            membros: t.membros,
+            nivelTotal: t.nivelTotal,
+            vitorias: 0,
+            resumo: `♂${t.homens} ♀${t.mulheres} · nível ${t.nivelTotal}`
+        }));
+
+        await setDoc(sorteioRef, { isRolling: false, times: timesParaSalvar, fila, timestamp: Date.now() });
     }, 2000);
 };
 
@@ -1035,7 +1111,10 @@ function renderSorteio() {
     }
     res.innerHTML = timesSorteadosGlobal.map((t,i) => `
         <div class="glass-card p-5 rounded-3xl mb-3 animate-in">
-            <div class="text-[10px] text-blue-400 font-black mb-2 uppercase tracking-widest">${t.nome}</div>
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-[10px] text-blue-400 font-black uppercase tracking-widest">${t.nome}</div>
+                ${t.resumo ? `<span class="text-[9px] font-bold opacity-50">${t.resumo}</span>` : ''}
+            </div>
             <div class="text-[11px] leading-relaxed">${t.membros.map((m,j) => {
                 const attrs = isLigaAdmin ? `data-t="${i}" data-j="${j}"` : '';
                 const cls = (jogadorTroca?.t===i && jogadorTroca?.j===j) ? 'bg-blue-600 px-2 py-1 rounded text-white font-bold' : (isLigaAdmin ? 'hover:text-blue-300 cursor-pointer' : '');
