@@ -354,7 +354,7 @@
         <!-- ABA PERFIL -->
         <div id="aba-perfil" class="aba-content hidden">
             <div class="glass-card rounded-[2.5rem] p-8 text-center flex flex-col items-center">
-                <img id="perfilFotoBadge" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full border-4 border-white/10 mb-4 object-cover">
+
                 <h2 id="perfilNomeBadge" class="text-2xl font-black uppercase">Atleta</h2>
                 <div class="flex gap-2 mt-2 flex-wrap justify-center">
                     <span id="perfilNivelBadge" class="px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[10px] font-black">NÍVEL 3</span>
@@ -368,7 +368,7 @@
             </div>
             <div id="perfil-edicao" class="glass-card rounded-[2.5rem] p-6 hidden space-y-4 mt-4 animate-in">
                 <input type="text" id="perfilNome" class="glass-input text-sm" placeholder="Seu Nome">
-                <input type="text" id="perfilFotoUrl" class="glass-input text-sm" placeholder="Link da Foto (URL)">
+
                 <select id="perfilNivel" class="glass-input bg-black text-white text-sm">
                     <option value="1">1 - Iniciante</option><option value="2">2 - Básico</option><option value="3" selected>3 - Intermediário</option><option value="4">4 - Avançado</option><option value="5">5 - Profissional</option>
                 </select>
@@ -772,7 +772,7 @@ async function carregarPerfil() {
     if (s.exists()) {
         perfilAtual = s.data();
         $('perfilNomeBadge').innerText = perfilAtual.nome;
-        $('perfilFotoBadge').src = perfilAtual.fotoUrl || userAtual.photoURL || "https://via.placeholder.com/150";
+
         $('perfilNivelBadge').innerText = "NÍVEL " + (perfilAtual.nivel || 3);
         const g = perfilAtual.genero || 'M';
         $('perfilGeneroBadge').innerText = g === 'F' ? '♀ FEM' : '♂ MASC';
@@ -805,7 +805,7 @@ function atualizarStatsPerfilAtual() {
 const editarPerfil = () => {
     if (perfilAtual) {
         $('perfilNome').value = perfilAtual.nome || "";
-        $('perfilFotoUrl').value = perfilAtual.fotoUrl || "";
+
         $('perfilNivel').value = perfilAtual.nivel || 3;
         $('perfilGenero').value = perfilAtual.genero || 'M';
     }
@@ -820,7 +820,7 @@ $('btnSalvarPerfil').onclick = async () => {
     try {
         await setDoc(doc(db, "usuarios", userAtual.uid), {
             nome: n.toUpperCase(),
-            fotoUrl: $('perfilFotoUrl').value,
+
             nivel: parseInt($('perfilNivel').value),
             genero: $('perfilGenero').value,
             uid: userAtual.uid
@@ -1964,16 +1964,15 @@ function renderChat(msgs) {
         if (mine) {
             html += `<div class="chat-msg mine ${isPinned ? 'pinned-msg' : ''}">
                 <div>
+                    <div class="chat-sender" style="text-align:right;color:#86d9b0;">${escapeHtml(nome)}</div>
                     <div class="chat-bubble">${escapeHtml(m.texto)}${pinIcon}
                         <span class="chat-time">${hora}</span>
                     </div>
                     <div class="chat-actions" style="justify-content:flex-end;">${pinBtn}${delBtn}</div>
                 </div>
-                ${foto ? `<img src="${foto}" class="chat-avatar" onerror="this.style.display='none'">` : `<div class="chat-avatar" style="background:linear-gradient(135deg,#005c4b,#128c7e);display:flex;align-items:center;justify-content:center;font-size:14px;">🏐</div>`}
             </div>`;
         } else {
             html += `<div class="chat-msg ${isPinned ? 'pinned-msg' : ''}">
-                ${foto ? `<img src="${foto}" class="chat-avatar" onerror="this.style.display='none'">` : `<div class="chat-avatar" style="background:linear-gradient(135deg,#1f2c34,#2a3942);display:flex;align-items:center;justify-content:center;font-size:14px;">👤</div>`}
                 <div>
                     <div class="chat-sender">${escapeHtml(nome)}</div>
                     <div class="chat-bubble">${escapeHtml(m.texto)}${pinIcon}
@@ -2002,7 +2001,7 @@ async function enviarMensagem() {
     await addDoc(colChat, {
         uid: userAtual.uid,
         nome: perfilAtual?.nome || userAtual.displayName || 'Jogador',
-        foto: perfilAtual?.fotoUrl || userAtual.photoURL || '',
+        foto: '',
         texto: t, ts: new Date(), pinned: false, tipo: 'chat'
     });
 }
