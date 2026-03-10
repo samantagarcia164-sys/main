@@ -41,6 +41,58 @@
         @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
         /* Semana encerrada overlay */
         .semana-encerrada-overlay { pointer-events: none; opacity: 0.35; }
+
+        /* ── MODO TV ── */
+        #tv-mode {
+            position: fixed; inset: 0; z-index: 200;
+            background: #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transform: translateY(100%);
+            transition: transform .4s cubic-bezier(.32,.72,0,1);
+        }
+        #tv-mode.open { transform: translateY(0); }
+        #tv-bg {
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 30% 40%, rgba(37,99,235,.25) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 60%, rgba(234,88,12,.2) 0%, transparent 60%),
+                        #000;
+        }
+        #tv-content { position: relative; z-index: 1; width: 100%; padding: 0 5vw; text-align: center; }
+        #tv-liga-nome { font-size: clamp(12px,2.5vw,20px); font-weight: 900; letter-spacing: .3em; text-transform: uppercase; opacity: .4; margin-bottom: 2vh; }
+        #tv-seq-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.4);
+            color: #ef4444; font-size: clamp(14px,2vw,18px); font-weight: 900;
+            padding: 6px 20px; border-radius: 999px; margin-bottom: 2vh;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+        #tv-teams { display: flex; align-items: center; justify-content: center; gap: 4vw; width: 100%; }
+        .tv-team { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1vh; }
+        .tv-team-name {
+            font-size: clamp(18px,4vw,36px); font-weight: 900; text-transform: uppercase;
+            letter-spacing: .1em; opacity: .9; max-width: 100%;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        #tv-nome-a { color: #60a5fa; }
+        #tv-nome-b { color: #fb923c; }
+        .tv-score {
+            font-size: clamp(80px,18vw,180px); font-weight: 900; line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+        #tv-score-a { color: #60a5fa; text-shadow: 0 0 60px rgba(96,165,250,.4); }
+        #tv-score-b { color: #fb923c; text-shadow: 0 0 60px rgba(251,146,60,.4); }
+        #tv-vs { font-size: clamp(24px,5vw,48px); font-weight: 900; opacity: .15; padding-bottom: 2vh; }
+        #tv-divider { width: 2px; height: clamp(100px,20vh,180px); background: rgba(255,255,255,.08); border-radius: 2px; }
+        #tv-footer { margin-top: 4vh; font-size: clamp(10px,1.5vw,14px); opacity: .25; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+        #tv-exit-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 201;
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+            color: #fff; font-size: 12px; font-weight: 900; padding: 8px 16px;
+            border-radius: 999px; cursor: pointer; opacity: 0;
+            transition: opacity .3s; letter-spacing: .1em;
+        }
+        #tv-mode:hover #tv-exit-btn, #tv-mode.open #tv-exit-btn { opacity: 1; }
         /* ── CHAT WHATSAPP STYLE ── */
         #chat-fab { position:fixed; bottom:90px; right:20px; z-index:60; width:56px; height:56px; border-radius:50%; background:#25d366; display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 20px rgba(37,211,102,.4); cursor:pointer; transition:transform .2s,box-shadow .2s; }
         #chat-fab:active { transform:scale(.92); }
@@ -208,6 +260,8 @@
                     <button id="btnFinalizarSet" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest">Finalizar Set e Salvar ✅</button>
                     <button id="btnZerarPlacar" class="ios-btn w-full bg-white/5 py-3 rounded-2xl font-bold uppercase text-[9px] opacity-40">Zerar Placar sem Salvar</button>
                 </div>
+                <!-- Botão Modo TV (visível para todos) -->
+                <button id="btnModoTV" class="ios-btn w-full bg-purple-600/20 text-purple-300 py-3 rounded-2xl font-black uppercase text-[10px] mt-4 tracking-widest">📺 Modo TV</button>
             </div>
 
             <div id="next-match-card" class="glass-card rounded-[2rem] p-6 hidden">
@@ -326,6 +380,32 @@
             </div>
         </div>
     </main>
+
+    <!-- ── MODO TV ── -->
+    <div id="tv-mode">
+        <div id="tv-bg"></div>
+        <button id="tv-exit-btn">✕ SAIR</button>
+        <div id="tv-content">
+            <div id="tv-liga-nome">Vôlei de Cria</div>
+            <div id="tv-seq-badge" class="hidden">🔥 <span id="tv-seq-text"></span></div>
+            <div id="tv-teams">
+                <div class="tv-team">
+                    <div id="tv-nome-a" class="tv-team-name">TIME A</div>
+                    <div id="tv-score-a" class="tv-score">0</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:1vh;">
+                    <div id="tv-divider"></div>
+                    <div id="tv-vs">VS</div>
+                    <div id="tv-divider"></div>
+                </div>
+                <div class="tv-team">
+                    <div id="tv-nome-b" class="tv-team-name">TIME B</div>
+                    <div id="tv-score-b" class="tv-score">0</div>
+                </div>
+            </div>
+            <div id="tv-footer">voleidecria.online · ao vivo</div>
+        </div>
+    </div>
 
     <!-- ── CHAT FAB ── -->
     <div id="chat-fab" class="hidden" style="position:fixed;bottom:90px;right:20px;z-index:60;width:56px;height:56px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 20px rgba(37,211,102,.4);cursor:pointer;">
@@ -1076,6 +1156,7 @@ function iniciarEscutas() {
         }
         $('pontosA').innerText = placarLocal.pontosA;
         $('pontosB').innerText = placarLocal.pontosB;
+        atualizarTV();
         // FIX #7: só atualiza valores se admin (não-admin tem readonly)
         if (isLigaAdmin) { $('nomeA').value = placarLocal.nomeA; $('nomeB').value = placarLocal.nomeB; }
         else { $('nomeA').value = placarLocal.nomeA; $('nomeB').value = placarLocal.nomeB; }
@@ -1990,6 +2071,80 @@ $('btnUnpin').onclick = async () => {
 };
 
 // ── FIM CHAT ──────────────────────────────────────────────────────────────────
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── MODO TV ───────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+let tvOpen = false;
+
+function atualizarTV() {
+    if (!tvOpen) return;
+    $('tv-nome-a').innerText   = placarLocal.nomeA || 'TIME A';
+    $('tv-nome-b').innerText   = placarLocal.nomeB || 'TIME B';
+    $('tv-score-a').innerText  = placarLocal.pontosA ?? 0;
+    $('tv-score-b').innerText  = placarLocal.pontosB ?? 0;
+
+    // Liga nome no header
+    const nomeLiga = $('nome-liga-header')?.innerText || 'Vôlei de Cria';
+    $('tv-liga-nome').innerText = nomeLiga;
+
+    // Badge sequência
+    const seqBadge = $('tv-seq-badge');
+    const seq = vitoriasSeguidasVencedor || 0;
+    if (seq >= 2 && placarLocal.nomeVencedorAtual) {
+        seqBadge.classList.remove('hidden');
+        $('tv-seq-text').innerText = `${placarLocal.nomeVencedorAtual} — ${seq}x SEGUIDAS!`;
+    } else {
+        seqBadge.classList.add('hidden');
+    }
+
+    // Anima o score que mudou
+    const scoreA = $('tv-score-a');
+    const scoreB = $('tv-score-b');
+    scoreA.style.transform = 'scale(1.05)';
+    scoreB.style.transform = 'scale(1.05)';
+    setTimeout(() => {
+        scoreA.style.transform = '';
+        scoreB.style.transform = '';
+    }, 150);
+}
+
+function abrirModoTV() {
+    tvOpen = true;
+    $('tv-mode').classList.add('open');
+    atualizarTV();
+    // Tenta fullscreen
+    try {
+        const el = $('tv-mode');
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    } catch(e) {}
+    // Mantém tela acesa
+    try {
+        if ('wakeLock' in navigator) navigator.wakeLock.request('screen');
+    } catch(e) {}
+}
+
+function fecharModoTV() {
+    tvOpen = false;
+    $('tv-mode').classList.remove('open');
+    try {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    } catch(e) {}
+}
+
+$('btnModoTV').onclick = abrirModoTV;
+$('tv-exit-btn').onclick = fecharModoTV;
+
+// Sair com ESC ou swipe para baixo
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && tvOpen) fecharModoTV(); });
+
+// Atualiza TV em tempo real quando o placar muda
+// (injetado no onSnapshot do placarRef via flag tvOpen)
+
+// ── FIM MODO TV ───────────────────────────────────────────────────────────────
 
 </script>
 </body>
