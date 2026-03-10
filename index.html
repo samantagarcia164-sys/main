@@ -1469,94 +1469,112 @@ $('btnSortear').onclick = async () => {
 };
 
 // ── SORTEAR CHEGANTES ────────────────────────────────────────────────────────
-// Sorteia apenas jogadores pagos que ainda não estão em nenhum time ou fila,
-// formando novos times sem alterar os já existentes. Eles entram no final da fila.
 $('btnSortearChegantes').onclick = async () => {
     if (!isLigaAdmin) return;
 
     const qtd = Math.max(2, Math.min(12, parseInt($('qtdPorTime').value) || 6));
 
-    // Pega todos os nomes já alocados (times formados + fila)
+    // Todos os nomes já alocados: times do sorteio + fila do sorteio + placar em andamento
     const nomesJaAlocados = new Set();
     timesSorteadosGlobal.forEach(t => t.membros.forEach(m => nomesJaAlocados.add(m)));
     filaFilaGlobal.forEach(m => nomesJaAlocados.add(m));
-    // Também pega os timesProximos do placar (fila de próximos)
+    (placarLocal.membrosA || []).forEach(m => nomesJaAlocados.add(m));
+    (placarLocal.membrosB || []).forEach(m => nomesJaAlocados.add(m));
     (placarLocal.timesProximos || []).forEach(t => (t.membros || []).forEach(m => nomesJaAlocados.add(m)));
     (placarLocal.reservas || []).forEach(m => nomesJaAlocados.add(m));
 
-    // Chegantes = pagos que NÃO estão em nenhum time/fila ainda
+    // Chegantes = pagos ainda não alocados em lugar nenhum
     const chegantes = jogadoresLocal.filter(j => j.pago && !nomesJaAlocados.has(j.nome));
 
     if (chegantes.length === 0) return showToast("Nenhum chegante novo encontrado!", "info");
-    if (chegantes.length < 2)  return showToast(`Só ${chegantes.length} chegante(s) — mínimo 2 para formar time.`, "info");
 
     const n = Math.floor(chegantes.length / qtd);
 
+    // BUG FIX: sobras são os jogadores (objetos) que não cabem em times completos
+    const jogParaSortear = chegantes.slice(0, n * qtd);  // forma times completos
+    const sobrasObj      = chegantes.slice(n * qtd);     // sobras como objetos (não só nomes)
+    const sobrasNomes    = sobrasObj.map(j => j.nome);
+
     if (n === 0) {
-        // Não dá pra formar time completo — manda direto pra fila de reservas
-        const novosNomes = chegantes.map(j => j.nome);
-        const novaFila = [...filaFilaGlobal, ...novosNomes];
+        // Sem chegantes suficientes pra 1 time — todos vão pra reservas
+        const novaFila = [...filaFilaGlobal, ...sobrasNomes];
         await setDoc(sorteioRef, { isRolling: false, times: timesSorteadosGlobal, fila: novaFila, timestamp: Date.now() });
-        showToast(`${chegantes.length} chegante(s) adicionado(s) à fila de reservas!`, "success");
+        // Se partida em andamento, adiciona às reservas do placar também
+        if (placarLocal.nomeA && placarLocal.nomeA !== 'TIME A') {
+            const novasReservas = [...(placarLocal.reservas || []), ...sobrasNomes];
+            await updateDoc(placarRef, { reservas: novasReservas });
+        }
+        showToast(`${chegantes.length} chegante(s) → fila de reservas!`, "info");
         return;
     }
 
-    // Algoritmo balanceado por nível + gênero (igual ao sorteio principal)
-    const jogParaSortear = chegantes.slice(0, n * qtd);
-    const sobrasCheg     = chegantes.slice(n * qtd).map(j => j.nome);
-
-    const homens   = jogParaSortear.filter(j => (j.genero || 'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
+    // Algoritmo balanceado nível + gênero (snake draft)
+    const homens   = jogParaSortear.filter(j => (j.genero||'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
     const mulheres = jogParaSortear.filter(j => j.genero === 'F').sort((a,b) => (b.nivel||2)-(a.nivel||2));
     const hPorTime = Math.floor(homens.length / n);
     const mPorTime = Math.floor(mulheres.length / n);
-    const hSobra   = homens.slice(hPorTime * n);
-    const mSobra   = mulheres.slice(mPorTime * n);
-    const sobras   = [...hSobra, ...mSobra].sort((a,b) => (b.nivel||2)-(a.nivel||2));
+    const sobrasSnake = [
+        ...homens.slice(hPorTime * n),
+        ...mulheres.slice(mPorTime * n)
+    ].sort((a,b) => (b.nivel||2)-(a.nivel||2));
 
-    // Numera os novos times a partir do último existente
-    const baseIdx = timesSorteadosGlobal.length + 1;
-    const novosT  = Array.from({length: n}, (_, i) => ({
+    // Conta times existentes no sorteio E no placar para numerar corretamente
+    const totalTimesExistentes = timesSorteadosGlobal.length
+        + (placarLocal.nomeA && placarLocal.nomeA !== 'TIME A' ? 2 : 0)
+        + (placarLocal.timesProximos || []).length;
+    const baseIdx = totalTimesExistentes + 1;
+
+    const novosT = Array.from({length: n}, (_, i) => ({
         nome: "TIME " + (baseIdx + i),
         membros: [], nivelTotal: 0, homens: 0, mulheres: 0
     }));
 
-    const distribuirSnake = (jogadores, times, campo) => {
+    const snake = (jogadores, campo) => {
         let dir = 1, idx = 0;
-        jogadores.forEach(() => {
-            // handled below
-        });
         jogadores.forEach(j => {
-            times[idx].membros.push(j.nome);
-            times[idx].nivelTotal += (j.nivel || 2);
-            times[idx][campo]++;
-            if (dir === 1) { if (idx === times.length - 1) dir = -1; else idx++; }
+            novosT[idx].membros.push(j.nome);
+            novosT[idx].nivelTotal += (j.nivel || 2);
+            novosT[idx][campo]++;
+            if (dir === 1) { if (idx === novosT.length - 1) dir = -1; else idx++; }
             else           { if (idx === 0) dir = 1; else idx--; }
         });
     };
-
-    distribuirSnake(homens.slice(0, hPorTime * n), novosT, 'homens');
-    distribuirSnake(mulheres.slice(0, mPorTime * n), novosT, 'mulheres');
-    sobras.forEach(j => {
+    snake(homens.slice(0, hPorTime * n), 'homens');
+    snake(mulheres.slice(0, mPorTime * n), 'mulheres');
+    sobrasSnake.forEach(j => {
         novosT.sort((a,b) => a.nivelTotal - b.nivelTotal);
         novosT[0].membros.push(j.nome);
         novosT[0].nivelTotal += (j.nivel || 2);
-        if ((j.genero || 'M') === 'F') novosT[0].mulheres++; else novosT[0].homens++;
+        if ((j.genero||'M') === 'F') novosT[0].mulheres++; else novosT[0].homens++;
     });
 
-    const novosTimesFormatados = novosT.map(t => ({
-        nome: t.nome,
-        membros: t.membros,
-        nivelTotal: t.nivelTotal,
-        vitorias: 0,
+    const novosFormatados = novosT.map(t => ({
+        nome: t.nome, membros: t.membros, nivelTotal: t.nivelTotal, vitorias: 0,
         resumo: `♂${t.homens} ♀${t.mulheres} · nível ${t.nivelTotal}`
     }));
 
-    // Times chegantes entram no FINAL da fila (após os times já existentes)
-    const novaFila = [...filaFilaGlobal, ...sobrasCheg];
-    const todosOsTimes = [...timesSorteadosGlobal, ...novosTimesFormatados];
+    // Atualiza sorteioRef com todos os times (existentes + novos)
+    const novaFilaSorteio = [...filaFilaGlobal, ...sobrasNomes];
+    const todosOsTimes    = [...timesSorteadosGlobal, ...novosFormatados];
+    await setDoc(sorteioRef, { isRolling: false, times: todosOsTimes, fila: novaFilaSorteio, timestamp: Date.now() });
 
-    await setDoc(sorteioRef, { isRolling: false, times: todosOsTimes, fila: novaFila, timestamp: Date.now() });
-    showToast(`${novosTimesFormatados.length} novo(s) time(s) formado(s) com os chegantes! 🏐`, "success");
+    // ── Se já tem partida ativa no placar, adiciona os novos times direto
+    //    na fila de próximos — SEM resetar o placar em andamento ────────────
+    if (placarLocal.nomeA && placarLocal.nomeA !== 'TIME A') {
+        const proximosAtuais = [...(placarLocal.timesProximos || [])];
+        const reservasAtuais = [...(placarLocal.reservas || []), ...sobrasNomes];
+        // Novos times vão pro final da fila de próximos
+        const novosProximos = [...proximosAtuais, ...novosFormatados.map(t => ({
+            nome: t.nome, membros: t.membros, resumo: t.resumo || ''
+        }))];
+        await updateDoc(placarRef, {
+            timesProximos: novosProximos,
+            reservas: reservasAtuais
+        });
+        showToast(`${novosFormatados.length} time(s) adicionado(s) à fila da partida! 🏐`, "success");
+    } else {
+        showToast(`${novosFormatados.length} time(s) formado(s)! Ative a partida para começar. 🏐`, "success");
+    }
 };
 
 function renderSorteio() {
