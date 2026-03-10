@@ -217,6 +217,7 @@
                     <input type="number" id="qtdPorTime" value="6" min="2" max="12" class="bg-transparent text-right font-black text-2xl w-12 text-blue-500 outline-none">
                 </div>
                 <button id="btnSortear" class="ios-btn w-full bg-white text-black py-5 rounded-2xl font-black uppercase">Sortear p/ Todos 🎲</button>
+                <button id="btnSortearChegantes" class="hidden ios-btn w-full bg-green-700/40 text-green-300 py-4 rounded-2xl font-black uppercase text-[11px]">➕ Sortear Chegantes</button>
             </div>
             <h2 class="text-center text-[10px] font-black opacity-40 uppercase tracking-widest mt-2 mb-2">Escalação Atual</h2>
             <div id="dica-troca" class="hidden text-center text-[9px] font-bold text-blue-400 uppercase tracking-widest pt-1">Toque nos nomes para trocar</div>
@@ -910,10 +911,13 @@ function iniciarEscutas() {
                 timesSorteadosGlobal = d.times || [];
                 filaFilaGlobal = d.fila || [];
                 renderSorteio();
+                if (isLigaAdmin && timesSorteadosGlobal.length > 0) $('btnSortearChegantes').classList.remove('hidden');
+                else if (isLigaAdmin) $('btnSortearChegantes').classList.add('hidden');
             }
         } else {
             $('resultadoSorteio').innerHTML = '<div class="text-center opacity-40 text-xs py-10">Aguardando o Admin realizar o sorteio...</div>';
             $('btnAtivarMatch').classList.add('hidden');
+            if (isLigaAdmin) $('btnSortearChegantes').classList.add('hidden');
             $('dica-troca').classList.add('hidden');
         }
     }));
@@ -1015,12 +1019,24 @@ async function carregarHistoricoPage(reset = false) {
                 <div class="flex flex-col items-end"><span class="font-black text-blue-500">${t.vitorias||0} vit</span><span class="text-[9px] opacity-40">${p.placar||''}</span></div>
             </div>`;
         }).join('');
-        const btnDelHist = isLigaAdmin ? `<button data-id="${d.id}" class="btn-del-hist admin-delete-btn ml-2"><i class="fas fa-trash text-lg"></i></button>` : '';
+        const docId = d.id;
+        const btnDelHist = isLigaAdmin ? `<button class="btn-del-hist admin-delete-btn ml-2"><i class="fas fa-trash text-lg"></i></button>` : '';
         const el = document.createElement('div');
         el.className = 'glass-card p-6 rounded-[2rem] mb-4 animate-in';
         el.innerHTML = `<div class="flex justify-between items-center mb-3"><span class="text-[10px] opacity-30">${p.data || ''}</span>${btnDelHist}</div>${tHtml}`;
         histDiv.appendChild(el);
-        if (isLigaAdmin) el.querySelector('.btn-del-hist')?.addEventListener('click', () => showConfirm("Apagar histórico?", () => deleteDoc(doc(db, `ligas/${ligaAtualId}/historico`, d.id))));
+        if (isLigaAdmin) {
+            const btn = el.querySelector('.btn-del-hist');
+            if (btn) btn.addEventListener('click', () => {
+                showConfirm("Apagar esta partida do histórico?", async () => {
+                    try {
+                        await deleteDoc(doc(db, `ligas/${ligaAtualId}/historico`, docId));
+                        el.remove();
+                        showToast("Partida apagada!", "success");
+                    } catch(e) { showToast("Erro ao apagar: " + e.message, "error"); }
+                });
+            });
+        }
     });
 
     // ── Build full stats per player ─────────────────────────────────────
@@ -1450,6 +1466,97 @@ $('btnSortear').onclick = async () => {
 
         await setDoc(sorteioRef, { isRolling: false, times: timesParaSalvar, fila, timestamp: Date.now() });
     }, 2000);
+};
+
+// ── SORTEAR CHEGANTES ────────────────────────────────────────────────────────
+// Sorteia apenas jogadores pagos que ainda não estão em nenhum time ou fila,
+// formando novos times sem alterar os já existentes. Eles entram no final da fila.
+$('btnSortearChegantes').onclick = async () => {
+    if (!isLigaAdmin) return;
+
+    const qtd = Math.max(2, Math.min(12, parseInt($('qtdPorTime').value) || 6));
+
+    // Pega todos os nomes já alocados (times formados + fila)
+    const nomesJaAlocados = new Set();
+    timesSorteadosGlobal.forEach(t => t.membros.forEach(m => nomesJaAlocados.add(m)));
+    filaFilaGlobal.forEach(m => nomesJaAlocados.add(m));
+    // Também pega os timesProximos do placar (fila de próximos)
+    (placarLocal.timesProximos || []).forEach(t => (t.membros || []).forEach(m => nomesJaAlocados.add(m)));
+    (placarLocal.reservas || []).forEach(m => nomesJaAlocados.add(m));
+
+    // Chegantes = pagos que NÃO estão em nenhum time/fila ainda
+    const chegantes = jogadoresLocal.filter(j => j.pago && !nomesJaAlocados.has(j.nome));
+
+    if (chegantes.length === 0) return showToast("Nenhum chegante novo encontrado!", "info");
+    if (chegantes.length < 2)  return showToast(`Só ${chegantes.length} chegante(s) — mínimo 2 para formar time.`, "info");
+
+    const n = Math.floor(chegantes.length / qtd);
+
+    if (n === 0) {
+        // Não dá pra formar time completo — manda direto pra fila de reservas
+        const novosNomes = chegantes.map(j => j.nome);
+        const novaFila = [...filaFilaGlobal, ...novosNomes];
+        await setDoc(sorteioRef, { isRolling: false, times: timesSorteadosGlobal, fila: novaFila, timestamp: Date.now() });
+        showToast(`${chegantes.length} chegante(s) adicionado(s) à fila de reservas!`, "success");
+        return;
+    }
+
+    // Algoritmo balanceado por nível + gênero (igual ao sorteio principal)
+    const jogParaSortear = chegantes.slice(0, n * qtd);
+    const sobrasCheg     = chegantes.slice(n * qtd).map(j => j.nome);
+
+    const homens   = jogParaSortear.filter(j => (j.genero || 'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
+    const mulheres = jogParaSortear.filter(j => j.genero === 'F').sort((a,b) => (b.nivel||2)-(a.nivel||2));
+    const hPorTime = Math.floor(homens.length / n);
+    const mPorTime = Math.floor(mulheres.length / n);
+    const hSobra   = homens.slice(hPorTime * n);
+    const mSobra   = mulheres.slice(mPorTime * n);
+    const sobras   = [...hSobra, ...mSobra].sort((a,b) => (b.nivel||2)-(a.nivel||2));
+
+    // Numera os novos times a partir do último existente
+    const baseIdx = timesSorteadosGlobal.length + 1;
+    const novosT  = Array.from({length: n}, (_, i) => ({
+        nome: "TIME " + (baseIdx + i),
+        membros: [], nivelTotal: 0, homens: 0, mulheres: 0
+    }));
+
+    const distribuirSnake = (jogadores, times, campo) => {
+        let dir = 1, idx = 0;
+        jogadores.forEach(() => {
+            // handled below
+        });
+        jogadores.forEach(j => {
+            times[idx].membros.push(j.nome);
+            times[idx].nivelTotal += (j.nivel || 2);
+            times[idx][campo]++;
+            if (dir === 1) { if (idx === times.length - 1) dir = -1; else idx++; }
+            else           { if (idx === 0) dir = 1; else idx--; }
+        });
+    };
+
+    distribuirSnake(homens.slice(0, hPorTime * n), novosT, 'homens');
+    distribuirSnake(mulheres.slice(0, mPorTime * n), novosT, 'mulheres');
+    sobras.forEach(j => {
+        novosT.sort((a,b) => a.nivelTotal - b.nivelTotal);
+        novosT[0].membros.push(j.nome);
+        novosT[0].nivelTotal += (j.nivel || 2);
+        if ((j.genero || 'M') === 'F') novosT[0].mulheres++; else novosT[0].homens++;
+    });
+
+    const novosTimesFormatados = novosT.map(t => ({
+        nome: t.nome,
+        membros: t.membros,
+        nivelTotal: t.nivelTotal,
+        vitorias: 0,
+        resumo: `♂${t.homens} ♀${t.mulheres} · nível ${t.nivelTotal}`
+    }));
+
+    // Times chegantes entram no FINAL da fila (após os times já existentes)
+    const novaFila = [...filaFilaGlobal, ...sobrasCheg];
+    const todosOsTimes = [...timesSorteadosGlobal, ...novosTimesFormatados];
+
+    await setDoc(sorteioRef, { isRolling: false, times: todosOsTimes, fila: novaFila, timestamp: Date.now() });
+    showToast(`${novosTimesFormatados.length} novo(s) time(s) formado(s) com os chegantes! 🏐`, "success");
 };
 
 function renderSorteio() {
