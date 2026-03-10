@@ -2514,40 +2514,67 @@ let fcmToken = null;
 
 async function iniciarFCM() {
     try {
+        // 1. Pede permissão
         const perm = await Notification.requestPermission();
         if (perm !== 'granted') {
-            $('notif-status-txt').innerText = 'Notificações bloqueadas pelo usuário';
+            $('notif-status-txt').innerText = 'Notificações bloqueadas — ative nas configurações';
             return;
         }
-        $('notif-status-txt').innerText = 'Ativando...';
+        $('notif-status-txt').innerText = 'Registrando...';
         $('btnAtivarNotif').classList.add('hidden');
 
+        // 2. Registra o SW do FCM explicitamente (necessário no iOS/Safari)
+        let swReg;
+        try {
+            swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+            await navigator.serviceWorker.ready;
+        } catch(swErr) {
+            console.error('SW register erro:', swErr);
+            // Tenta usar o SW já existente
+            swReg = await navigator.serviceWorker.ready;
+        }
+
+        // 3. Pega o token FCM
         fcmToken = await getToken(messaging, {
             vapidKey: VAPID_KEY,
-            serviceWorkerRegistration: await navigator.serviceWorker.ready
+            serviceWorkerRegistration: swReg
         });
 
-        if (fcmToken && userAtual && ligaAtualId) {
-            // Salva token do usuário no Firestore para as Cloud Functions usarem
-            await setDoc(doc(db, `ligas/${ligaAtualId}/tokens/${userAtual.uid}`), {
+        if (!fcmToken) {
+            $('notif-status-txt').innerText = 'Não foi possível obter token — tente novamente';
+            $('btnAtivarNotif').classList.remove('hidden');
+            return;
+        }
+
+        // 4. Salva token no Firestore
+        if (userAtual && ligaAtualId) {
+            await setDoc(doc(db, `ligas/${ligaAtualId}/tokens`, userAtual.uid), {
                 token: fcmToken,
                 uid: userAtual.uid,
                 nome: perfilAtual?.nome || '',
                 updatedAt: Date.now()
             }, { merge: true });
-            $('notif-status-txt').innerText = '✅ Notificações ativadas';
         }
 
-        // Notificações enquanto app está aberto (foreground)
+        $('notif-status-txt').innerText = '✅ Notificações ativadas!';
+
+        // 5. Notificações com app aberto (foreground)
         onMessage(messaging, payload => {
             const { title, body } = payload.notification || {};
             if (!title) return;
-            showToast(`${title}: ${body}`, 'info');
+            showToast(`🔔 ${title}: ${body}`, 'info');
         });
 
     } catch(e) {
-        console.error('FCM erro:', e);
-        $('notif-status-txt').innerText = 'Erro ao ativar — verifique a VAPID key';
+        console.error('FCM erro completo:', e);
+        // Mostra erro específico para facilitar debug
+        const msg = e.code === 'messaging/permission-blocked'
+            ? 'Notificações bloqueadas — ative nas configurações do Safari'
+            : e.code === 'messaging/unsupported-browser'
+            ? 'Este navegador não suporta notificações push'
+            : `Erro: ${e.message || e.code || 'desconhecido'}`;
+        $('notif-status-txt').innerText = msg;
+        $('btnAtivarNotif').classList.remove('hidden');
     }
 }
 
