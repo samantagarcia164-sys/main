@@ -41,6 +41,23 @@
         @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
         /* Semana encerrada overlay */
         .semana-encerrada-overlay { pointer-events: none; opacity: 0.35; }
+        /* ── CHAT ── */
+        #chat-fab { position:fixed; bottom:90px; right:20px; z-index:60; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 4px 20px rgba(99,102,241,.5); cursor:pointer; transition:transform .2s; }
+        #chat-fab:active { transform:scale(.92); }
+        #chat-badge { position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:9px; font-weight:900; border-radius:999px; min-width:18px; height:18px; display:flex; align-items:center; justify-content:center; padding:0 4px; }
+        #chat-modal { position:fixed; inset:0; z-index:80; display:flex; flex-direction:column; background:rgba(0,0,0,.97); transform:translateY(100%); transition:transform .3s cubic-bezier(.32,.72,0,1); }
+        #chat-modal.open { transform:translateY(0); }
+        .chat-msg { display:flex; gap:10px; margin-bottom:12px; animation:fadeSlideIn .2s ease; }
+        .chat-msg.mine { flex-direction:row-reverse; }
+        .chat-bubble { max-width:75%; padding:8px 12px; border-radius:18px; font-size:12px; line-height:1.5; word-break:break-word; }
+        .chat-msg.mine .chat-bubble { background:linear-gradient(135deg,#2563eb,#7c3aed); border-bottom-right-radius:4px; }
+        .chat-msg:not(.mine) .chat-bubble { background:rgba(255,255,255,.08); border-bottom-left-radius:4px; }
+        .chat-msg.system .chat-bubble { background:rgba(251,191,36,.1); color:#fbbf24; font-size:10px; font-weight:700; border-radius:12px; text-align:center; width:100%; }
+        .chat-msg.pinned-msg .chat-bubble { border:1px solid rgba(251,191,36,.4); }
+        .chat-avatar { width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0; margin-top:2px; }
+        .chat-pin-banner { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.25); border-radius:12px; padding:8px 12px; margin-bottom:8px; font-size:11px; display:flex; align-items:flex-start; gap:8px; }
+        .emoji-btn { font-size:20px; padding:4px 8px; border-radius:10px; background:rgba(255,255,255,.06); cursor:pointer; transition:transform .1s; user-select:none; }
+        .emoji-btn:active { transform:scale(.85); }
         .badge-conquista { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:999px; font-size:9px; font-weight:900; letter-spacing:.05em; }
         .badge-ouro  { background:rgba(251,191,36,.15); color:#fbbf24; }
         .badge-prata { background:rgba(148,163,184,.15); color:#94a3b8; }
@@ -280,6 +297,57 @@
         </div>
     </main>
 
+    <!-- ── CHAT FAB ── -->
+    <div id="chat-fab" class="hidden">
+        💬
+        <span id="chat-badge" class="hidden">0</span>
+    </div>
+
+    <!-- ── CHAT MODAL ── -->
+    <div id="chat-modal">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/10 flex-shrink-0">
+            <div>
+                <h2 class="font-black text-base tracking-wide">💬 Chat da Liga</h2>
+                <p id="chat-liga-nome" class="text-[10px] opacity-40 font-bold"></p>
+            </div>
+            <button id="btnFecharChat" class="glass-card w-10 h-10 rounded-2xl flex items-center justify-center text-lg">✕</button>
+        </div>
+
+        <!-- Pinned message banner -->
+        <div id="chat-pin-banner" class="hidden px-4 pt-3 flex-shrink-0">
+            <div class="chat-pin-banner">
+                <span class="text-yellow-400 flex-shrink-0 mt-0.5">📌</span>
+                <div>
+                    <div class="text-[9px] font-black text-yellow-400 uppercase tracking-widest mb-0.5">Fixada</div>
+                    <div id="chat-pin-text" class="text-white/80 text-[11px] leading-relaxed"></div>
+                </div>
+                <button id="btnUnpin" class="ml-auto text-[9px] opacity-30 font-black flex-shrink-0 hidden">✕</button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-4 space-y-1"></div>
+
+        <!-- Emoji quick bar -->
+        <div class="flex gap-2 px-4 pb-2 flex-shrink-0 overflow-x-auto">
+            <span class="emoji-btn" data-emoji="👏">👏</span>
+            <span class="emoji-btn" data-emoji="🔥">🔥</span>
+            <span class="emoji-btn" data-emoji="🏆">🏆</span>
+            <span class="emoji-btn" data-emoji="😂">😂</span>
+            <span class="emoji-btn" data-emoji="💪">💪</span>
+            <span class="emoji-btn" data-emoji="🏐">🏐</span>
+            <span class="emoji-btn" data-emoji="👑">👑</span>
+            <span class="emoji-btn" data-emoji="😤">😤</span>
+        </div>
+
+        <!-- Input -->
+        <div class="flex gap-2 px-4 pb-8 pt-2 border-t border-white/10 flex-shrink-0">
+            <input id="chat-input" type="text" maxlength="300" class="glass-input flex-1 text-sm py-3" placeholder="Mensagem...">
+            <button id="chat-send" class="ios-btn bg-blue-600 px-5 rounded-2xl font-black text-sm">➤</button>
+        </div>
+    </div>
+
     <footer class="fixed bottom-4 left-0 w-full z-40 px-4">
         <nav class="glass-menu rounded-[2rem] p-1 flex justify-around items-center max-w-md mx-auto">
             <button id="btn-tab-placar" class="tab-btn active-tab p-4 flex flex-col items-center text-xl"><i class="fas fa-volleyball-ball"></i></button>
@@ -400,6 +468,12 @@ service cloud.firestore {
         allow read: if isLigaMember(ligaId);
         allow write: if isLigaAdmin(ligaId);
       }
+      match /chat/{doc} {
+        allow read: if isLigaMember(ligaId);
+        allow create: if isLigaMember(ligaId);
+        allow delete: if isLigaAdmin(ligaId) || request.auth.uid == resource.data.uid;
+        allow update: if isLigaAdmin(ligaId);
+      }
     }
   }
 }
@@ -431,7 +505,8 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-let colJogadores, colHistorico, colFinanceiro, placarRef, configRef, sorteioRef;
+let colJogadores, colHistorico, colFinanceiro, placarRef, configRef, sorteioRef, colChat;
+let chatPinnedId = null, chatUnread = 0, chatOpen = false, unsubChat = null;
 let ligaAtualId = null, isLigaAdmin = false, codigoLigaAtual = "";
 let userAtual = null, perfilAtual = null;
 let jogadoresLocal = [], unsubscribes = [];
@@ -771,6 +846,10 @@ function entrarLiga(id, nome, adminUid, codigo) {
     placarRef      = doc(db, `ligas/${ligaAtualId}/sistema/match_atual`);
     configRef      = doc(db, `ligas/${ligaAtualId}/sistema/configuracao`);
     sorteioRef     = doc(db, `ligas/${ligaAtualId}/sistema/sorteio_atual`);
+    colChat        = collection(db, `ligas/${ligaAtualId}/chat`);
+    $('chat-fab').classList.remove('hidden');
+    $('chat-liga-nome').innerText = nome;
+    iniciarChat();
 
     $('league-screen').classList.add('hidden');
     $('main-app').classList.remove('hidden');
@@ -779,7 +858,11 @@ function entrarLiga(id, nome, adminUid, codigo) {
 
 const voltarLigas = () => {
     unsubscribes.forEach(u => u()); unsubscribes = []; ligaAtualId = null;
+    if (unsubChat) { unsubChat(); unsubChat = null; }
     $('main-app').classList.add('hidden');
+    $('chat-fab').classList.add('hidden');
+    $('chat-modal').classList.remove('open');
+    chatOpen = false; chatUnread = 0;
     $('league-screen').classList.remove('hidden');
     carregarLigasDisponiveis();
 };
@@ -1271,6 +1354,7 @@ $('btnFinalizarSet').onclick = async () => {
                 novaSequenciaFinal = 0;
                 novoNomeVencedor = "";
                 showToast(`🔥 ${nomeVencedor} venceu 3x seguidas! Dois times novos entram!`, "success");
+                chatSistema(`🔥 ${nomeVencedor} dominou 3x seguidas! Dois times novos entram na quadra!`);
 
             } else {
                 // ── Regra normal: perdedor sai, vencedor fica, entra próximo ──
@@ -1636,6 +1720,7 @@ $('btnAtivarMatch').onclick = async () => {
     });
     vitoriasSeguidasVencedor = 0;
     showToast("Partida Ativada no Placar!", "success");
+    chatSistema(`🏐 ${timesSorteadosGlobal[0].nome} vs ${timesSorteadosGlobal[1]?.nome || 'TIME 2'} — Partida iniciada!`);
     mudarAba('placar');
 };
 
@@ -1677,6 +1762,185 @@ $('btnTransferirAdmin').onclick = async () => {
         voltarLigas();
     });
 };
+// ══════════════════════════════════════════════════════════════════════════════
+// ── CHAT ──────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+function iniciarChat() {
+    if (unsubChat) unsubChat();
+    chatUnread = 0;
+
+    // Escuta as últimas 60 mensagens em tempo real
+    const qChat = query(colChat, orderBy("ts", "desc"), limit(60));
+    unsubChat = onSnapshot(qChat, snap => {
+        const msgs = [];
+        snap.forEach(d => msgs.unshift({ id: d.id, ...d.data() }));
+        renderChat(msgs);
+
+        // Conta não lidas (chegaram enquanto chat estava fechado)
+        if (!chatOpen) {
+            const novas = snap.docChanges().filter(c => c.type === 'added').length;
+            if (novas > 0) {
+                chatUnread += novas;
+                const badge = $('chat-badge');
+                badge.classList.remove('hidden');
+                badge.innerText = chatUnread > 9 ? '9+' : chatUnread;
+            }
+        }
+    });
+}
+
+function renderChat(msgs) {
+    const div = $('chat-messages');
+    const atBottom = div.scrollHeight - div.scrollTop - div.clientHeight < 60;
+
+    // Busca mensagem fixada
+    const pinned = msgs.find(m => m.pinned);
+    const pinBanner = $('chat-pin-banner');
+    if (pinned) {
+        pinBanner.classList.remove('hidden');
+        $('chat-pin-text').innerText = pinned.texto;
+        chatPinnedId = pinned.id;
+        const btnUnpin = $('btnUnpin');
+        if (isLigaAdmin) btnUnpin.classList.remove('hidden');
+        else btnUnpin.classList.add('hidden');
+    } else {
+        pinBanner.classList.add('hidden');
+        chatPinnedId = null;
+    }
+
+    div.innerHTML = msgs.map(m => {
+        const mine = m.uid === userAtual?.uid;
+        const isSystem = m.tipo === 'sistema';
+        const isPinned = m.pinned;
+
+        if (isSystem) {
+            return `<div class="chat-msg system"><div class="chat-bubble w-full">${m.texto}</div></div>`;
+        }
+
+        const foto = m.foto || 'https://via.placeholder.com/28';
+        const nome = m.nome || 'Jogador';
+        const hora = m.ts?.toDate ? m.ts.toDate().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
+        const pinIcon = isPinned ? ' 📌' : '';
+        const pinBtn = isLigaAdmin && !isPinned
+            ? `<button class="btn-pin-msg text-[8px] opacity-20 hover:opacity-60 ml-1" data-id="${m.id}" data-txt="${m.texto.replace(/"/g,'&quot;')}">📌</button>`
+            : '';
+        const delBtn = (isLigaAdmin || mine)
+            ? `<button class="btn-del-msg text-[8px] opacity-20 hover:opacity-60 ml-1" data-id="${m.id}">🗑</button>`
+            : '';
+
+        return `<div class="chat-msg ${mine ? 'mine' : ''} ${isPinned ? 'pinned-msg' : ''}">
+            ${!mine ? `<img src="${foto}" class="chat-avatar" onerror="this.src='https://via.placeholder.com/28'">` : ''}
+            <div>
+                ${!mine ? `<div class="text-[9px] opacity-40 font-bold mb-1 ml-1">${nome}</div>` : ''}
+                <div class="chat-bubble">${escapeHtml(m.texto)}${pinIcon}</div>
+                <div class="flex items-center mt-0.5 ${mine ? 'justify-end' : ''}">
+                    <span class="text-[8px] opacity-25">${hora}</span>
+                    ${pinBtn}${delBtn}
+                </div>
+            </div>
+            ${mine ? `<img src="${foto}" class="chat-avatar" onerror="this.src='https://via.placeholder.com/28'">` : ''}
+        </div>`;
+    }).join('');
+
+    // Adiciona listeners nos botões de pin e delete
+    div.querySelectorAll('.btn-pin-msg').forEach(btn => {
+        btn.onclick = () => fixarMensagem(btn.dataset.id);
+    });
+    div.querySelectorAll('.btn-del-msg').forEach(btn => {
+        btn.onclick = () => deletarMensagemChat(btn.dataset.id);
+    });
+
+    if (atBottom) div.scrollTop = div.scrollHeight;
+}
+
+const escapeHtml = str => str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+async function enviarMensagem(texto) {
+    const t = texto.trim();
+    if (!t || !colChat) return;
+    await addDoc(colChat, {
+        uid: userAtual.uid,
+        nome: perfilAtual?.nome || userAtual.displayName || 'Jogador',
+        foto: perfilAtual?.fotoUrl || userAtual.photoURL || '',
+        texto: t,
+        ts: new Date(),
+        pinned: false,
+        tipo: 'chat'
+    });
+}
+
+async function fixarMensagem(msgId) {
+    if (!isLigaAdmin) return;
+    // Desfixa a anterior se houver
+    if (chatPinnedId && chatPinnedId !== msgId) {
+        await updateDoc(doc(db, `ligas/${ligaAtualId}/chat`, chatPinnedId), { pinned: false });
+    }
+    await updateDoc(doc(db, `ligas/${ligaAtualId}/chat`, msgId), { pinned: true });
+    showToast('Mensagem fixada! 📌', 'success');
+}
+
+async function deletarMensagemChat(msgId) {
+    showConfirm('Apagar esta mensagem?', async () => {
+        await deleteDoc(doc(db, `ligas/${ligaAtualId}/chat`, msgId));
+    });
+}
+
+// Função pública para o sistema enviar avisos automáticos no chat
+async function chatSistema(texto) {
+    if (!colChat) return;
+    await addDoc(colChat, { uid: 'sistema', nome: 'Sistema', foto: '', texto, ts: new Date(), pinned: false, tipo: 'sistema' });
+}
+
+// ── Listeners do chat ────────────────────────────────────────────────────────
+$('chat-fab').onclick = () => {
+    $('chat-modal').classList.add('open');
+    chatOpen = true;
+    chatUnread = 0;
+    $('chat-badge').classList.add('hidden');
+    // Scroll to bottom
+    setTimeout(() => {
+        const d = $('chat-messages');
+        d.scrollTop = d.scrollHeight;
+    }, 100);
+};
+
+$('btnFecharChat').onclick = () => {
+    $('chat-modal').classList.remove('open');
+    chatOpen = false;
+};
+
+$('chat-send').onclick = async () => {
+    const inp = $('chat-input');
+    await enviarMensagem(inp.value);
+    inp.value = '';
+};
+
+$('chat-input').onkeydown = async (e) => {
+    if (e.key === 'Enter') {
+        const inp = $('chat-input');
+        await enviarMensagem(inp.value);
+        inp.value = '';
+    }
+};
+
+document.querySelectorAll('.emoji-btn').forEach(btn => {
+    btn.onclick = () => {
+        const inp = $('chat-input');
+        inp.value += btn.dataset.emoji;
+        inp.focus();
+    };
+});
+
+$('btnUnpin').onclick = async () => {
+    if (chatPinnedId) {
+        await updateDoc(doc(db, `ligas/${ligaAtualId}/chat`, chatPinnedId), { pinned: false });
+        showToast('Mensagem desafixada', 'info');
+    }
+};
+
+// ── FIM CHAT ──────────────────────────────────────────────────────────────────
+
 </script>
 </body>
 </html>
