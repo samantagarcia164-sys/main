@@ -1490,29 +1490,28 @@ $('btnSortearChegantes').onclick = async () => {
 
     const n = Math.floor(chegantes.length / qtd);
 
-    // BUG FIX: sobras são os jogadores (objetos) que não cabem em times completos
-    const jogParaSortear = chegantes.slice(0, n * qtd);  // forma times completos
-    const sobrasObj      = chegantes.slice(n * qtd);     // sobras como objetos (não só nomes)
-    const sobrasNomes    = sobrasObj.map(j => j.nome);
-
     if (n === 0) {
         // Sem chegantes suficientes pra 1 time — todos vão pra reservas
-        const novaFila = [...filaFilaGlobal, ...sobrasNomes];
+        const todosNomes = chegantes.map(j => j.nome);
+        const novaFila = [...filaFilaGlobal, ...todosNomes];
         await setDoc(sorteioRef, { isRolling: false, times: timesSorteadosGlobal, fila: novaFila, timestamp: Date.now() });
-        // Se partida em andamento, adiciona às reservas do placar também
         if (placarLocal.nomeA && placarLocal.nomeA !== 'TIME A') {
-            const novasReservas = [...(placarLocal.reservas || []), ...sobrasNomes];
-            await updateDoc(placarRef, { reservas: novasReservas });
+            await updateDoc(placarRef, { reservas: [...(placarLocal.reservas || []), ...todosNomes] });
         }
         showToast(`${chegantes.length} chegante(s) → fila de reservas!`, "info");
         return;
     }
 
     // Algoritmo balanceado nível + gênero (snake draft)
+    // Apenas n*qtd chegantes formam times — o restante vai pra reserva
+    const jogParaSortear = chegantes.slice(0, n * qtd);
+    const reservaCheg    = chegantes.slice(n * qtd).map(j => j.nome); // sobras reais → reserva
+
     const homens   = jogParaSortear.filter(j => (j.genero||'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
     const mulheres = jogParaSortear.filter(j => j.genero === 'F').sort((a,b) => (b.nivel||2)-(a.nivel||2));
     const hPorTime = Math.floor(homens.length / n);
     const mPorTime = Math.floor(mulheres.length / n);
+    // Sobras do snake = desequilíbrio de gênero dentro do grupo — distribuídas nos times
     const sobrasSnake = [
         ...homens.slice(hPorTime * n),
         ...mulheres.slice(mPorTime * n)
@@ -1554,7 +1553,8 @@ $('btnSortearChegantes').onclick = async () => {
     }));
 
     // Atualiza sorteioRef com todos os times (existentes + novos)
-    const novaFilaSorteio = [...filaFilaGlobal, ...sobrasNomes];
+    // reservaCheg = chegantes que não couberam em nenhum time completo
+    const novaFilaSorteio = [...filaFilaGlobal, ...reservaCheg];
     const todosOsTimes    = [...timesSorteadosGlobal, ...novosFormatados];
     await setDoc(sorteioRef, { isRolling: false, times: todosOsTimes, fila: novaFilaSorteio, timestamp: Date.now() });
 
@@ -1562,7 +1562,7 @@ $('btnSortearChegantes').onclick = async () => {
     //    na fila de próximos — SEM resetar o placar em andamento ────────────
     if (placarLocal.nomeA && placarLocal.nomeA !== 'TIME A') {
         const proximosAtuais = [...(placarLocal.timesProximos || [])];
-        const reservasAtuais = [...(placarLocal.reservas || []), ...sobrasNomes];
+        const reservasAtuais = [...(placarLocal.reservas || []), ...reservaCheg];
         // Novos times vão pro final da fila de próximos
         const novosProximos = [...proximosAtuais, ...novosFormatados.map(t => ({
             nome: t.nome, membros: t.membros, resumo: t.resumo || ''
