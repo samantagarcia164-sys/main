@@ -50,6 +50,14 @@
         /* Semana encerrada overlay */
         .semana-encerrada-overlay { pointer-events: none; opacity: 0.35; }
 
+        /* ── AGENDA ── */
+        #agenda-modal { position:fixed; inset:0; z-index:150; background:rgba(0,0,0,.88); display:flex; align-items:flex-end; justify-content:center; }
+        #agenda-modal .sheet { background:#111; border-radius:2rem 2rem 0 0; padding:2rem; width:100%; max-width:480px; border-top:1px solid rgba(255,255,255,.08); max-height:90vh; overflow-y:auto; }
+        .agenda-dia-btn { flex:1; padding:.6rem .5rem; border-radius:1rem; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; transition:all .15s; }
+        .agenda-dia-btn.ativo { background:#2563eb; color:#fff; }
+        .agenda-dia-btn:not(.ativo) { background:rgba(255,255,255,.06); color:rgba(255,255,255,.4); }
+        .agenda-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:1.25rem; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; }
+
         /* ── EDIT JOGADOR MODAL ── */
         #modal-edit-jog { position:fixed; inset:0; z-index:150; background:rgba(0,0,0,.85); display:flex; align-items:flex-end; justify-content:center; }
         #modal-edit-jog .sheet { background:#111; border-radius:2rem 2rem 0 0; padding:2rem; width:100%; max-width:480px; border-top:1px solid rgba(255,255,255,.08); }
@@ -402,6 +410,62 @@
         </div>
     </main>
 
+    <!-- ── MODAL AGENDA ── -->
+    <div id="agenda-modal" class="hidden">
+        <div class="sheet">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-black text-sm uppercase tracking-widest">📅 Agenda do Vôlei</h3>
+                <button id="btnFecharAgenda" class="opacity-30 text-xl font-black">✕</button>
+            </div>
+
+            <!-- Notificações Push -->
+            <div class="mb-6 p-4 rounded-2xl bg-white/5 border border-white/8">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="text-xs font-black">🔔 Notificações Push</div>
+                        <div id="notif-status-txt" class="text-[10px] opacity-40 mt-0.5">Verificando...</div>
+                    </div>
+                    <button id="btnAtivarNotif" class="ios-btn px-4 py-2 rounded-xl bg-blue-600 font-black text-[10px] hidden">Ativar</button>
+                </div>
+            </div>
+
+            <!-- Horários fixos da liga (admin) -->
+            <div id="agenda-admin-section" class="hidden">
+                <div class="text-[9px] font-black opacity-40 uppercase tracking-widest mb-3">Dias & Horários Fixos</div>
+
+                <!-- Seletor de dias -->
+                <div class="flex gap-1.5 mb-4" id="agenda-dias-wrap">
+                    <button class="agenda-dia-btn" data-d="0">Dom</button>
+                    <button class="agenda-dia-btn" data-d="1">Seg</button>
+                    <button class="agenda-dia-btn" data-d="2">Ter</button>
+                    <button class="agenda-dia-btn" data-d="3">Qua</button>
+                    <button class="agenda-dia-btn" data-d="4">Qui</button>
+                    <button class="agenda-dia-btn" data-d="5">Sex</button>
+                    <button class="agenda-dia-btn" data-d="6">Sáb</button>
+                </div>
+
+                <!-- Horário -->
+                <div class="flex gap-3 mb-4 items-center">
+                    <div class="flex-1">
+                        <label class="text-[9px] font-black opacity-40 uppercase tracking-widest block mb-1">Horário</label>
+                        <input id="agenda-hora" type="time" value="19:00" class="glass-input w-full text-sm py-3">
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[9px] font-black opacity-40 uppercase tracking-widest block mb-1">Local</label>
+                        <input id="agenda-local" type="text" maxlength="30" placeholder="Ex: Arena Beach" class="glass-input w-full text-sm py-3">
+                    </div>
+                </div>
+                <button id="btnSalvarAgenda" class="ios-btn w-full bg-blue-600 py-3 rounded-2xl font-black text-[10px] uppercase mb-5">Salvar Agenda</button>
+            </div>
+
+            <!-- Lista de horários salvos -->
+            <div class="text-[9px] font-black opacity-40 uppercase tracking-widest mb-3">Próximas Sessões</div>
+            <div id="agenda-lista" class="space-y-2">
+                <div class="text-[11px] opacity-30 text-center py-4">Nenhum horário configurado</div>
+            </div>
+        </div>
+    </div>
+
     <!-- ── MODAL EDITAR JOGADOR ── -->
     <div id="modal-edit-jog" class="hidden">
         <div class="sheet">
@@ -555,6 +619,7 @@
         </div>
         <!-- FIX #8: Botão encerrar semana -->
         <button id="btnEncerrarSemana" class="ios-btn w-full bg-orange-600 py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-orange-500/20">🔒 Encerrar Semana (bloquear lista)</button>
+        <button id="btnAbrirAgenda" class="ios-btn w-full bg-purple-600/20 text-purple-300 py-4 rounded-2xl font-black text-[10px] uppercase mt-2">📅 Agenda & Notificações</button>
         <button id="btnFecharFinanceiro" class="ios-btn w-full bg-green-600 py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-green-500/20">Registrar Pagamento da Quadra ✅</button>
         <div class="text-left pt-2">
             <p class="text-[10px] font-black uppercase opacity-40 mb-2">Histórico de Pagamentos da Quadra:</p>
@@ -660,6 +725,7 @@ service cloud.firestore {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 import {
     getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc,
     query, orderBy, limit, startAfter, getDoc, setDoc, where, getDocs, arrayUnion
@@ -681,6 +747,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const messaging = getMessaging(app);
 const googleProvider = new GoogleAuthProvider();
 
 // ── STATE ────────────────────────────────────────────────────────────────────
@@ -2434,6 +2501,181 @@ $('btnSalvarEditJog').onclick = async () => {
 // ── FIM EDITAR JOGADOR ────────────────────────────────────────────────────────
 
 // ── FIM MODO TV ───────────────────────────────────────────────────────────────
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── FCM + NOTIFICAÇÕES PUSH ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ATENÇÃO: substitua pela sua VAPID key do Firebase Console
+// Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
+const VAPID_KEY = 'SUA_VAPID_KEY_AQUI';
+
+let fcmToken = null;
+
+async function iniciarFCM() {
+    try {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+            $('notif-status-txt').innerText = 'Notificações bloqueadas pelo usuário';
+            return;
+        }
+        $('notif-status-txt').innerText = 'Ativando...';
+        $('btnAtivarNotif').classList.add('hidden');
+
+        fcmToken = await getToken(messaging, {
+            vapidKey: VAPID_KEY,
+            serviceWorkerRegistration: await navigator.serviceWorker.ready
+        });
+
+        if (fcmToken && userAtual && ligaAtualId) {
+            // Salva token do usuário no Firestore para as Cloud Functions usarem
+            await setDoc(doc(db, `ligas/${ligaAtualId}/tokens/${userAtual.uid}`), {
+                token: fcmToken,
+                uid: userAtual.uid,
+                nome: perfilAtual?.nome || '',
+                updatedAt: Date.now()
+            }, { merge: true });
+            $('notif-status-txt').innerText = '✅ Notificações ativadas';
+        }
+
+        // Notificações enquanto app está aberto (foreground)
+        onMessage(messaging, payload => {
+            const { title, body } = payload.notification || {};
+            if (!title) return;
+            showToast(`${title}: ${body}`, 'info');
+        });
+
+    } catch(e) {
+        console.error('FCM erro:', e);
+        $('notif-status-txt').innerText = 'Erro ao ativar — verifique a VAPID key';
+    }
+}
+
+async function verificarStatusNotif() {
+    if (!('Notification' in window)) {
+        $('notif-status-txt').innerText = 'Não suportado neste dispositivo';
+        return;
+    }
+    if (Notification.permission === 'granted' && fcmToken) {
+        $('notif-status-txt').innerText = '✅ Notificações ativas';
+        $('btnAtivarNotif').classList.add('hidden');
+    } else if (Notification.permission === 'denied') {
+        $('notif-status-txt').innerText = '🚫 Bloqueadas — ative nas configurações do navegador';
+        $('btnAtivarNotif').classList.add('hidden');
+    } else {
+        $('notif-status-txt').innerText = 'Toque para receber notificações';
+        $('btnAtivarNotif').classList.remove('hidden');
+    }
+}
+
+$('btnAtivarNotif').onclick = iniciarFCM;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── AGENDA ────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const DIAS_CURTO  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+let agendaDiasSel = new Set();
+let agendaAtual = null; // dados da agenda salva no Firestore
+
+async function abrirAgenda() {
+    $('agenda-modal').classList.remove('hidden');
+    $('agenda-admin-section').classList.toggle('hidden', !isLigaAdmin);
+    verificarStatusNotif();
+    await carregarAgenda();
+}
+
+async function carregarAgenda() {
+    const agRef = doc(db, `ligas/${ligaAtualId}/sistema/agenda`);
+    const snap = await getDoc(agRef);
+    agendaAtual = snap.exists() ? snap.data() : null;
+
+    // Marca dias ativos
+    agendaDiasSel = new Set(agendaAtual?.dias || []);
+    document.querySelectorAll('.agenda-dia-btn').forEach(btn => {
+        btn.classList.toggle('ativo', agendaDiasSel.has(parseInt(btn.dataset.d)));
+    });
+    if (agendaAtual?.hora) $('agenda-hora').value = agendaAtual.hora;
+    if (agendaAtual?.local) $('agenda-local').value = agendaAtual.local;
+
+    renderAgendaLista();
+}
+
+function renderAgendaLista() {
+    const lista = $('agenda-lista');
+    if (!agendaAtual?.dias?.length) {
+        lista.innerHTML = '<div class="text-[11px] opacity-30 text-center py-4">Nenhum horário configurado</div>';
+        return;
+    }
+
+    const { dias, hora, local } = agendaAtual;
+    const proximas = gerarProximasSessoes(dias, hora, 4);
+
+    lista.innerHTML = proximas.map(d => {
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const diff = Math.round((d - hoje) / 86400000);
+        const label = diff === 0 ? '🟢 Hoje!' : diff === 1 ? '🟡 Amanhã' : `em ${diff} dias`;
+        return `<div class="agenda-item">
+            <div>
+                <div class="font-black text-sm">${DIAS_SEMANA[d.getDay()]}, ${d.toLocaleDateString('pt-BR', {day:'2-digit',month:'short'})}</div>
+                <div class="text-[10px] opacity-40 mt-0.5">🕐 ${hora}${local ? ' · 📍 ' + local : ''}</div>
+            </div>
+            <span class="text-[10px] font-black ${diff === 0 ? 'text-green-400' : diff === 1 ? 'text-yellow-400' : 'opacity-30'}">${label}</span>
+        </div>`;
+    }).join('');
+}
+
+function gerarProximasSessoes(dias, hora, qtd) {
+    const result = [];
+    const agora = new Date();
+    const [hh, mm] = (hora || '19:00').split(':').map(Number);
+    let cursor = new Date();
+    cursor.setHours(hh, mm, 0, 0);
+    if (cursor <= agora) cursor.setDate(cursor.getDate() + 1);
+
+    let tentativas = 0;
+    while (result.length < qtd && tentativas++ < 60) {
+        if (dias.includes(cursor.getDay())) result.push(new Date(cursor));
+        cursor.setDate(cursor.getDate() + 1);
+    }
+    return result;
+}
+
+async function salvarAgenda() {
+    const dias = [...agendaDiasSel].sort();
+    const hora = $('agenda-hora').value;
+    const local = $('agenda-local').value.trim();
+    if (!dias.length) return showToast('Selecione pelo menos 1 dia!', 'error');
+
+    const btn = $('btnSalvarAgenda'); setLoading(btn, true);
+    try {
+        await setDoc(doc(db, `ligas/${ligaAtualId}/sistema/agenda`), {
+            dias, hora, local, updatedAt: Date.now(), ligaId: ligaAtualId
+        });
+        agendaAtual = { dias, hora, local };
+        renderAgendaLista();
+        showToast('Agenda salva! Todos serão notificados. 📅', 'success');
+        chatSistema(`📅 Agenda atualizada: ${dias.map(d => DIAS_CURTO[d]).join(', ')} às ${hora}${local ? ' em ' + local : ''}`);
+    } catch(e) { showToast('Erro: ' + e.message, 'error'); }
+    finally { setLoading(btn, false); }
+}
+
+// Dias selecionáveis
+document.querySelectorAll('.agenda-dia-btn').forEach(btn => {
+    btn.onclick = () => {
+        const d = parseInt(btn.dataset.d);
+        if (agendaDiasSel.has(d)) agendaDiasSel.delete(d); else agendaDiasSel.add(d);
+        btn.classList.toggle('ativo', agendaDiasSel.has(d));
+    };
+});
+
+$('btnAbrirAgenda').onclick   = abrirAgenda;
+$('btnFecharAgenda').onclick  = () => $('agenda-modal').classList.add('hidden');
+$('agenda-modal').onclick     = e => { if (e.target === $('agenda-modal')) $('agenda-modal').classList.add('hidden'); };
+$('btnSalvarAgenda').onclick  = salvarAgenda;
+
+// ── FIM AGENDA ────────────────────────────────────────────────────────────────
 
 // ── SERVICE WORKER (PWA) ─────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
