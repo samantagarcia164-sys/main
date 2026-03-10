@@ -42,6 +42,10 @@
         /* Semana encerrada overlay */
         .semana-encerrada-overlay { pointer-events: none; opacity: 0.35; }
 
+        /* ── EDIT JOGADOR MODAL ── */
+        #modal-edit-jog { position:fixed; inset:0; z-index:150; background:rgba(0,0,0,.85); display:flex; align-items:flex-end; justify-content:center; }
+        #modal-edit-jog .sheet { background:#111; border-radius:2rem 2rem 0 0; padding:2rem; width:100%; max-width:480px; border-top:1px solid rgba(255,255,255,.08); }
+
         /* ── MODO TV ── */
         #tv-mode {
             position: fixed; inset: 0; z-index: 200;
@@ -268,6 +272,15 @@
                 <h3 class="text-[10px] font-black opacity-30 uppercase tracking-widest mb-4">Vem Próximo:</h3>
                 <div id="next-match-info" class="space-y-3"></div>
             </div>
+
+            <!-- Histórico de hoje -->
+            <div id="hoje-card" class="glass-card rounded-[2rem] p-6 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-[10px] font-black opacity-30 uppercase tracking-widest">Partidas de Hoje</h3>
+                    <span id="hoje-total" class="text-[9px] font-black bg-white/5 px-3 py-1 rounded-full opacity-50"></span>
+                </div>
+                <div id="hoje-lista" class="space-y-2"></div>
+            </div>
         </div>
 
         <!-- ABA LISTA -->
@@ -380,6 +393,40 @@
             </div>
         </div>
     </main>
+
+    <!-- ── MODAL EDITAR JOGADOR ── -->
+    <div id="modal-edit-jog" class="hidden">
+        <div class="sheet">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-black text-sm uppercase tracking-widest">✏️ Editar Jogador</h3>
+                <button id="btnFecharEditJog" class="opacity-30 text-xl font-black">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black opacity-40 uppercase tracking-widest block mb-1">Nome</label>
+                    <input id="editJogNome" type="text" maxlength="30" class="glass-input w-full text-sm py-3" placeholder="Nome do jogador">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black opacity-40 uppercase tracking-widest block mb-2">Nível</label>
+                    <div class="flex gap-2" id="editJogNivelBtns">
+                        <button data-n="1" class="btn-nivel-sel flex-1 py-3 rounded-2xl text-xs font-black bg-white/5">★</button>
+                        <button data-n="2" class="btn-nivel-sel flex-1 py-3 rounded-2xl text-xs font-black bg-white/5">★★</button>
+                        <button data-n="3" class="btn-nivel-sel flex-1 py-3 rounded-2xl text-xs font-black bg-white/5">★★★</button>
+                        <button data-n="4" class="btn-nivel-sel flex-1 py-3 rounded-2xl text-xs font-black bg-white/5">★★★★</button>
+                        <button data-n="5" class="btn-nivel-sel flex-1 py-3 rounded-2xl text-xs font-black bg-white/5">★★★★★</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black opacity-40 uppercase tracking-widest block mb-2">Gênero</label>
+                    <div class="flex gap-3">
+                        <button id="editJogGenM" data-g="M" class="btn-gen-sel flex-1 py-3 rounded-2xl text-xs font-black bg-blue-600/30 text-blue-300">♂ Masculino</button>
+                        <button id="editJogGenF" data-g="F" class="btn-gen-sel flex-1 py-3 rounded-2xl text-xs font-black bg-white/5">♀ Feminino</button>
+                    </div>
+                </div>
+                <button id="btnSalvarEditJog" class="ios-btn w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs mt-2">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ── MODO TV ── -->
     <div id="tv-mode">
@@ -975,6 +1022,21 @@ function entrarLiga(id, nome, adminUid, codigo) {
 
     colJogadores   = collection(db, `ligas/${ligaAtualId}/jogadores`);
     colHistorico   = collection(db, `ligas/${ligaAtualId}/historico`);
+
+    // ── Listener em tempo real: partidas de hoje no placar ───────────────────
+    const hojeStr = new Date().toLocaleDateString('pt-BR');
+    const hojeInicio = new Date(); hojeInicio.setHours(0,0,0,0);
+    unsubscribes.push(onSnapshot(
+        query(colHistorico, orderBy('criadoEm','desc'), limit(30)),
+        snap => {
+            const hoje = [];
+            snap.forEach(d => {
+                const p = d.data();
+                if (p.data === hojeStr || p.criadoEm >= hojeInicio.getTime()) hoje.push(p);
+            });
+            renderHoje(hoje);
+        }
+    ));
     colFinanceiro  = collection(db, `ligas/${ligaAtualId}/financeiro_fechado`);
     placarRef      = doc(db, `ligas/${ligaAtualId}/sistema/match_atual`);
     configRef      = doc(db, `ligas/${ligaAtualId}/sistema/configuracao`);
@@ -1090,7 +1152,10 @@ function iniciarEscutas() {
                 ? `<div data-id="${j.id}" data-nivel="${j.nivel||2}" class="btn-mudar-nivel text-[9px] opacity-60 mt-1 cursor-pointer hover:text-blue-400">${"★".repeat(j.nivel||2)} <i class="fas fa-pen text-[8px] ml-1 opacity-50"></i></div>`
                 : `<div class="text-[9px] opacity-40 mt-1">${"★".repeat(j.nivel||2)}</div>`;
             const genIcon = j.genero === 'F' ? '<span class="text-[9px] text-pink-400 font-black">♀</span>' : '<span class="text-[9px] text-blue-400 font-black">♂</span>';
-            lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm tracking-wide flex items-center gap-2">${j.nome} ${genIcon}</div>${starHtml}</div><div class="flex items-center gap-3">${btnPix}${btnDel}</div></li>`;
+            const btnEdit = isLigaAdmin
+                ? `<button data-id="${j.id}" class="btn-edit-jog w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-xs opacity-40 hover:opacity-80"><i class="fas fa-pen"></i></button>`
+                : '';
+            lista.innerHTML += `<li class="glass-card p-4 rounded-2xl flex justify-between items-center"><div><div class="font-bold text-sm tracking-wide flex items-center gap-2">${j.nome} ${genIcon}</div>${starHtml}</div><div class="flex items-center gap-2">${btnEdit}${btnPix}${btnDel}</div></li>`;
         });
         lista.querySelectorAll('.btn-toggle-pix').forEach(btn => {
             btn.onclick = async () => {
@@ -1105,6 +1170,9 @@ function iniciarEscutas() {
         });
         lista.querySelectorAll('.btn-mudar-nivel').forEach(btn => {
             btn.onclick = () => { const n = parseInt(btn.dataset.nivel); updateDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, btn.dataset.id), { nivel: n >= 5 ? 1 : n + 1 }); };
+        });
+        lista.querySelectorAll('.btn-edit-jog').forEach(btn => {
+            btn.onclick = () => abrirEditJog(btn.dataset.id);
         });
         const vpp = jogadoresLocal.length > 0 ? valorQuadraAtual / jogadoresLocal.length : 0;
         $('vpp').innerText = "R$ " + (pagos * vpp).toFixed(2);
@@ -1859,6 +1927,34 @@ $('btnSortearChegantes').onclick = async () => {
     }
 };
 
+function renderHoje(partidas) {
+    const card = $('hoje-card');
+    const lista = $('hoje-lista');
+    if (!partidas.length) { card.classList.add('hidden'); return; }
+    card.classList.remove('hidden');
+    $('hoje-total').innerText = `${partidas.length} partida${partidas.length > 1 ? 's' : ''}`;
+
+    lista.innerHTML = partidas.map((p, idx) => {
+        const [tA, tB] = p.times || [{nome:'?',membros:[],vitorias:0},{nome:'?',membros:[],vitorias:0}];
+        const vencA = (tA?.vitorias || 0) > (tB?.vitorias || 0);
+        const placar = p.placar || '—';
+        const seq3x = p.seq3x ? '<span class="text-[8px] text-orange-400 font-black ml-1">🔥3x</span>' : '';
+        return `<div class="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
+            <span class="text-[9px] font-black opacity-30 w-4">${partidas.length - idx}</span>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 text-[10px] font-black">
+                    <span class="${vencA ? 'text-yellow-400' : 'opacity-40'} truncate">${tA?.nome || '?'}</span>
+                    <span class="opacity-20 flex-shrink-0">${placar}</span>
+                    <span class="${!vencA ? 'text-yellow-400' : 'opacity-40'} truncate">${tB?.nome || '?'}</span>
+                    ${seq3x}
+                </div>
+                <div class="text-[9px] opacity-30 mt-0.5 truncate">${[...(tA?.membros||[]),...(tB?.membros||[])].slice(0,4).join(', ')}${(tA?.membros?.length||0)+(tB?.membros?.length||0) > 4 ? '…' : ''}</div>
+            </div>
+            <span class="text-[9px] font-black text-yellow-400/60 flex-shrink-0">🏆 ${p.vencedor || '?'}</span>
+        </div>`;
+    }).join('');
+}
+
 function renderSorteio() {
     const res = $('resultadoSorteio');
     if (!timesSorteadosGlobal?.length) {
@@ -2259,6 +2355,75 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && tvOpen) fe
 
 // Atualiza TV em tempo real quando o placar muda
 // (injetado no onSnapshot do placarRef via flag tvOpen)
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── EDITAR JOGADOR ────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+let editJogId = null;
+let editJogNivelSel = 2;
+let editJogGenSel = 'M';
+
+function abrirEditJog(id) {
+    const j = jogadoresLocal.find(j => j.id === id);
+    if (!j) return;
+    editJogId = id;
+    editJogNivelSel = j.nivel || 2;
+    editJogGenSel = j.genero || 'M';
+
+    $('editJogNome').value = j.nome;
+    atualizarNivelBtns();
+    atualizarGenBtns();
+    $('modal-edit-jog').classList.remove('hidden');
+    $('editJogNome').focus();
+}
+
+function atualizarNivelBtns() {
+    document.querySelectorAll('.btn-nivel-sel').forEach(btn => {
+        const n = parseInt(btn.dataset.n);
+        btn.classList.toggle('bg-blue-600', n === editJogNivelSel);
+        btn.classList.toggle('text-white', n === editJogNivelSel);
+        btn.classList.toggle('bg-white/5', n !== editJogNivelSel);
+    });
+}
+
+function atualizarGenBtns() {
+    $('editJogGenM').classList.toggle('bg-blue-600/30', editJogGenSel === 'M');
+    $('editJogGenM').classList.toggle('text-blue-300', editJogGenSel === 'M');
+    $('editJogGenM').classList.toggle('bg-white/5', editJogGenSel !== 'M');
+    $('editJogGenF').classList.toggle('bg-pink-600/30', editJogGenSel === 'F');
+    $('editJogGenF').classList.toggle('text-pink-300', editJogGenSel === 'F');
+    $('editJogGenF').classList.toggle('bg-white/5', editJogGenSel !== 'F');
+}
+
+document.querySelectorAll('.btn-nivel-sel').forEach(btn => {
+    btn.onclick = () => { editJogNivelSel = parseInt(btn.dataset.n); atualizarNivelBtns(); };
+});
+
+document.querySelectorAll('.btn-gen-sel').forEach(btn => {
+    btn.onclick = () => { editJogGenSel = btn.dataset.g; atualizarGenBtns(); };
+});
+
+$('btnFecharEditJog').onclick = () => $('modal-edit-jog').classList.add('hidden');
+$('modal-edit-jog').onclick = e => { if (e.target === $('modal-edit-jog')) $('modal-edit-jog').classList.add('hidden'); };
+
+$('btnSalvarEditJog').onclick = async () => {
+    if (!editJogId) return;
+    const nome = $('editJogNome').value.trim();
+    if (!nome) return showToast('Digite um nome!', 'error');
+    const btn = $('btnSalvarEditJog'); setLoading(btn, true);
+    try {
+        await updateDoc(doc(db, `ligas/${ligaAtualId}/jogadores`, editJogId), {
+            nome, nivel: editJogNivelSel, genero: editJogGenSel
+        });
+        $('modal-edit-jog').classList.add('hidden');
+        showToast('Jogador atualizado! ✅', 'success');
+    } catch(e) {
+        showToast('Erro: ' + e.message, 'error');
+    } finally { setLoading(btn, false); }
+};
+
+// ── FIM EDITAR JOGADOR ────────────────────────────────────────────────────────
 
 // ── FIM MODO TV ───────────────────────────────────────────────────────────────
 
