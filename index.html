@@ -41,22 +41,52 @@
         @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
         /* Semana encerrada overlay */
         .semana-encerrada-overlay { pointer-events: none; opacity: 0.35; }
-        /* ── CHAT ── */
-        #chat-fab { position:fixed; bottom:90px; right:20px; z-index:60; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 4px 20px rgba(99,102,241,.5); cursor:pointer; transition:transform .2s; }
+        /* ── CHAT WHATSAPP STYLE ── */
+        #chat-fab { position:fixed; bottom:90px; right:20px; z-index:60; width:56px; height:56px; border-radius:50%; background:#25d366; display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 20px rgba(37,211,102,.4); cursor:pointer; transition:transform .2s,box-shadow .2s; }
         #chat-fab:active { transform:scale(.92); }
-        #chat-badge { position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:9px; font-weight:900; border-radius:999px; min-width:18px; height:18px; display:flex; align-items:center; justify-content:center; padding:0 4px; }
-        #chat-modal { position:fixed; inset:0; z-index:80; display:flex; flex-direction:column; background:rgba(0,0,0,.97); transform:translateY(100%); transition:transform .3s cubic-bezier(.32,.72,0,1); }
+        #chat-fab:hover { box-shadow:0 6px 28px rgba(37,211,102,.6); }
+        #chat-badge { position:absolute; top:-3px; right:-3px; background:#ef4444; color:#fff; font-size:9px; font-weight:900; border-radius:999px; min-width:18px; height:18px; display:flex; align-items:center; justify-content:center; padding:0 4px; border:2px solid #000; }
+        #chat-modal { position:fixed; inset:0; z-index:80; display:flex; flex-direction:column; background:#0b141a; transform:translateY(100%); transition:transform .3s cubic-bezier(.32,.72,0,1); }
         #chat-modal.open { transform:translateY(0); }
-        .chat-msg { display:flex; gap:10px; margin-bottom:12px; animation:fadeSlideIn .2s ease; }
+        #chat-header { background:#1f2c34; padding:12px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0; padding-top:max(12px, env(safe-area-inset-top)); }
+        #chat-wallpaper { position:absolute; inset:0; opacity:.04; background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+        #chat-messages { flex:1; overflow-y:auto; padding:12px 8px; position:relative; z-index:1; scroll-behavior:smooth; }
+        #chat-messages::-webkit-scrollbar { width:4px; }
+        #chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:4px; }
+        .chat-date-divider { text-align:center; margin:12px 0; }
+        .chat-date-divider span { background:#1f2c34; color:rgba(255,255,255,.5); font-size:10px; font-weight:600; padding:4px 12px; border-radius:8px; }
+        .chat-msg { display:flex; gap:8px; margin-bottom:2px; padding:0 4px; animation:chatIn .15s ease; }
+        @keyframes chatIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
         .chat-msg.mine { flex-direction:row-reverse; }
-        .chat-bubble { max-width:75%; padding:8px 12px; border-radius:18px; font-size:12px; line-height:1.5; word-break:break-word; }
-        .chat-msg.mine .chat-bubble { background:linear-gradient(135deg,#2563eb,#7c3aed); border-bottom-right-radius:4px; }
-        .chat-msg:not(.mine) .chat-bubble { background:rgba(255,255,255,.08); border-bottom-left-radius:4px; }
-        .chat-msg.system .chat-bubble { background:rgba(251,191,36,.1); color:#fbbf24; font-size:10px; font-weight:700; border-radius:12px; text-align:center; width:100%; }
-        .chat-msg.pinned-msg .chat-bubble { border:1px solid rgba(251,191,36,.4); }
-        .chat-avatar { width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0; margin-top:2px; }
-        .chat-pin-banner { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.25); border-radius:12px; padding:8px 12px; margin-bottom:8px; font-size:11px; display:flex; align-items:flex-start; gap:8px; }
-        .emoji-btn { font-size:20px; padding:4px 8px; border-radius:10px; background:rgba(255,255,255,.06); cursor:pointer; transition:transform .1s; user-select:none; }
+        .chat-msg.system { justify-content:center; margin:6px 0; }
+        .chat-bubble { max-width:78%; padding:7px 10px 18px; border-radius:8px; font-size:13px; line-height:1.45; word-break:break-word; position:relative; box-shadow:0 1px 2px rgba(0,0,0,.3); }
+        .chat-msg.mine .chat-bubble { background:#005c4b; border-top-right-radius:0; color:#e9edef; }
+        .chat-msg:not(.mine):not(.system) .chat-bubble { background:#1f2c34; border-top-left-radius:0; color:#e9edef; }
+        .chat-msg.system .chat-bubble { background:#1f2c34cc; color:#8696a0; font-size:11px; font-weight:500; border-radius:8px; padding:5px 12px; max-width:85%; }
+        .chat-msg.pinned-msg .chat-bubble { border-left:3px solid #25d366; }
+        .chat-time { position:absolute; bottom:3px; right:8px; font-size:10px; color:rgba(255,255,255,.35); white-space:nowrap; }
+        .chat-msg.mine .chat-time { color:rgba(134,211,167,.7); }
+        .chat-sender { font-size:11px; font-weight:700; color:#25d366; margin-bottom:3px; }
+        .chat-avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; flex-shrink:0; align-self:flex-end; margin-bottom:2px; }
+        /* Tail on bubbles */
+        .chat-msg:not(.mine):not(.system) .chat-bubble::before { content:''; position:absolute; top:0; left:-8px; border:8px solid transparent; border-top-color:#1f2c34; border-right:0; border-left:0; }
+        .chat-msg.mine .chat-bubble::after { content:''; position:absolute; top:0; right:-8px; border:8px solid transparent; border-top-color:#005c4b; border-left:0; border-right:0; }
+        .chat-pin-banner { background:#1f2c34; border-left:3px solid #25d366; padding:8px 12px; display:flex; align-items:flex-start; gap:10px; flex-shrink:0; }
+        .chat-actions { display:flex; gap:6px; margin-top:3px; opacity:0; transition:opacity .15s; }
+        .chat-msg:hover .chat-actions { opacity:1; }
+        .chat-action-btn { font-size:11px; color:rgba(255,255,255,.35); cursor:pointer; padding:2px 4px; border-radius:4px; }
+        .chat-action-btn:hover { color:rgba(255,255,255,.7); background:rgba(255,255,255,.05); }
+        #chat-input-bar { background:#1f2c34; padding:8px 12px; display:flex; align-items:flex-end; gap:8px; flex-shrink:0; padding-bottom:max(8px, env(safe-area-inset-bottom)); }
+        #chat-input-wrap { flex:1; background:#2a3942; border-radius:24px; display:flex; align-items:center; padding:8px 14px; gap:8px; }
+        #chat-emoji-toggle { font-size:20px; cursor:pointer; flex-shrink:0; opacity:.6; }
+        #chat-input { background:transparent; border:none; outline:none; color:#e9edef; font-size:14px; flex:1; max-height:100px; resize:none; font-family:inherit; }
+        #chat-input::placeholder { color:#8696a0; }
+        #chat-send-btn { width:44px; height:44px; border-radius:50%; background:#25d366; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; flex-shrink:0; transition:transform .1s; }
+        #chat-send-btn:active { transform:scale(.9); }
+        #emoji-picker { background:#1f2c34; padding:8px 12px; display:none; flex-wrap:wrap; gap:4px; flex-shrink:0; border-top:1px solid rgba(255,255,255,.05); }
+        #emoji-picker.open { display:flex; }
+        .emoji-btn { font-size:22px; padding:6px; border-radius:8px; cursor:pointer; transition:transform .1s,background .1s; }
+        .emoji-btn:hover { background:rgba(255,255,255,.07); }
         .emoji-btn:active { transform:scale(.85); }
         .badge-conquista { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:999px; font-size:9px; font-weight:900; letter-spacing:.05em; }
         .badge-ouro  { background:rgba(251,191,36,.15); color:#fbbf24; }
@@ -298,39 +328,42 @@
     </main>
 
     <!-- ── CHAT FAB ── -->
-    <div id="chat-fab" class="hidden">
-        💬
-        <span id="chat-badge" class="hidden">0</span>
+    <div id="chat-fab" class="hidden" style="position:fixed;bottom:90px;right:20px;z-index:60;width:56px;height:56px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 20px rgba(37,211,102,.4);cursor:pointer;">
+        <i class="fab fa-whatsapp" style="color:#fff;font-size:26px;"></i>
+        <span id="chat-badge" class="hidden" style="position:absolute;top:-3px;right:-3px;background:#ef4444;color:#fff;font-size:9px;font-weight:900;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #000;">0</span>
     </div>
 
     <!-- ── CHAT MODAL ── -->
-    <div id="chat-modal">
-        <!-- Header -->
-        <div class="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/10 flex-shrink-0">
-            <div>
-                <h2 class="font-black text-base tracking-wide">💬 Chat da Liga</h2>
-                <p id="chat-liga-nome" class="text-[10px] opacity-40 font-bold"></p>
-            </div>
-            <button id="btnFecharChat" class="glass-card w-10 h-10 rounded-2xl flex items-center justify-center text-lg">✕</button>
-        </div>
+    <div id="chat-modal" style="position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;background:#0b141a;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);">
 
-        <!-- Pinned message banner -->
-        <div id="chat-pin-banner" class="hidden px-4 pt-3 flex-shrink-0">
-            <div class="chat-pin-banner">
-                <span class="text-yellow-400 flex-shrink-0 mt-0.5">📌</span>
-                <div>
-                    <div class="text-[9px] font-black text-yellow-400 uppercase tracking-widest mb-0.5">Fixada</div>
-                    <div id="chat-pin-text" class="text-white/80 text-[11px] leading-relaxed"></div>
-                </div>
-                <button id="btnUnpin" class="ml-auto text-[9px] opacity-30 font-black flex-shrink-0 hidden">✕</button>
+        <!-- Wallpaper -->
+        <div id="chat-wallpaper"></div>
+
+        <!-- Header estilo WhatsApp -->
+        <div id="chat-header">
+            <button id="btnFecharChat" style="color:#aebac1;font-size:20px;padding:4px;flex-shrink:0;">←</button>
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#25d366,#128c7e);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏐</div>
+            <div style="flex:1;min-width:0;">
+                <div id="chat-liga-nome" style="font-weight:700;font-size:15px;color:#e9edef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                <div id="chat-online-count" style="font-size:12px;color:#8696a0;"></div>
             </div>
         </div>
 
-        <!-- Messages -->
-        <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-4 space-y-1"></div>
+        <!-- Pinned message -->
+        <div id="chat-pin-banner" class="hidden chat-pin-banner">
+            <span style="font-size:16px;flex-shrink:0;">📌</span>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:10px;font-weight:700;color:#25d366;margin-bottom:2px;">Mensagem fixada</div>
+                <div id="chat-pin-text" style="font-size:12px;color:#e9edef;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+            </div>
+            <button id="btnUnpin" class="hidden" style="color:#8696a0;font-size:16px;flex-shrink:0;padding:4px;">✕</button>
+        </div>
 
-        <!-- Emoji quick bar -->
-        <div class="flex gap-2 px-4 pb-2 flex-shrink-0 overflow-x-auto">
+        <!-- Messages area -->
+        <div id="chat-messages"></div>
+
+        <!-- Emoji picker -->
+        <div id="emoji-picker">
             <span class="emoji-btn" data-emoji="👏">👏</span>
             <span class="emoji-btn" data-emoji="🔥">🔥</span>
             <span class="emoji-btn" data-emoji="🏆">🏆</span>
@@ -339,12 +372,23 @@
             <span class="emoji-btn" data-emoji="🏐">🏐</span>
             <span class="emoji-btn" data-emoji="👑">👑</span>
             <span class="emoji-btn" data-emoji="😤">😤</span>
+            <span class="emoji-btn" data-emoji="😍">😍</span>
+            <span class="emoji-btn" data-emoji="🤣">🤣</span>
+            <span class="emoji-btn" data-emoji="👎">👎</span>
+            <span class="emoji-btn" data-emoji="🙏">🙏</span>
+            <span class="emoji-btn" data-emoji="⚡">⚡</span>
+            <span class="emoji-btn" data-emoji="🎯">🎯</span>
+            <span class="emoji-btn" data-emoji="😭">😭</span>
+            <span class="emoji-btn" data-emoji="🤩">🤩</span>
         </div>
 
-        <!-- Input -->
-        <div class="flex gap-2 px-4 pb-8 pt-2 border-t border-white/10 flex-shrink-0">
-            <input id="chat-input" type="text" maxlength="300" class="glass-input flex-1 text-sm py-3" placeholder="Mensagem...">
-            <button id="chat-send" class="ios-btn bg-blue-600 px-5 rounded-2xl font-black text-sm">➤</button>
+        <!-- Input bar -->
+        <div id="chat-input-bar">
+            <div id="chat-input-wrap">
+                <span id="chat-emoji-toggle">😊</span>
+                <textarea id="chat-input" rows="1" maxlength="500" placeholder="Mensagem..."></textarea>
+            </div>
+            <div id="chat-send-btn">➤</div>
         </div>
     </div>
 
@@ -1488,64 +1532,49 @@ $('btnSortear').onclick = async () => {
         }
 
         // ── ALGORITMO BALANCEADO: nível + gênero ──────────────────────────────
+        // Garante exatamente qtd jogadores por time usando snake draft puro
         const jogParaSortear = pagos.slice(0, n * qtd);
         const fila           = pagos.slice(n * qtd).map(j => j.nome);
 
-        const homens  = jogParaSortear.filter(j => (j.genero || 'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
+        // Ordena todos por nível desc — o snake distribui do mais forte ao mais fraco
+        const homens   = jogParaSortear.filter(j => (j.genero||'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
         const mulheres = jogParaSortear.filter(j => j.genero === 'F').sort((a,b) => (b.nivel||2)-(a.nivel||2));
-
-        // Quantos de cada gênero por time (tenta equilibrar)
-        const totalH = homens.length, totalM = mulheres.length;
-        const hPorTime = Math.floor(totalH / n);
-        const mPorTime = Math.floor(totalM / n);
-
-        // Sobras: jogadores que não cabem exatamente
-        const hSobra = homens.slice(hPorTime * n);
-        const mSobra = mulheres.slice(mPorTime * n);
-        const sobras = [...hSobra, ...mSobra].sort((a,b) => (b.nivel||2)-(a.nivel||2));
 
         // Inicializa times
         const times = Array.from({length: n}, (_, i) => ({
-            nome: "TIME " + (i + 1),
-            membros: [],
-            nivelTotal: 0,
-            vitorias: 0,
-            homens: 0,
-            mulheres: 0
+            nome: "TIME " + (i + 1), membros: [], nivelTotal: 0, vitorias: 0, nH: 0, nM: 0
         }));
 
-        // Distribui homens em snake draft (1→n→1→n) para equilibrar nível
-        // Cobra: os mais fortes vão alternando entre times
-        const distribuirEmSnake = (jogadores, times, campo) => {
+        // Snake draft puro: não usa sort() durante a distribuição
+        const snake = (lista, campo) => {
             let dir = 1, idx = 0;
-            jogadores.forEach((j, pos) => {
-                // snake: 0,1,2,3,3,2,1,0,0,1...
+            lista.forEach(j => {
                 times[idx].membros.push(j.nome);
                 times[idx].nivelTotal += (j.nivel || 2);
                 times[idx][campo]++;
-                if (dir === 1) { if (idx === times.length - 1) { dir = -1; } else { idx++; } }
-                else           { if (idx === 0)                { dir =  1; } else { idx--; } }
+                if (dir === 1) { if (idx === n - 1) dir = -1; else idx++; }
+                else           { if (idx === 0)     dir =  1; else idx--; }
             });
         };
 
-        distribuirEmSnake(homens.slice(0, hPorTime * n), times, 'homens');
-        distribuirEmSnake(mulheres.slice(0, mPorTime * n), times, 'mulheres');
+        // Distribui homens e mulheres separadamente via snake
+        snake(homens, 'nH');
+        snake(mulheres, 'nM');
 
-        // Distribui sobras pelo time com menor nivelTotal
-        sobras.forEach(j => {
-            times.sort((a,b) => a.nivelTotal - b.nivelTotal);
-            times[0].membros.push(j.nome);
-            times[0].nivelTotal += (j.nivel || 2);
-            if ((j.genero || 'M') === 'F') times[0].mulheres++; else times[0].homens++;
-        });
+        // Verificação: se algum time ficou com tamanho diferente de qtd,
+        // significa desequilíbrio de gênero — redistribui os excedentes
+        // do time maior para o menor (sem usar sort in-place)
+        let seguro = 0;
+        while (seguro++ < 100) {
+            const maior = times.reduce((a,b) => a.membros.length > b.membros.length ? a : b);
+            const menor = times.reduce((a,b) => a.membros.length < b.membros.length ? a : b);
+            if (maior.membros.length - menor.membros.length <= 1) break;
+            menor.membros.push(maior.membros.pop());
+        }
 
-        // Remove campos auxiliares antes de salvar
         const timesParaSalvar = times.map(t => ({
-            nome: t.nome,
-            membros: t.membros,
-            nivelTotal: t.nivelTotal,
-            vitorias: 0,
-            resumo: `♂${t.homens} ♀${t.mulheres} · nível ${t.nivelTotal}`
+            nome: t.nome, membros: t.membros, nivelTotal: t.nivelTotal, vitorias: 0,
+            resumo: `♂${t.nH} ♀${t.nM} · nível ${t.nivelTotal}`
         }));
 
         await setDoc(sorteioRef, { isRolling: false, times: timesParaSalvar, fila, timestamp: Date.now() });
@@ -1612,24 +1641,26 @@ $('btnSortearChegantes').onclick = async () => {
         membros: [], nivelTotal: 0, homens: 0, mulheres: 0
     }));
 
-    const snake = (jogadores, campo) => {
+    const snake = (lista, campo) => {
         let dir = 1, idx = 0;
-        jogadores.forEach(j => {
+        lista.forEach(j => {
             novosT[idx].membros.push(j.nome);
             novosT[idx].nivelTotal += (j.nivel || 2);
             novosT[idx][campo]++;
-            if (dir === 1) { if (idx === novosT.length - 1) dir = -1; else idx++; }
-            else           { if (idx === 0) dir = 1; else idx--; }
+            if (dir === 1) { if (idx === n - 1) dir = -1; else idx++; }
+            else           { if (idx === 0)     dir =  1; else idx--; }
         });
     };
-    snake(homens.slice(0, hPorTime * n), 'homens');
-    snake(mulheres.slice(0, mPorTime * n), 'mulheres');
-    sobrasSnake.forEach(j => {
-        novosT.sort((a,b) => a.nivelTotal - b.nivelTotal);
-        novosT[0].membros.push(j.nome);
-        novosT[0].nivelTotal += (j.nivel || 2);
-        if ((j.genero||'M') === 'F') novosT[0].mulheres++; else novosT[0].homens++;
-    });
+    snake(homens, 'homens');
+    snake(mulheres, 'mulheres');
+    // Redistribui excedentes sem usar sort in-place
+    let seg = 0;
+    while (seg++ < 100) {
+        const maior = novosT.reduce((a,b) => a.membros.length > b.membros.length ? a : b);
+        const menor = novosT.reduce((a,b) => a.membros.length < b.membros.length ? a : b);
+        if (maior.membros.length - menor.membros.length <= 1) break;
+        menor.membros.push(maior.membros.pop());
+    }
 
     const novosFormatados = novosT.map(t => ({
         nome: t.nome, membros: t.membros, nivelTotal: t.nivelTotal, vitorias: 0,
@@ -1763,25 +1794,26 @@ $('btnTransferirAdmin').onclick = async () => {
     });
 };
 // ══════════════════════════════════════════════════════════════════════════════
-// ── CHAT ──────────────────────────────────────────────────────────────────────
+// ── CHAT WHATSAPP STYLE ───────────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════════════
+
+const escapeHtml = str => String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+let chatMsgsCache = [];
 
 function iniciarChat() {
     if (unsubChat) unsubChat();
-    chatUnread = 0;
-
-    // Escuta as últimas 60 mensagens em tempo real
-    const qChat = query(colChat, orderBy("ts", "desc"), limit(60));
+    chatUnread = 0; chatMsgsCache = [];
+    const qChat = query(colChat, orderBy("ts", "asc"), limit(100));
     unsubChat = onSnapshot(qChat, snap => {
         const msgs = [];
-        snap.forEach(d => msgs.unshift({ id: d.id, ...d.data() }));
+        snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+        chatMsgsCache = msgs;
         renderChat(msgs);
-
-        // Conta não lidas (chegaram enquanto chat estava fechado)
         if (!chatOpen) {
             const novas = snap.docChanges().filter(c => c.type === 'added').length;
             if (novas > 0) {
-                chatUnread += novas;
+                chatUnread = Math.min(chatUnread + novas, 99);
                 const badge = $('chat-badge');
                 badge.classList.remove('hidden');
                 badge.innerText = chatUnread > 9 ? '9+' : chatUnread;
@@ -1790,92 +1822,114 @@ function iniciarChat() {
     });
 }
 
+function formatChatDate(date) {
+    if (!date) return '';
+    const now = new Date(), d = date instanceof Date ? date : date.toDate?.() || new Date(date);
+    const diff = Math.floor((now - d) / 86400000);
+    if (diff === 0) return 'Hoje';
+    if (diff === 1) return 'Ontem';
+    return d.toLocaleDateString('pt-BR');
+}
+
 function renderChat(msgs) {
     const div = $('chat-messages');
-    const atBottom = div.scrollHeight - div.scrollTop - div.clientHeight < 60;
+    const atBottom = div.scrollHeight - div.scrollTop - div.clientHeight < 80;
 
-    // Busca mensagem fixada
+    // Pinned
     const pinned = msgs.find(m => m.pinned);
     const pinBanner = $('chat-pin-banner');
     if (pinned) {
         pinBanner.classList.remove('hidden');
         $('chat-pin-text').innerText = pinned.texto;
         chatPinnedId = pinned.id;
-        const btnUnpin = $('btnUnpin');
-        if (isLigaAdmin) btnUnpin.classList.remove('hidden');
-        else btnUnpin.classList.add('hidden');
+        $('btnUnpin').classList.toggle('hidden', !isLigaAdmin);
     } else {
         pinBanner.classList.add('hidden');
         chatPinnedId = null;
     }
 
-    div.innerHTML = msgs.map(m => {
+    let html = '';
+    let lastDate = '';
+
+    msgs.forEach(m => {
         const mine = m.uid === userAtual?.uid;
         const isSystem = m.tipo === 'sistema';
+        const ts = m.ts?.toDate ? m.ts.toDate() : (m.ts ? new Date(m.ts) : null);
+        const hora = ts ? ts.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
+        const dateLabel = ts ? formatChatDate(ts) : '';
         const isPinned = m.pinned;
 
-        if (isSystem) {
-            return `<div class="chat-msg system"><div class="chat-bubble w-full">${m.texto}</div></div>`;
+        // Date divider
+        if (dateLabel && dateLabel !== lastDate) {
+            lastDate = dateLabel;
+            html += `<div class="chat-date-divider"><span>${dateLabel}</span></div>`;
         }
 
-        const foto = m.foto || 'https://via.placeholder.com/28';
+        if (isSystem) {
+            html += `<div class="chat-msg system"><div class="chat-bubble">🔔 ${escapeHtml(m.texto)}</div></div>`;
+            return;
+        }
+
+        const foto = m.foto || '';
         const nome = m.nome || 'Jogador';
-        const hora = m.ts?.toDate ? m.ts.toDate().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
-        const pinIcon = isPinned ? ' 📌' : '';
+        const pinIcon = isPinned ? ' <span style="font-size:10px">📌</span>' : '';
         const pinBtn = isLigaAdmin && !isPinned
-            ? `<button class="btn-pin-msg text-[8px] opacity-20 hover:opacity-60 ml-1" data-id="${m.id}" data-txt="${m.texto.replace(/"/g,'&quot;')}">📌</button>`
+            ? `<span class="chat-action-btn btn-pin-msg" data-id="${m.id}">📌</span>`
             : '';
         const delBtn = (isLigaAdmin || mine)
-            ? `<button class="btn-del-msg text-[8px] opacity-20 hover:opacity-60 ml-1" data-id="${m.id}">🗑</button>`
+            ? `<span class="chat-action-btn btn-del-msg" data-id="${m.id}">🗑</span>`
             : '';
 
-        return `<div class="chat-msg ${mine ? 'mine' : ''} ${isPinned ? 'pinned-msg' : ''}">
-            ${!mine ? `<img src="${foto}" class="chat-avatar" onerror="this.src='https://via.placeholder.com/28'">` : ''}
-            <div>
-                ${!mine ? `<div class="text-[9px] opacity-40 font-bold mb-1 ml-1">${nome}</div>` : ''}
-                <div class="chat-bubble">${escapeHtml(m.texto)}${pinIcon}</div>
-                <div class="flex items-center mt-0.5 ${mine ? 'justify-end' : ''}">
-                    <span class="text-[8px] opacity-25">${hora}</span>
-                    ${pinBtn}${delBtn}
+        if (mine) {
+            html += `<div class="chat-msg mine ${isPinned ? 'pinned-msg' : ''}">
+                <div>
+                    <div class="chat-bubble">${escapeHtml(m.texto)}${pinIcon}
+                        <span class="chat-time">${hora}</span>
+                    </div>
+                    <div class="chat-actions" style="justify-content:flex-end;">${pinBtn}${delBtn}</div>
                 </div>
-            </div>
-            ${mine ? `<img src="${foto}" class="chat-avatar" onerror="this.src='https://via.placeholder.com/28'">` : ''}
-        </div>`;
-    }).join('');
-
-    // Adiciona listeners nos botões de pin e delete
-    div.querySelectorAll('.btn-pin-msg').forEach(btn => {
-        btn.onclick = () => fixarMensagem(btn.dataset.id);
+                ${foto ? `<img src="${foto}" class="chat-avatar" onerror="this.style.display='none'">` : `<div class="chat-avatar" style="background:linear-gradient(135deg,#005c4b,#128c7e);display:flex;align-items:center;justify-content:center;font-size:14px;">🏐</div>`}
+            </div>`;
+        } else {
+            html += `<div class="chat-msg ${isPinned ? 'pinned-msg' : ''}">
+                ${foto ? `<img src="${foto}" class="chat-avatar" onerror="this.style.display='none'">` : `<div class="chat-avatar" style="background:linear-gradient(135deg,#1f2c34,#2a3942);display:flex;align-items:center;justify-content:center;font-size:14px;">👤</div>`}
+                <div>
+                    <div class="chat-sender">${escapeHtml(nome)}</div>
+                    <div class="chat-bubble">${escapeHtml(m.texto)}${pinIcon}
+                        <span class="chat-time">${hora}</span>
+                    </div>
+                    <div class="chat-actions">${pinBtn}${delBtn}</div>
+                </div>
+            </div>`;
+        }
     });
-    div.querySelectorAll('.btn-del-msg').forEach(btn => {
-        btn.onclick = () => deletarMensagemChat(btn.dataset.id);
-    });
 
-    if (atBottom) div.scrollTop = div.scrollHeight;
+    div.innerHTML = html;
+
+    div.querySelectorAll('.btn-pin-msg').forEach(btn => btn.onclick = () => fixarMensagem(btn.dataset.id));
+    div.querySelectorAll('.btn-del-msg').forEach(btn => btn.onclick = () => deletarMensagemChat(btn.dataset.id));
+
+    if (atBottom || chatMsgsCache.length <= 5) div.scrollTop = div.scrollHeight;
 }
 
-const escapeHtml = str => str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-async function enviarMensagem(texto) {
-    const t = texto.trim();
+async function enviarMensagem() {
+    const inp = $('chat-input');
+    const t = inp.value.trim();
     if (!t || !colChat) return;
+    inp.value = '';
+    inp.style.height = 'auto';
     await addDoc(colChat, {
         uid: userAtual.uid,
         nome: perfilAtual?.nome || userAtual.displayName || 'Jogador',
         foto: perfilAtual?.fotoUrl || userAtual.photoURL || '',
-        texto: t,
-        ts: new Date(),
-        pinned: false,
-        tipo: 'chat'
+        texto: t, ts: new Date(), pinned: false, tipo: 'chat'
     });
 }
 
 async function fixarMensagem(msgId) {
     if (!isLigaAdmin) return;
-    // Desfixa a anterior se houver
-    if (chatPinnedId && chatPinnedId !== msgId) {
+    if (chatPinnedId && chatPinnedId !== msgId)
         await updateDoc(doc(db, `ligas/${ligaAtualId}/chat`, chatPinnedId), { pinned: false });
-    }
     await updateDoc(doc(db, `ligas/${ligaAtualId}/chat`, msgId), { pinned: true });
     showToast('Mensagem fixada! 📌', 'success');
 }
@@ -1886,56 +1940,52 @@ async function deletarMensagemChat(msgId) {
     });
 }
 
-// Função pública para o sistema enviar avisos automáticos no chat
 async function chatSistema(texto) {
     if (!colChat) return;
-    await addDoc(colChat, { uid: 'sistema', nome: 'Sistema', foto: '', texto, ts: new Date(), pinned: false, tipo: 'sistema' });
+    await addDoc(colChat, { uid:'sistema', nome:'Sistema', foto:'', texto, ts: new Date(), pinned:false, tipo:'sistema' });
 }
 
-// ── Listeners do chat ────────────────────────────────────────────────────────
+// ── Listeners ────────────────────────────────────────────────────────────────
 $('chat-fab').onclick = () => {
-    $('chat-modal').classList.add('open');
-    chatOpen = true;
-    chatUnread = 0;
+    $('chat-modal').style.transform = 'translateY(0)';
+    chatOpen = true; chatUnread = 0;
     $('chat-badge').classList.add('hidden');
-    // Scroll to bottom
-    setTimeout(() => {
-        const d = $('chat-messages');
-        d.scrollTop = d.scrollHeight;
-    }, 100);
+    setTimeout(() => { const d = $('chat-messages'); d.scrollTop = d.scrollHeight; }, 150);
 };
 
 $('btnFecharChat').onclick = () => {
-    $('chat-modal').classList.remove('open');
+    $('chat-modal').style.transform = 'translateY(100%)';
     chatOpen = false;
+    $('emoji-picker').classList.remove('open');
 };
 
-$('chat-send').onclick = async () => {
-    const inp = $('chat-input');
-    await enviarMensagem(inp.value);
-    inp.value = '';
-};
+$('chat-send-btn').onclick = enviarMensagem;
 
-$('chat-input').onkeydown = async (e) => {
-    if (e.key === 'Enter') {
-        const inp = $('chat-input');
-        await enviarMensagem(inp.value);
-        inp.value = '';
-    }
-};
+$('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensagem(); }
+});
+
+// Auto-resize textarea
+$('chat-input').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+$('chat-emoji-toggle').onclick = () => $('emoji-picker').classList.toggle('open');
 
 document.querySelectorAll('.emoji-btn').forEach(btn => {
     btn.onclick = () => {
         const inp = $('chat-input');
         inp.value += btn.dataset.emoji;
         inp.focus();
+        inp.dispatchEvent(new Event('input'));
     };
 });
 
 $('btnUnpin').onclick = async () => {
     if (chatPinnedId) {
         await updateDoc(doc(db, `ligas/${ligaAtualId}/chat`, chatPinnedId), { pinned: false });
-        showToast('Mensagem desafixada', 'info');
+        showToast('Desafixada', 'info');
     }
 };
 
