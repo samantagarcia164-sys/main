@@ -5,8 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Vôlei Pro - Ligas Sincronizadas</title>
     <link rel="manifest" href="/manifest.json">
+    <!-- PWA iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vôlei de Cria">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-startup-image" href="/icons/icon-512.png">
+    <!-- PWA Android / geral -->
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="/icons/icon-192.png">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏐</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2426,6 +2434,15 @@ $('btnSalvarEditJog').onclick = async () => {
 // ── FIM EDITAR JOGADOR ────────────────────────────────────────────────────────
 
 // ── FIM MODO TV ───────────────────────────────────────────────────────────────
+
+// ── SERVICE WORKER (PWA) ─────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(r => console.log('SW registrado:', r.scope))
+            .catch(e => console.log('SW erro:', e));
+    });
+}
 
 </script>
 </body>
