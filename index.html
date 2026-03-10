@@ -245,13 +245,13 @@
                 <div class="flex justify-around items-center pt-4">
                     <div class="text-center w-2/5">
                         <!-- FIX #7: readonly para não-admin -->
-                        <input type="text" id="nomeA" value="TIME A" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-full outline-none" readonly>
+                        <input type="text" id="nomeA" value="TIME A" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-full outline-none border-b border-transparent focus:border-white/30 transition-colors" readonly>
                         <div id="pontosA" class="placar-numero text-blue-400 ios-btn">0</div>
                         <button id="btnMenosA" class="opacity-20 mt-4 text-xs font-bold">-1 PONTO</button>
                     </div>
                     <div class="font-black opacity-10 text-2xl italic pt-6">VS</div>
                     <div class="text-center w-2/5">
-                        <input type="text" id="nomeB" value="TIME B" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-full outline-none" readonly>
+                        <input type="text" id="nomeB" value="TIME B" class="bg-transparent text-center font-black text-xs uppercase mb-4 w-full outline-none border-b border-transparent focus:border-white/30 transition-colors" readonly>
                         <div id="pontosB" class="placar-numero text-orange-400 ios-btn">0</div>
                         <button id="btnMenosB" class="opacity-20 mt-4 text-xs font-bold">-1 PONTO</button>
                     </div>
@@ -963,6 +963,15 @@ function entrarLiga(id, nome, adminUid, codigo) {
     // FIX #7: apenas admin edita nomes dos times
     $('nomeA').readOnly = !isLigaAdmin;
     $('nomeB').readOnly = !isLigaAdmin;
+    const saveNome = async (campo, val) => {
+        const v = val.trim(); if (!v) return;
+        await updateDoc(placarRef, { [campo]: v.toUpperCase() });
+        atualizarTV();
+    };
+    $('nomeA').onchange = () => saveNome('nomeA', $('nomeA').value);
+    $('nomeA').onkeydown = e => { if (e.key==='Enter') $('nomeA').blur(); };
+    $('nomeB').onchange = () => saveNome('nomeB', $('nomeB').value);
+    $('nomeB').onkeydown = e => { if (e.key==='Enter') $('nomeB').blur(); };
 
     colJogadores   = collection(db, `ligas/${ligaAtualId}/jogadores`);
     colHistorico   = collection(db, `ligas/${ligaAtualId}/historico`);
@@ -1227,9 +1236,15 @@ async function carregarHistoricoPage(reset = false) {
         const p = d.data();
         let tHtml = (p.times || []).map(t => {
             (t.membros || []).forEach(m => { if (!ranking[m]) ranking[m] = { v: 0, p: 0 }; ranking[m].v += t.vitorias||0; ranking[m].p++; });
+            const isVenc = t.nome === p.vencedor;
+            const trofeu = isVenc ? ' 🏆' : '';
+            const nomeCor = isVenc ? 'text-yellow-400' : 'text-white/40';
             return `<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
-                <div class="text-[11px] leading-relaxed w-2/3 tracking-wide">${t.membros.join(', ')}</div>
-                <div class="flex flex-col items-end"><span class="font-black text-blue-500">${t.vitorias||0} vit</span><span class="text-[9px] opacity-40">${p.placar||''}</span></div>
+                <div>
+                    <div class="text-[9px] font-black uppercase tracking-widest ${nomeCor} mb-0.5">${t.nome || 'TIME'}${trofeu}</div>
+                    <div class="text-[11px] leading-relaxed tracking-wide opacity-70">${(t.membros||[]).join(', ')}</div>
+                </div>
+                <div class="flex flex-col items-end flex-shrink-0 ml-2"><span class="font-black ${isVenc ? 'text-yellow-400' : 'text-white/30'} text-sm">${t.vitorias||0} vit</span><span class="text-[9px] opacity-30">${p.placar||''}</span></div>
             </div>`;
         }).join('');
         const docId = d.id;
@@ -1739,24 +1754,41 @@ $('btnSortearChegantes').onclick = async () => {
 
     if (chegantes.length === 0) return showToast("Nenhum chegante novo encontrado!", "info");
 
-    const n = Math.floor(chegantes.length / qtd);
+    // ── Junta reservas existentes + chegantes novos para tentar formar times ──
+    // Ex: 2 na reserva + 1 chegante = 3 total → pode formar time de 3
+    const reservasExistentes = [
+        ...(placarLocal.reservas || []),
+        ...filaFilaGlobal
+    ];
+    // Busca os objetos completos das reservas existentes no jogadoresLocal
+    const reservasObj = reservasExistentes
+        .map(nome => jogadoresLocal.find(j => j.nome === nome))
+        .filter(Boolean);
+    // Pool total = reservas existentes + chegantes novos (sem duplicatas)
+    const poolNomes = new Set(reservasObj.map(j => j.nome));
+    const poolTotal = [...reservasObj, ...chegantes.filter(j => !poolNomes.has(j.nome))];
+
+    const n = Math.floor(poolTotal.length / qtd);
 
     if (n === 0) {
-        // Sem chegantes suficientes pra 1 time — todos vão pra reservas
-        const todosNomes = chegantes.map(j => j.nome);
-        const novaFila = [...filaFilaGlobal, ...todosNomes];
+        // Sem jogadores suficientes pra 1 time — chegantes vão pra reservas
+        const novosNomes = chegantes.map(j => j.nome);
+        const novaFila = [...filaFilaGlobal, ...novosNomes];
         await setDoc(sorteioRef, { isRolling: false, times: timesSorteadosGlobal, fila: novaFila, timestamp: Date.now() });
         if (placarLocal.nomeA && placarLocal.nomeA !== 'TIME A') {
-            await updateDoc(placarRef, { reservas: [...(placarLocal.reservas || []), ...todosNomes] });
+            await updateDoc(placarRef, { reservas: [...(placarLocal.reservas || []), ...novosNomes] });
         }
-        showToast(`${chegantes.length} chegante(s) → fila de reservas!`, "info");
+        showToast(`${chegantes.length} chegante(s) → fila (total na reserva: ${poolTotal.length}/${qtd} para formar time)`, "info");
         return;
     }
 
+    // Remove reservas usadas das filas antes de redistribuir
+    const nomesUsadosPool = new Set(poolTotal.slice(0, n * qtd).map(j => j.nome));
+
     // Algoritmo balanceado nível + gênero (snake draft)
-    // Apenas n*qtd chegantes formam times — o restante vai pra reserva
-    const jogParaSortear = chegantes.slice(0, n * qtd);
-    const reservaCheg    = chegantes.slice(n * qtd).map(j => j.nome); // sobras reais → reserva
+    // Usa o pool completo (reservas + chegantes) para formar times
+    const jogParaSortear = poolTotal.slice(0, n * qtd);
+    const reservaCheg    = poolTotal.slice(n * qtd).map(j => j.nome); // sobras → reserva
 
     const homens   = jogParaSortear.filter(j => (j.genero||'M') === 'M').sort((a,b) => (b.nivel||2)-(a.nivel||2));
     const mulheres = jogParaSortear.filter(j => j.genero === 'F').sort((a,b) => (b.nivel||2)-(a.nivel||2));
@@ -1805,25 +1837,22 @@ $('btnSortearChegantes').onclick = async () => {
         resumo: `♂${t.homens} ♀${t.mulheres} · nível ${t.nivelTotal}`
     }));
 
-    // Atualiza sorteioRef com todos os times (existentes + novos)
-    // reservaCheg = chegantes que não couberam em nenhum time completo
-    const novaFilaSorteio = [...filaFilaGlobal, ...reservaCheg];
+    // Atualiza sorteioRef — remove da fila os que foram usados no pool
+    const novaFilaSorteio = filaFilaGlobal.filter(nome => !nomesUsadosPool.has(nome));
+    novaFilaSorteio.push(...reservaCheg); // sobras voltam pra fila
     const todosOsTimes    = [...timesSorteadosGlobal, ...novosFormatados];
     await setDoc(sorteioRef, { isRolling: false, times: todosOsTimes, fila: novaFilaSorteio, timestamp: Date.now() });
 
-    // ── Se já tem partida ativa no placar, adiciona os novos times direto
-    //    na fila de próximos — SEM resetar o placar em andamento ────────────
+    // ── Se já tem partida ativa no placar, atualiza próximos E limpa reservas usadas
     if (placarLocal.nomeA && placarLocal.nomeA !== 'TIME A') {
         const proximosAtuais = [...(placarLocal.timesProximos || [])];
-        const reservasAtuais = [...(placarLocal.reservas || []), ...reservaCheg];
-        // Novos times vão pro final da fila de próximos
+        // Remove das reservas do placar os nomes que viraram time
+        const reservasRestantes = (placarLocal.reservas || []).filter(nome => !nomesUsadosPool.has(nome));
+        reservasRestantes.push(...reservaCheg); // sobras voltam pra reserva
         const novosProximos = [...proximosAtuais, ...novosFormatados.map(t => ({
             nome: t.nome, membros: t.membros, resumo: t.resumo || ''
         }))];
-        await updateDoc(placarRef, {
-            timesProximos: novosProximos,
-            reservas: reservasAtuais
-        });
+        await updateDoc(placarRef, { timesProximos: novosProximos, reservas: reservasRestantes });
         showToast(`${novosFormatados.length} time(s) adicionado(s) à fila da partida! 🏐`, "success");
     } else {
         showToast(`${novosFormatados.length} time(s) formado(s)! Ative a partida para começar. 🏐`, "success");
@@ -1836,26 +1865,57 @@ function renderSorteio() {
         res.innerHTML = '<div class="text-center opacity-40 text-xs py-10">Aguardando sorteio...</div>';
         $('btnAtivarMatch').classList.add('hidden'); $('dica-troca').classList.add('hidden'); return;
     }
-    res.innerHTML = timesSorteadosGlobal.map((t,i) => `
-        <div class="glass-card p-5 rounded-3xl mb-3 animate-in">
+
+    const cores = ['text-blue-400','text-orange-400','text-green-400','text-purple-400','text-pink-400','text-yellow-400'];
+    res.innerHTML = timesSorteadosGlobal.map((t,i) => {
+        const cor = cores[i % cores.length];
+        const membrosHtml = t.membros.map((m,j) => {
+            const attrs = isLigaAdmin ? `data-t="${i}" data-j="${j}"` : '';
+            const cls = (jogadorTroca?.t===i && jogadorTroca?.j===j)
+                ? 'bg-blue-600 px-2 py-1 rounded text-white font-bold'
+                : (isLigaAdmin ? 'hover:text-blue-300 cursor-pointer' : '');
+            return `<span ${attrs} class="btn-troca transition-colors ${cls}">${m}</span>`;
+        }).join(', ');
+
+        const nomeInput = isLigaAdmin
+            ? `<input type="text" class="input-nome-time bg-transparent ${cor} font-black text-[11px] uppercase tracking-widest outline-none border-b border-transparent hover:border-white/20 focus:border-white/40 transition-colors w-full max-w-[140px]" data-t="${i}" value="${t.nome}" maxlength="20" placeholder="Nome do time">`
+            : `<div class="${cor} font-black text-[11px] uppercase tracking-widest">${t.nome}</div>`;
+
+        return `<div class="glass-card p-5 rounded-3xl mb-3 animate-in">
             <div class="flex justify-between items-center mb-2">
-                <div class="text-[10px] text-blue-400 font-black uppercase tracking-widest">${t.nome}</div>
-                ${t.resumo ? `<span class="text-[9px] font-bold opacity-50">${t.resumo}</span>` : ''}
+                ${nomeInput}
+                ${t.resumo ? `<span class="text-[9px] font-bold opacity-40 ml-2 flex-shrink-0">${t.resumo}</span>` : ''}
             </div>
-            <div class="text-[11px] leading-relaxed">${t.membros.map((m,j) => {
-                const attrs = isLigaAdmin ? `data-t="${i}" data-j="${j}"` : '';
-                const cls = (jogadorTroca?.t===i && jogadorTroca?.j===j) ? 'bg-blue-600 px-2 py-1 rounded text-white font-bold' : (isLigaAdmin ? 'hover:text-blue-300 cursor-pointer' : '');
-                return `<span ${attrs} class="btn-troca transition-colors ${cls}">${m}</span>`;
-            }).join(', ')}</div>
-        </div>`).join('');
+            <div class="text-[11px] leading-relaxed opacity-80">${membrosHtml}</div>
+        </div>`;
+    }).join('');
+
     if (filaFilaGlobal.length > 0)
         res.innerHTML += `<div class="p-4 border border-dashed border-white/20 rounded-3xl text-[10px] opacity-60 tracking-wider">FILA: ${filaFilaGlobal.join(', ')}</div>`;
+
     if (isLigaAdmin) {
         $('dica-troca').classList.remove('hidden'); $('btnAtivarMatch').classList.remove('hidden');
+
+        // Listeners de troca de jogadores
         res.querySelectorAll('.btn-troca').forEach(btn => {
             btn.onclick = () => trocar(parseInt(btn.dataset.t), parseInt(btn.dataset.j));
         });
-    } else { $('dica-troca').classList.add('hidden'); $('btnAtivarMatch').classList.add('hidden'); }
+
+        // Listeners de renomear time — salva no Firebase ao sair do input
+        res.querySelectorAll('.input-nome-time').forEach(inp => {
+            inp.addEventListener('change', async () => {
+                const idx = parseInt(inp.dataset.t);
+                const novoNome = inp.value.trim() || `TIME ${idx+1}`;
+                inp.value = novoNome;
+                timesSorteadosGlobal[idx].nome = novoNome;
+                await setDoc(sorteioRef, { isRolling: false, times: timesSorteadosGlobal, fila: filaFilaGlobal, timestamp: Date.now() });
+                showToast(`Time renomeado para "${novoNome}"`, 'success');
+            });
+            inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+        });
+    } else {
+        $('dica-troca').classList.add('hidden'); $('btnAtivarMatch').classList.add('hidden');
+    }
 }
 
 const trocar = async (t, j) => {
